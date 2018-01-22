@@ -62,7 +62,7 @@ namespace Kinetix.ClassGenerator.CodeGenerator
 
                         var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model };
                         var result = template.TransformText();
-                        File.WriteAllText(fileName, result, Encoding.UTF8);
+                        File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                     }
                     else
                     {
@@ -87,7 +87,7 @@ namespace Kinetix.ClassGenerator.CodeGenerator
 
                 var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) };
                 var result = template.TransformText();
-                File.WriteAllText(fileName, result, Encoding.UTF8);
+                File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
         }
     }

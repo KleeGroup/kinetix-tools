@@ -708,7 +708,10 @@ namespace Kinetix.ClassGenerator.CodeGenerator
                         WriteLine(2, String.Format("public const string {0} = {1};", constFieldName, valueLibelle.Code));
                     }
 
-                    WriteEmptyLine();
+                    if (i < nbConstValues)
+                    {
+                        WriteEmptyLine();
+                    }
                 }
             }
         }
@@ -736,19 +739,16 @@ namespace Kinetix.ClassGenerator.CodeGenerator
                 WriteSummary(2, "Constructeur");
                 WriteParam(2, "value", "Valeur");
                 WriteLine(2, $"public {item.Name}Code(string value)");
-                WriteLine(3, ": base(value)");
-                WriteLine(2, "{");
+                WriteLine(3, ": base(value) {");
                 WriteLine(3, "Instance[value] = this;");
                 WriteLine(2, "}");
                 WriteEmptyLine();
 
                 WriteLine(2, $"public static explicit operator {item.Name}Code(string value) {{");
-                WriteLine(3, "if (Instance.TryGetValue(value, out var result))");
-                WriteLine(3, "{");
+                WriteLine(3, $"System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof({item.Name}).TypeHandle);");
+                WriteLine(3, "if (Instance.TryGetValue(value, out var result)) {");
                 WriteLine(4, "return result;");
-                WriteLine(3, "}");
-                WriteLine(3, "else");
-                WriteLine(3, "{");
+                WriteLine(3, "} else {");
                 WriteLine(4, "throw new InvalidCastException();");
                 WriteLine(3, "}");
                 WriteLine(2, "}");

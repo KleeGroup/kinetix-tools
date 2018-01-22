@@ -84,7 +84,6 @@ namespace Kinetix.ClassGenerator.Checker
         /// <returns>True or false.</returns>
         private static bool IsLinked(ModelClass classeDepart, ModelClass classeArrivee)
         {
-
             Queue<ModelClass> untreatedClasses = new Queue<ModelClass>();
             List<ModelClass> treatedClasses = new List<ModelClass>();
 

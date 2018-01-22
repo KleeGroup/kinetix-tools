@@ -77,7 +77,6 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         public void Generate()
         {
-
             // Vérification.
             CheckModelFiles();
             CheckOutputDirectory();

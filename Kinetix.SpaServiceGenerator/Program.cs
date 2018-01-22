@@ -11,13 +11,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.MSBuild;
 
-namespace Kinetix.SpaServiceGenerator {
-
+namespace Kinetix.SpaServiceGenerator
+{
     /// <summary>
     /// Programme.
     /// </summary>
-    internal class Program {
-
+    internal class Program
+    {
         /// <summary>
         /// Point d'entrée.
         /// </summary>
@@ -26,13 +26,15 @@ namespace Kinetix.SpaServiceGenerator {
         /// Deuxième argument : racine de la SPA.
         /// Troisième argument : namespace du projet (exemple : "Kinetix").
         /// </param>
-        public static void Main(string[] args) {
+        public static void Main(string[] args)
+        {
             var msWorkspace = MSBuildWorkspace.Create();
             var solution = msWorkspace.OpenSolutionAsync(args[0]).Result;
             Generate(solution, args[1], args[2]).Wait();
         }
 
-        private static async Task Generate(Solution solution, string spaRoot, string projectName) {
+        private static async Task Generate(Solution solution, string spaRoot, string projectName)
+        {
             var definitionPath = "../../model";
             var outputPath = $"{spaRoot}/app/services";
 
@@ -44,7 +46,8 @@ namespace Kinetix.SpaServiceGenerator {
                 && document.Folders.Count == 2
                 && !document.Name.Contains("ReferenceList"));
 
-            foreach (var controller in controllers) {
+            foreach (var controller in controllers)
+            {
 
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
@@ -63,7 +66,8 @@ namespace Kinetix.SpaServiceGenerator {
                 var fileInfo = new FileInfo(fileName);
 
                 var directoryInfo = fileInfo.Directory;
-                if (!directoryInfo.Exists) {
+                if (!directoryInfo.Exists)
+                {
                     Directory.CreateDirectory(directoryInfo.FullName);
                 }
 
@@ -73,7 +77,8 @@ namespace Kinetix.SpaServiceGenerator {
             }
         }
 
-        private static ServiceDeclaration GetService(MethodDeclarationSyntax method, SemanticModel model) {
+        private static ServiceDeclaration GetService(MethodDeclarationSyntax method, SemanticModel model)
+        {
             var documentation = method.GetLeadingTrivia()
                 .First(i => i.GetStructure() is DocumentationCommentTriviaSyntax)
                 .GetStructure() as DocumentationCommentTriviaSyntax;
@@ -89,7 +94,8 @@ namespace Kinetix.SpaServiceGenerator {
 
             var verb = method.AttributeLists.First().Attributes.First().ToString();
 
-            ICollection<Parameter> parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter {
+            ICollection<Parameter> parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter
+            {
                 Type = model.GetSymbolInfo(parameter.Type).Symbol as INamedTypeSymbol,
                 Name = parameter.Identifier.ToString(),
                 IsOptional = parameter.Default != null,
@@ -101,7 +107,8 @@ namespace Kinetix.SpaServiceGenerator {
             string route = ((method.AttributeLists.Last().Attributes.First().ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
                     .Expression as LiteralExpressionSyntax).Token.ValueText;
             MatchCollection matches = Regex.Matches(route, "(?s){.+?}");
-            foreach (Match match in matches) {
+            foreach (Match match in matches)
+            {
                 routeParameters.Add(match.Value.Replace("{", "").Replace("}", ""));
             }
 
@@ -113,14 +120,16 @@ namespace Kinetix.SpaServiceGenerator {
                 .ToList();
 
             ICollection<Parameter> bodyParameters = new List<Parameter>();
-            if ((verb == "HttpPost" || verb == "HttpPut") && parameterList.Except(uriParameters).Any()) {
+            if ((verb == "HttpPost" || verb == "HttpPut") && parameterList.Except(uriParameters).Any())
+            {
                 var bodyParams = parameterList
                     .Except(uriParameters)
                     .Where(param => param.IsFromBody)
                     // Concat here as a fallback (use of first below)
                     .Concat(parameterList.Where(param => !param.IsFromUri));
 
-                if (bodyParams.Any()) {
+                if (bodyParams.Any())
+                {
                     bodyParameters.Add(bodyParams.First());
                 }
 
@@ -129,7 +138,8 @@ namespace Kinetix.SpaServiceGenerator {
                     .ToList();
             }
 
-            return new ServiceDeclaration {
+            return new ServiceDeclaration
+            {
                 Verb = verb,
                 Route = route,
                 Name = method.Identifier.ToString(),

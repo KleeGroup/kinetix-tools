@@ -15,7 +15,7 @@ namespace Kinetix.ClassGenerator.Templates
         /// </summary>
         public IEnumerable<ModelClass> References { get; set; }
 
-        /// <summary>UseTypeSafeConstValues
+        /// <summary>
         /// Transforme une liste de constantes en type Typescript.
         /// </summary>
         /// <param name="reference">La liste de constantes.</param>

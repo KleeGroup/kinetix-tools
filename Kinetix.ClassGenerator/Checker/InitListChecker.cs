@@ -190,7 +190,6 @@ namespace Kinetix.ClassGenerator.Checker
 
         private BeanPropertyDescriptor GetLibelleDescriptor(ModelClass classe, BeanDefinition beanDefinition)
         {
-
             foreach (BeanPropertyDescriptor prop in beanDefinition.Properties)
             {
                 if (prop.PropertyName.Equals("Libelle") || prop.PropertyName.Equals("Description"))

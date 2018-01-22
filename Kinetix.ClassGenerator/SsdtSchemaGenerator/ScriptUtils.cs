@@ -45,6 +45,10 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             {
                 persistentType += " identity";
             }
+            else if (persistentType == "nvarchar")
+            {
+                persistentType += "(MAX)";
+            }
 
             return persistentType;
         }

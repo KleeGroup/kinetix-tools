@@ -351,7 +351,7 @@ namespace Kinetix.ClassGenerator
             {
                 if (defaultProperty != null)
                 {
-                    queryParameter = $".OrderBy(row => row.{defaultProperty.DataMember.Name})";
+                    queryParameter = $".OrderBy(row => row.{defaultProperty.Name})";
                 }
 
                 return $"return _dbContext.{Pluralize(className)}{queryParameter}.ToList();";
@@ -363,7 +363,7 @@ namespace Kinetix.ClassGenerator
                     queryParameter = "new Kinetix.Broker.SqlClient.QueryParameter(" + className + ".Cols." + defaultProperty.DataMember.Name + ", Kinetix.Data.SqlClient.SortOrder.Asc)";
                 }
 
-                return "return _brokerManager.GetBroker<" + className + ">().GetAll(" + queryParameter + ");";
+                return "return _brokerManager.GetStandardBroker<" + className + ">().GetAll(" + queryParameter + ");";
             }
         }
 
