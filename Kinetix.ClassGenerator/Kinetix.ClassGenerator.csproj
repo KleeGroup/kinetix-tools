@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net471</TargetFramework>
+    <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" Version="15.5.180" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.Caching\Kinetix.Caching.csproj" />
+    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.ComponentModel\Kinetix.ComponentModel.csproj" />
+    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.Security\Kinetix.Security.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\ReferenceTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ReferenceTemplate.cs</LastGenOutput>
+    </None>
+    <None Update="Templates\TypescriptTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>TypescriptTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Templates\ReferenceTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReferenceTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\TypescriptTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TypescriptTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>
