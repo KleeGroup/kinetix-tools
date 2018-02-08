@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Kinetix.ClassGenerator.Model;
 
-namespace Kinetix.ClassGenerator.Templates
+namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
     /// <summary>
     /// Partial du template de génération de code Typescript.

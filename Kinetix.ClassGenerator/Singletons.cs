@@ -1,4 +1,5 @@
-﻿using Kinetix.ComponentModel;
+﻿using Kinetix.ClassGenerator.Parameters;
+using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator
 {
@@ -6,5 +7,6 @@ namespace Kinetix.ClassGenerator
     {
         public static DomainManager<object> DomainManager = new DomainManager<object>(null);
         public static BeanDescriptor BeanDescriptor = new BeanDescriptor(DomainManager);
+        public static GeneratorParameters GeneratorParameters;
     }
 }

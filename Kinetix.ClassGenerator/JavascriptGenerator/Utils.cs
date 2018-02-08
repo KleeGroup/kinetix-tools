@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace Kinetix.ClassGenerator
+namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
     /// <summary>
     /// Regroupe quelques utilitaires.

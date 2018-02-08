@@ -1,5 +1,4 @@
 ﻿using System;
-using Kinetix.ClassGenerator.CodeGenerator;
 using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
@@ -65,7 +64,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                 throw new ArgumentNullException("classe");
             }
 
-            return GeneratorParameters.IsProjetUesl ? classe.DataContract.Name : classe.DataContract.Name.ToUpperInvariant();
+            return classe.DataContract.Name.ToUpperInvariant();
         }
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                 throw new ArgumentNullException("property");
             }
 
-            return GeneratorParameters.IsProjetUesl ? property.DataMember.Name : property.DataMember.Name.ToUpperInvariant();
+            return property.DataMember.Name.ToUpperInvariant();
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                 throw new ArgumentNullException("classe");
             }
 
-            return GeneratorParameters.IsProjetUesl ? classe.GetTableName() + "TableType" : classe.GetTableName() + "_TABLE_TYPE";
+            return classe.GetTableName() + "_TABLE_TYPE";
         }
 
         /// <summary>

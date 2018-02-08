@@ -20,7 +20,6 @@ namespace Kinetix.ClassGenerator.Configuration
         /// <param name="modelList">Liste des modèles.</param>
         public void LoadConfigurationFiles(ICollection<ModelRoot> modelList)
         {
-
             // Mise à plat des classe par nom de table.
             var classByTableMap = modelList
                 .SelectMany(x => x.Namespaces.Values)
@@ -29,21 +28,21 @@ namespace Kinetix.ClassGenerator.Configuration
                 .ToDictionary(x => x.DataContract.Name);
 
             // Charge la configuration des default values.
-            if (!string.IsNullOrEmpty(GeneratorParameters.DefaultValuesFile))
+            if (!string.IsNullOrEmpty(Singletons.GeneratorParameters.DefaultValuesFile))
             {
-                LoadConfigurationDefaultValue(classByTableMap, GeneratorParameters.DefaultValuesFile);
+                LoadConfigurationDefaultValue(classByTableMap, Singletons.GeneratorParameters.DefaultValuesFile);
             }
 
             // Charge la configuration des tables à ne pas générer.
-            if (!string.IsNullOrEmpty(GeneratorParameters.NoTableFile))
+            if (!string.IsNullOrEmpty(Singletons.GeneratorParameters.NoTableFile))
             {
-                LoadConfigurationNoTable(classByTableMap, GeneratorParameters.NoTableFile);
+                LoadConfigurationNoTable(classByTableMap, Singletons.GeneratorParameters.NoTableFile);
             }
 
             // Charge la configuration de l'historique de création.
-            if (!string.IsNullOrEmpty(GeneratorParameters.HistoriqueCreationFile))
+            if (!string.IsNullOrEmpty(Singletons.GeneratorParameters.HistoriqueCreationFile))
             {
-                LoadConfigurationHistoriqueCreation(classByTableMap, GeneratorParameters.HistoriqueCreationFile);
+                LoadConfigurationHistoriqueCreation(classByTableMap, Singletons.GeneratorParameters.HistoriqueCreationFile);
             }
         }
 

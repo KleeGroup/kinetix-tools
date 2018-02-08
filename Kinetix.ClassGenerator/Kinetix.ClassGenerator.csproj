@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="15.5.180" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,11 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Templates\ReferenceTemplate.tt">
+    <None Update="JavascriptGenerator\ReferenceTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ReferenceTemplate.cs</LastGenOutput>
     </None>
-    <None Update="Templates\TypescriptTemplate.tt">
+    <None Update="JavascriptGenerator\TypescriptTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>TypescriptTemplate.cs</LastGenOutput>
     </None>
@@ -36,12 +37,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Templates\ReferenceTemplate.cs">
+    <Compile Update="JavascriptGenerator\ReferenceTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ReferenceTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Update="Templates\TypescriptTemplate.cs">
+    <Compile Update="JavascriptGenerator\TypescriptTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>TypescriptTemplate.tt</DependentUpon>

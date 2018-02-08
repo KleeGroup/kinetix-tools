@@ -4,24 +4,28 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Kinetix.ClassGenerator.Model;
-using Kinetix.ClassGenerator.Templates;
-using static Kinetix.ClassGenerator.Utils;
 
-namespace Kinetix.ClassGenerator.CodeGenerator
+namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
+    using static Singletons;
+    using static Utils;
+
     /// <summary>
     /// Générateur de définitions Typescript.
     /// </summary>
-    public class TypescriptDefinitionGenerator
+    public static class TypescriptDefinitionGenerator
     {
         /// <summary>
         /// Génère les définitions Typescript.
         /// </summary>
         /// <param name="modelRootList">La liste des modèles.</param>
-        /// <param name="spaAppPath">Le chemin de la SPA.</param>
-        /// <param name="rootNamespace">Le namespace de base de l'application.</param>
-        public void Generate(ICollection<ModelRoot> modelRootList, string spaAppPath, string rootNamespace)
+        public static void Generate(ICollection<ModelRoot> modelRootList)
         {
+            if (GeneratorParameters.Javascript.ModelOutputDirectory == null)
+            {
+                return;
+            }
+
             var nameSpaceMap = new Dictionary<string, List<ModelClass>>();
             foreach (var model in modelRootList)
             {
@@ -49,7 +53,7 @@ namespace Kinetix.ClassGenerator.CodeGenerator
                         var fileName = model.Name.ToDashCase();
                         Console.Out.WriteLine($"Generating Typescript file: {fileName}.ts ...");
 
-                        fileName = $"{spaAppPath}/model/{entry.Key.ToDashCase(false)}/{fileName}.ts";
+                        fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/{fileName}.ts";
                         var fileInfo = new FileInfo(fileName);
 
                         var isNewFile = !fileInfo.Exists;
@@ -60,7 +64,7 @@ namespace Kinetix.ClassGenerator.CodeGenerator
                             Directory.CreateDirectory(directoryInfo.FullName);
                         }
 
-                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model };
+                        var template = new TypescriptTemplate { RootNamespace = GeneratorParameters.RootNamespace, Model = model };
                         var result = template.TransformText();
                         File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                     }
@@ -74,7 +78,7 @@ namespace Kinetix.ClassGenerator.CodeGenerator
             if (staticLists.Any())
             {
                 Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
-                var fileName = $"{spaAppPath}/model/references.ts";
+                var fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/references.ts";
                 var fileInfo = new FileInfo(fileName);
 
                 var isNewFile = !fileInfo.Exists;

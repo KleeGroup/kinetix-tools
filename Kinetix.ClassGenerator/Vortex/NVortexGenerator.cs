@@ -15,9 +15,8 @@ namespace Kinetix.ClassGenerator.NVortex
         /// </summary>
         /// <param name="liste">Liste d'erreurs.</param>
         /// <param name="outputFile">Nom du fichier de sortie.</param>
-        /// <param name="cvsRepository">Repository CVS.</param>
         /// <param name="source">Nom de la source.</param>
-        public static void Generate(ICollection<NVortexMessage> liste, string outputFile, string cvsRepository, string source)
+        public static void Generate(ICollection<NVortexMessage> liste, string outputFile, string source)
         {
             if (liste == null)
             {
@@ -76,10 +75,6 @@ namespace Kinetix.ClassGenerator.NVortex
 
                 xmlWriter.WriteStartElement("who");
                 xmlWriter.WriteString("ModelMaster");
-                xmlWriter.WriteEndElement();
-
-                xmlWriter.WriteStartElement("cvsRepository");
-                xmlWriter.WriteString(cvsRepository);
                 xmlWriter.WriteEndElement();
 
                 xmlWriter.WriteStartElement("filename");

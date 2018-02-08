@@ -1,1 +1,0 @@
-﻿Command line arguments: Model/Config/conf_generator.xml  -G -S -J

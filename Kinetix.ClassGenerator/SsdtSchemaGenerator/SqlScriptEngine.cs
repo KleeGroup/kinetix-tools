@@ -93,7 +93,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             var scriptPath = Path.Combine(folderPath, scriptName);
 
             // Utilisation du flux spécial qui ne checkout le fichier que s'il est modifié.
-            using (TextWriter tw = new SqlFileWriter(scriptPath, GeneratorParameters.SsdtProjFileName, buildAction))
+            using (TextWriter tw = new SqlFileWriter(scriptPath, Singletons.GeneratorParameters.Ssdt.ProjFileName, buildAction))
             {
                 /*  Génére le script de l'item */
                 scripter.WriteItemScript(tw, item);

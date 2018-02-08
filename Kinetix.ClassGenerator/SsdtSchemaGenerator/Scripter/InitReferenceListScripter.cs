@@ -142,7 +142,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
         /// <param name="tableName">Nom de la table.</param>
         private static void WriteFooter(TextWriter writer, string tableName)
         {
-            writer.WriteLine("\tINSERT INTO " + GeneratorParameters.LogScriptTableName + "(" + GeneratorParameters.LogScriptVersionField + ", " + GeneratorParameters.LogScriptDateField + ") VALUES (@SCRIPT_NAME, GETDATE());");
+            writer.WriteLine("\tINSERT INTO " + Singletons.GeneratorParameters.Ssdt.LogScriptTableName + "(" + Singletons.GeneratorParameters.Ssdt.LogScriptVersionField + ", " + Singletons.GeneratorParameters.Ssdt.LogScriptDateField + ") VALUES (@SCRIPT_NAME, GETDATE());");
             writer.WriteLine("\tCOMMIT TRANSACTION");
             writer.WriteLine("END");
             writer.WriteLine("GO");
@@ -162,7 +162,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
             writer.WriteLine("DECLARE @SCRIPT_NAME varchar(100)");
             writer.WriteLine();
             writer.WriteLine("SET @SCRIPT_NAME = '" + tableName + ".insert'");
-            writer.WriteLine("IF not exists(Select 1 From " + GeneratorParameters.LogScriptTableName + " WHERE " + GeneratorParameters.LogScriptVersionField + " = @SCRIPT_NAME)");
+            writer.WriteLine("IF not exists(Select 1 From " + Singletons.GeneratorParameters.Ssdt.LogScriptTableName + " WHERE " + Singletons.GeneratorParameters.Ssdt.LogScriptVersionField + " = @SCRIPT_NAME)");
             writer.WriteLine("BEGIN");
             writer.WriteLine("\tPRINT 'Appling script ' + @SCRIPT_NAME;");
             writer.WriteLine("\tSET XACT_ABORT ON");

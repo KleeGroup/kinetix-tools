@@ -104,9 +104,9 @@ namespace Kinetix.ClassGenerator.Checker
                 }
             }
 
-            if (property.DataType == "bool" && ((!GeneratorParameters.IsProjetUesl && !(property.Name.StartsWith("Is", StringComparison.Ordinal) || (!property.IsPersistent && property.Name.StartsWith("Has", StringComparison.Ordinal)))) || (GeneratorParameters.IsProjetUesl && !property.Name.StartsWith("Flag", StringComparison.Ordinal))))
+            if (property.DataType == "bool" && !property.Name.StartsWith("Is", StringComparison.Ordinal) && !property.Name.StartsWith("Has", StringComparison.Ordinal))
             {
-                RegisterCodeStyle(property.Class, "Le propriété [" + property.Name + "] de type " + property.DataType + " devrait commencer par " + (GeneratorParameters.IsProjetUesl ? "Flag" : "Is") + ".");
+                RegisterCodeStyle(property.Class, "Le propriété [" + property.Name + "] de type " + property.DataType + " devrait commencer par Is ou Has");
             }
         }
 

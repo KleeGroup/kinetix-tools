@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Kinetix.ClassGenerator.Checker;
-using Kinetix.ClassGenerator.CodeGenerator;
 using Kinetix.ClassGenerator.Configuration;
+using Kinetix.ClassGenerator.CSharpGenerator;
+using Kinetix.ClassGenerator.JavascriptGenerator;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
 using Kinetix.ClassGenerator.SchemaGenerator;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.XmlParser;
-using Kinetix.ClassGenerator.XmlParser.EapReader;
 using Kinetix.ClassGenerator.XmlParser.OomReader;
 using Kinetix.ComponentModel;
 using Kinetix.ComponentModel.Annotations;
@@ -43,21 +41,6 @@ namespace Kinetix.ClassGenerator.Main
         private readonly ISqlServerSsdtInsertGenerator _ssdtInsertGenerator = new SqlServerSsdtInsertGenerator();
 
         /// <summary>
-        /// Composant de génération du schéma en Javascript.
-        /// </summary>
-        private readonly JavascriptSchemaGenerator _javascriptSchemaGenerator = new JavascriptSchemaGenerator();
-
-        /// <summary>
-        /// Composant de génération du schéma en Javascript.
-        /// </summary>
-        private readonly TypescriptDefinitionGenerator _typescriptDefinitionGenerator = new TypescriptDefinitionGenerator();
-
-        /// <summary>
-        /// Composant de génération des ressources en javascript.
-        /// </summary>
-        private readonly JavascriptResourceGenerator _javascriptResourceGenerator = new JavascriptResourceGenerator();
-
-        /// <summary>
         /// Liste des domaines.
         /// </summary>
         private ICollection<IDomain> _domainList;
@@ -66,11 +49,6 @@ namespace Kinetix.ClassGenerator.Main
         /// Liste des modèles objet en mémoire.
         /// </summary>
         private ICollection<ModelRoot> _modelList;
-
-        /// <summary>
-        /// Générateur de schéma SQL.
-        /// </summary>
-        private AbstractSchemaGenerator _schemaGenerator;
 
         /// <summary>
         /// Exécute la génération.
@@ -93,10 +71,10 @@ namespace Kinetix.ClassGenerator.Main
             GenerateJavascript();
 
             // Pause.
-            if (GeneratorParameters.Pause)
+            if (Singletons.GeneratorParameters.Pause.Value)
             {
-                Console.Out.WriteLine();
-                Console.Out.Write("Traitement terminé, veuillez appuyer sur une touche pour fermer cette fenêtre...");
+                Console.WriteLine();
+                Console.Write("Traitement terminé, veuillez appuyer sur une touche pour fermer cette fenêtre...");
                 Console.ReadKey();
             }
         }
@@ -106,7 +84,7 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         private static void CheckModelFiles()
         {
-            foreach (string file in GeneratorParameters.ModelFiles)
+            foreach (string file in Singletons.GeneratorParameters.ModelFiles)
             {
                 if (!File.Exists(file))
                 {
@@ -122,17 +100,14 @@ namespace Kinetix.ClassGenerator.Main
         /// <returns>Générateur de schéma SQL.</returns>
         private static AbstractSchemaGenerator LoadSchemaGenerator()
         {
-            AbstractSchemaGenerator schemaGenerator;
-            if (GeneratorParameters.IsOracle)
+            if (Singletons.GeneratorParameters.ProceduralSql.TargetDBMS?.ToLower() == "postgre")
             {
-                schemaGenerator = new OracleSchemaGenerator();
+                return new PostgreSchemaGenerator();
             }
             else
             {
-                schemaGenerator = new SqlServerSchemaGenerator();
+                return new SqlServerSchemaGenerator();
             }
-
-            return schemaGenerator;
         }
 
         /// <summary>
@@ -140,15 +115,19 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         private static void CheckOutputDirectory()
         {
-            if (!Directory.Exists(GeneratorParameters.OutputDirectory))
+            if (Singletons.GeneratorParameters.CSharp != null)
             {
-                Console.Error.WriteLine("Le répertoire de génération " + GeneratorParameters.OutputDirectory + " n'existe pas.");
-            }
+                var outputDir = Singletons.GeneratorParameters.CSharp.OutputDirectory;
+                if (!Directory.Exists(outputDir))
+                {
+                    Console.Error.WriteLine("Le répertoire de génération " + outputDir + " n'existe pas.");
+                }
 
-            DirectoryInfo dirInfo = new DirectoryInfo(GeneratorParameters.OutputDirectory);
-            if ((dirInfo.Attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-            {
-                Console.Error.WriteLine("Le répertoire de génération " + GeneratorParameters.OutputDirectory + " est en lecture seule.");
+                DirectoryInfo dirInfo = new DirectoryInfo(outputDir);
+                if ((dirInfo.Attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                {
+                    Console.Error.WriteLine("Le répertoire de génération " + outputDir + " est en lecture seule.");
+                }
             }
         }
 
@@ -156,11 +135,10 @@ namespace Kinetix.ClassGenerator.Main
         /// Charge les domaines utilisés par l'application.
         /// </summary>
         /// <returns>Liste des domaines de l'application.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Chargement dynamique des domaines")]
         private static ICollection<IDomain> LoadDomain()
         {
             List<IDomain> domainList = new List<IDomain>();
-            Assembly assembly = Assembly.LoadFile(GeneratorParameters.DomainFactoryAssembly);
+            Assembly assembly = Assembly.LoadFile(Path.Combine(Directory.GetCurrentDirectory(), Singletons.GeneratorParameters.DomainFactoryAssembly));
             foreach (Module module in assembly.GetModules())
             {
                 foreach (Type type in module.GetTypes())
@@ -180,23 +158,25 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         /// <param name="isStatic">Indique si la table est statique.</param>
         /// <returns>Collection of TableInit.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Chargement dynamique des domaines")]
         private static ICollection<TableInit> LoadTableInitList(bool isStatic)
         {
             ICollection<TableInit> list = null;
 
-            Assembly assembly = Assembly.LoadFile(GeneratorParameters.ListFactoryAssembly);
-            foreach (Module module in assembly.GetModules())
+            if (Singletons.GeneratorParameters.ListFactoryAssembly != null)
             {
-                foreach (Type type in module.GetTypes())
+                Assembly assembly = Assembly.LoadFile(Path.Combine(Directory.GetCurrentDirectory(), Singletons.GeneratorParameters.ListFactoryAssembly));
+                foreach (Module module in assembly.GetModules())
                 {
-                    if (typeof(AbstractListFactory).IsAssignableFrom(type))
+                    foreach (Type type in module.GetTypes())
                     {
-                        AbstractListFactory factory = (AbstractListFactory)Activator.CreateInstance(type);
-                        factory.Init();
-                        if ((isStatic && factory.IsStatic) || (!isStatic && !factory.IsStatic))
+                        if (typeof(AbstractListFactory).IsAssignableFrom(type))
                         {
-                            list = factory.Items;
+                            AbstractListFactory factory = (AbstractListFactory)Activator.CreateInstance(type);
+                            factory.Init();
+                            if ((isStatic && factory.IsStatic) || (!isStatic && !factory.IsStatic))
+                            {
+                                list = factory.Items;
+                            }
                         }
                     }
                 }
@@ -257,20 +237,7 @@ namespace Kinetix.ClassGenerator.Main
         /// <returns>Parser de modèle objet.</returns>
         private IModelParser LoadModelParser()
         {
-            IModelParser parser;
-            switch (GeneratorParameters.ModelType)
-            {
-                case "oom":
-                    parser = new OomParser(GeneratorParameters.ModelFiles, GeneratorParameters.DomainModelFile, GeneratorParameters.ExtModelFiles, _domainList);
-                    break;
-                case "eap":
-                    parser = new EapParser(GeneratorParameters.ModelFiles, _domainList);
-                    break;
-                default:
-                    throw new NotSupportedException("Le modèle doit être de type oom ou eap.");
-            }
-
-            return parser;
+            return new OomParser(Singletons.GeneratorParameters.ModelFiles, Singletons.GeneratorParameters.DomainModelFile, Singletons.GeneratorParameters.ExtModelFiles, _domainList);
         }
 
         /// <summary>
@@ -278,7 +245,6 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         private void LoadObjectModel()
         {
-
             // Charge le parser.
             IModelParser modelParser = LoadModelParser();
 
@@ -294,14 +260,9 @@ namespace Kinetix.ClassGenerator.Main
             messageList.AddRange(CodeChecker.Check(_modelList, _domainList));
             messageList.AddRange(StaticListChecker.Instance.Check(_modelList, staticTableInitList));
             messageList.AddRange(ReferenceListChecker.Instance.Check(_modelList, referenceTableInitList));
-            if (GeneratorParameters.GenerateSql)
-            {
-                _schemaGenerator = LoadSchemaGenerator();
-                messageList.AddRange(_schemaGenerator.CheckAllIdentifiersNames(_modelList));
-            }
+            messageList.AddRange(AbstractSchemaGenerator.CheckAllIdentifiersNames(_modelList));
 
-            NVortexGenerator.Generate(messageList, GeneratorParameters.VortexFile, GeneratorParameters.SourceRepository, "ClassGenerator");
-
+            NVortexGenerator.Generate(messageList, Singletons.GeneratorParameters.VortexFile, "ClassGenerator");
 
             if (!CanGenerate(messageList))
             {
@@ -311,11 +272,10 @@ namespace Kinetix.ClassGenerator.Main
 
         private void GenerateCSharp()
         {
-            if (GeneratorParameters.Generate)
+            if (Singletons.GeneratorParameters.CSharp != null)
             {
-                Console.Out.WriteLine("***** Génération du modèle *****");
-                AbstractCodeGenerator generator = new CSharpCodeGenerator(GeneratorParameters.OutputDirectory);
-                generator.Generate(_modelList);
+                Console.WriteLine("***** Génération du modèle C# *****");
+                CSharpCodeGenerator.Generate(_modelList);
             }
         }
 
@@ -325,77 +285,51 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         private void GenerateSqlSchema()
         {
-            if (GeneratorParameters.GenerateSql)
+            if (Singletons.GeneratorParameters.Ssdt != null)
             {
-                bool generateSsdt = true;
-                bool generateProcedural = false;
+                // Charge la configuration de génération (default values, no table, historique de l'ordre de création des colonnes).
+                _configurationLoader.LoadConfigurationFiles(_modelList);
 
-                if (generateSsdt)
+                // Génération pour déploiement SSDT.
+                _ssdtSchemaGenerator.GenerateSchemaScript(
+                    _modelList,
+                    Singletons.GeneratorParameters.Ssdt.TableScriptFolder,
+                    Singletons.GeneratorParameters.Ssdt.TableTypeScriptFolder);
+
+                if (StaticListChecker.Instance.DictionaryItemInit != null)
                 {
-
-                    // Charge la configuration de génération (default values, no table, historique de l'ordre de création des colonnes).
-                    _configurationLoader.LoadConfigurationFiles(_modelList);
-
-                    // Génération pour déploiement SSDT.
-                    _ssdtSchemaGenerator.GenerateSchemaScript(
-                        _modelList,
-                        GeneratorParameters.SsdtTableScriptFolder,
-                        GeneratorParameters.SsdtTableTypeScriptFolder);
-
-                    if (StaticListChecker.Instance.DictionaryItemInit != null)
-                    {
-                        _ssdtInsertGenerator.GenerateListInitScript(
-                        StaticListChecker.Instance.DictionaryItemInit,
-                        GeneratorParameters.SsdtInitStaticListScriptFolder,
-                        GeneratorParameters.SsdtInitStaticListMainScriptName,
-                        "delta_static_lists.sql",
-                        true);
-                    }
-
-                    if (ReferenceListChecker.Instance.DictionaryItemInit != null)
-                    {
-                        _ssdtInsertGenerator.GenerateListInitScript(
-                        ReferenceListChecker.Instance.DictionaryItemInit,
-                        GeneratorParameters.SsdtInitReferenceListScriptFolder,
-                        GeneratorParameters.SsdtInitReferenceListMainScriptName,
-                        "delta_reference_lists.sql",
-                        false);
-                    }
+                    _ssdtInsertGenerator.GenerateListInitScript(
+                    StaticListChecker.Instance.DictionaryItemInit,
+                    Singletons.GeneratorParameters.Ssdt.InitStaticListScriptFolder,
+                    Singletons.GeneratorParameters.Ssdt.InitStaticListMainScriptName,
+                    "delta_static_lists.sql",
+                    true);
                 }
 
-                if (generateProcedural)
+                if (ReferenceListChecker.Instance.DictionaryItemInit != null)
                 {
-                    _schemaGenerator.GenerateSchemaScript(
-                        _modelList,
-                        GeneratorParameters.CrebasFile,
-                        GeneratorParameters.UKFile,
-                        GeneratorParameters.IndexFKFile,
-                        GeneratorParameters.TypeFileName);
+                    _ssdtInsertGenerator.GenerateListInitScript(
+                    ReferenceListChecker.Instance.DictionaryItemInit,
+                    Singletons.GeneratorParameters.Ssdt.InitReferenceListScriptFolder,
+                    Singletons.GeneratorParameters.Ssdt.InitReferenceListMainScriptName,
+                    "delta_reference_lists.sql",
+                    false);
+                }
+            }
 
-                    if (StaticListChecker.Instance.DictionaryItemInit != null)
-                    {
-                        _schemaGenerator.GenerateListInitScript(
-                        StaticListChecker.Instance.DictionaryItemInit,
-                        GeneratorParameters.StaticListFile,
-                        "delta_static_lists.sql",
-                        true);
-                    }
+            if (Singletons.GeneratorParameters.ProceduralSql != null)
+            {
+                var schemaGenerator = LoadSchemaGenerator();
+                schemaGenerator.GenerateSchemaScript(_modelList);
 
-                    if (ReferenceListChecker.Instance.DictionaryItemInit != null)
-                    {
-                        _schemaGenerator.GenerateListInitScript(
-                        ReferenceListChecker.Instance.DictionaryItemInit,
-                        GeneratorParameters.ReferenceListFile,
-                        "delta_reference_lists.sql",
-                        false);
-                    }
+                if (StaticListChecker.Instance.DictionaryItemInit != null)
+                {
+                    schemaGenerator.GenerateListInitScript(StaticListChecker.Instance.DictionaryItemInit, isStatic: true);
+                }
 
-                    var allClassList = _modelList.SelectMany(x => x.Namespaces).SelectMany(x => x.Value.ClassList);
-                    var referenceList = allClassList.Where(x => x.IsReference && !x.IsStatique).ToList();
-                    var staticList = allClassList.Where(x => x.IsStatique).ToList();
-
-                    _schemaGenerator.GenerateReferenceTranslationList(staticList, GeneratorParameters.StaticListLabelFile, true);
-                    _schemaGenerator.GenerateReferenceTranslationList(referenceList, GeneratorParameters.ReferenceListLabelFile, false);
+                if (ReferenceListChecker.Instance.DictionaryItemInit != null)
+                {
+                    schemaGenerator.GenerateListInitScript(ReferenceListChecker.Instance.DictionaryItemInit, isStatic: false);
                 }
             }
         }
@@ -405,18 +339,11 @@ namespace Kinetix.ClassGenerator.Main
         /// </summary>
         private void GenerateJavascript()
         {
-            if (GeneratorParameters.GenerateJavascript)
+            if (Singletons.GeneratorParameters.Javascript != null)
             {
-                if (GeneratorParameters.IsFocus4)
-                {
-                    _typescriptDefinitionGenerator.Generate(_modelList, GeneratorParameters.SpaAppPath, GeneratorParameters.RootNamespace);
-                }
-                else
-                {
-                    _javascriptSchemaGenerator.Generate(_modelList, $"{GeneratorParameters.SpaAppPath}/{GeneratorParameters.JsModelRoot}");
-                }
-
-                _javascriptResourceGenerator.Generate(_modelList, $"{GeneratorParameters.SpaAppPath}/{GeneratorParameters.JsResourceRoot}");
+                Console.WriteLine("***** Génération du modèle et des ressources JS *****");
+                TypescriptDefinitionGenerator.Generate(_modelList);
+                JavascriptResourceGenerator.Generate(_modelList);
             }
         }
     }

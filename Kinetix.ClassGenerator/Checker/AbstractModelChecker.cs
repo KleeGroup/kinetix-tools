@@ -24,9 +24,8 @@ namespace Kinetix.ClassGenerator.Checker
         private static readonly Regex RegexDataBaseTableName = new Regex(@"^([A-Z][_A-Z0-9]+)$");
         private static readonly Regex RegexDataBaseTableNameUesl = new Regex(@"^[TV]_[A-Z][a-zA-Z0-9]+$");
         private static readonly Regex RegexDataBaseFieldName = new Regex(@"^[A-Z0-9]{3}([_A-Z0-9]+)$");
-        private static readonly Regex RegexDataBaseFieldNameUesl = new Regex(@"^[A-Z]{0,3}[A-Z][a-zA-Z0-9]+$");
         private static readonly Regex RegexDomaineName = new Regex(@"^DO([_A-Z0-9]+)$");
-        private static readonly string SourceDtoDirectory = GeneratorParameters.OutputDirectory +
+        private static readonly string SourceDtoDirectory = (Singletons.GeneratorParameters.CSharp?.OutputDirectory ?? string.Empty) +
                 Path.DirectorySeparatorChar + "Kinetix.Dto" + Path.DirectorySeparatorChar;
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace Kinetix.ClassGenerator.Checker
         /// <returns>Vrai si casse BDD.</returns>
         protected static bool IsDataBaseTableNameCaseValid(string value)
         {
-            return string.IsNullOrEmpty(value) ? true : GeneratorParameters.IsProjetUesl ? RegexDataBaseTableNameUesl.IsMatch(value) : RegexDataBaseTableName.IsMatch(value);
+            return string.IsNullOrEmpty(value) ? true : RegexDataBaseTableName.IsMatch(value);
         }
 
         /// <summary>
@@ -112,7 +111,7 @@ namespace Kinetix.ClassGenerator.Checker
         /// <returns>Vrai si casse BDD.</returns>
         protected static bool IsDataBaseFieldNameCaseValid(string value)
         {
-            return string.IsNullOrEmpty(value) ? true : GeneratorParameters.IsProjetUesl ? RegexDataBaseFieldNameUesl.IsMatch(value) : RegexDataBaseFieldName.IsMatch(value);
+            return string.IsNullOrEmpty(value) ? true : RegexDataBaseFieldName.IsMatch(value);
         }
 
         /// <summary>
@@ -160,14 +159,12 @@ namespace Kinetix.ClassGenerator.Checker
         private static void RegisterError(IModelObject objet, Category category, string error, bool isFatal)
         {
             NVortexMessage message = new NVortexMessage();
-            ModelClass itemClass = objet as ModelClass;
-            ModelProperty itemProperty = objet as ModelProperty;
-            if (itemClass != null)
+            if (objet is ModelClass itemClass)
             {
                 message.FileName = SourceDtoDirectory + itemClass.Namespace.Name + Path.DirectorySeparatorChar + itemClass.Name + ".cs";
             }
 
-            if (itemProperty != null)
+            if (objet is ModelProperty itemProperty)
             {
                 message.FileName = SourceDtoDirectory + itemProperty.Class.Namespace.Name + Path.DirectorySeparatorChar + itemProperty.Class.Name + ".cs";
             }

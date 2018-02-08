@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Kinetix.ClassGenerator.Model;
 
-namespace Kinetix.ClassGenerator.Templates
+namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
     /// <summary>
     /// Partial du template de génération de références Typescript.
