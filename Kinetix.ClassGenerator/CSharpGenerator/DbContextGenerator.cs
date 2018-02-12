@@ -61,7 +61,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(1, $"public partial class {dbContextName} : DbContext");
                 w.WriteLine(1, "{");
                 w.WriteSummary(2, "Constructeur par défaut.");
-                w.WriteLine(2, "public " + strippedProjectName + "DbContext(DbContextOptions<BloggingContext> options)");
+                w.WriteLine(2, $"public {strippedProjectName}DbContext(DbContextOptions<{dbContextName}> options)");
                 w.WriteLine(3, ": base(options)");
                 w.WriteLine(2, "{");
                 w.WriteLine(2, "}");

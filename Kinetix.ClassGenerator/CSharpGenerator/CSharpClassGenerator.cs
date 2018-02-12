@@ -396,9 +396,13 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("System.ComponentModel");
             }
 
-            if (item.PropertyList.Count > 0)
+            if (item.PropertyList.Any(prop => prop.IsPrimaryKey || (prop.DataMember?.IsRequired ?? false)))
             {
                 usings.Add("System.ComponentModel.DataAnnotations");
+            }
+
+            if (item.PropertyList.Any(prop => prop.IsPersistent && prop.DataMember != null))
+            {
                 usings.Add("System.ComponentModel.DataAnnotations.Schema");
             }
 

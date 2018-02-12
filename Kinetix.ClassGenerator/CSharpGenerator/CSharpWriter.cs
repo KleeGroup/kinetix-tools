@@ -185,7 +185,10 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 throw new ArgumentNullException("nsNames", "nsName");
             }
 
-            foreach (var nsName in nsNames.OrderBy(x => x))
+            var systemUsings = nsNames.Where(name => name.StartsWith("System"));
+            var otherUsings = nsNames.Except(systemUsings);
+
+            foreach (var nsName in systemUsings.OrderBy(x => x).Concat(otherUsings.OrderBy(x => x)))
             {
                 WriteLine($"using {nsName};");
             }
