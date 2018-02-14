@@ -118,7 +118,7 @@ namespace Kinetix.ClassGenerator.Parameters
         /// <summary>
         /// Paramètres pour la génération du Javascript.
         /// </summary>
-        public JavascriptParamters Javascript
+        public JavascriptParameters Javascript
         {
             get;
             set;

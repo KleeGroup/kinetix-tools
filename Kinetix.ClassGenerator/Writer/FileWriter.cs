@@ -33,7 +33,7 @@ namespace Kinetix.ClassGenerator.Writer
         /// <summary>
         /// Retourne l'encodage à utiliser.
         /// </summary>
-        public override Encoding Encoding => Encoding.UTF8;
+        public override Encoding Encoding => new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         /// <summary>
         /// Retourne le numéro de la ligne qui contient la version.

@@ -38,8 +38,8 @@ namespace Kinetix.SpaServiceGenerator
             var definitionPath = "../../model";
             var outputPath = $"{spaRoot}/app/services";
 
-            var frontEnd = solution.Projects.First(projet => projet.AssemblyName == $"{projectName}.FrontEnd");
-            var controllers = frontEnd.Documents.Where(document =>
+            var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(projectName) && projet.AssemblyName.EndsWith("FrontEnd"));
+            var controllers = frontEnds.SelectMany(f => f.Documents).Where(document =>
                 document.Name.Contains("Controller")
                 && document.Folders.Contains("Controllers")
                 && !document.Folders.Contains("Transverse")
@@ -48,7 +48,6 @@ namespace Kinetix.SpaServiceGenerator
 
             foreach (var controller in controllers)
             {
-
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
 

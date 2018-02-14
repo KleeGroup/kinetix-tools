@@ -8,7 +8,6 @@
     Toute modification sera perdue.
 */
 
-/* tslint:disable */
 import {<#= FocusImport #>} from "focus4/entity";
 <# var imports = GetImportList();
    foreach (var import in imports) { 

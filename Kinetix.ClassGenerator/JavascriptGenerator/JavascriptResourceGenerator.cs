@@ -61,7 +61,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 var fileName = FirstToLower(entry.Key);
 
                 Console.WriteLine($"Ecriture du fichier de ressource du module {entry.Key}.");
-                WriteNameSpaceNode(dirInfo.FullName + "/" + fileName + ".js", entry.Key, entry.Value);
+                WriteNameSpaceNode(dirInfo.FullName + "/" + fileName + ".ts", entry.Key, entry.Value);
             }
         }
 
