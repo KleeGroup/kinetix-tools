@@ -329,7 +329,16 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (!property.Class.IsView && property.IsPersistent && property.DataMember != null)
             {
-                w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""");
+                var dbType = PowerDesignerPersistentDataTypeToSqlDatType(property.DataDescription?.Domain?.PersistentDataType);
+                if (dbType == "jsonb")
+                {
+                    w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""", $@"TypeName = ""{dbType}""");
+                }
+                else
+                {
+                    w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""");
+                }
+
             }
 
             if (property.DataMember.IsRequired && !property.DataDescription.IsPrimaryKey)

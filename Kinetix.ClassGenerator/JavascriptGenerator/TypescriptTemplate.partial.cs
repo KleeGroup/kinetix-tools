@@ -55,7 +55,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             return Model.PropertyList
                 .Select(property => property?.DataDescription?.Domain?.Code)
                 .Where(domain => domain != null)
-                .Distinct();
+                .Distinct()
+                .OrderBy(x => x);
         }
 
         /// <summary>
@@ -99,7 +100,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             var references = Model.PropertyList
                 .Where(property => property.DataDescription?.ReferenceClass != null && property.DataType == "string")
                 .Select(property => $"{property.DataDescription.ReferenceClass.Name}Code")
-                .Distinct();
+                .Distinct()
+                .OrderBy(x => x);
 
             if (references.Any())
             {

@@ -9,6 +9,7 @@
 */
 
 import {<#= FocusImport #>} from "focus4/entity";
+import {<#= string.Join(", ", GetDomainList()) #>} from "../../domains";
 <# var imports = GetImportList();
    foreach (var import in imports) { 
 #>
@@ -17,7 +18,6 @@ import {<#= import.Item1 #>} from "<#= import.Item2 #>/<#= import.Item3 #>";<#
 } if (imports.Any()) { #>
 
 <# } #>
-import {<#= string.Join(", ", GetDomainList()) #>} from "../../domains";
 
 export interface <#= Model.Name #><# if (Model.ParentClass != null) { #> extends <#= Model.ParentClass.Name #><# } #> {
 <# foreach (var property in Model.PropertyList) { #>

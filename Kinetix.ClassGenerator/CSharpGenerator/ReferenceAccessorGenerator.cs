@@ -80,7 +80,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteUsings(
                     "System.Collections.Generic",
                     "System.Linq",
-                    GeneratorParameters.CSharp.DbContextProjectPath.Split('\\').Last(),
+                    GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last(),
                     $"{projectName}.{nameSpaceContract}",
                     $"{projectName}.{nameSpaceName}",
                     "Kinetix.Services.Annotations");

@@ -255,6 +255,11 @@ namespace Kinetix.ClassGenerator
                 return "image";
             }
 
+            if (persistentDataType == "VBIN")
+            {
+                return "jsonb";
+            }
+
             if (RegExNumeric.IsMatch(persistentDataType))
             {
                 return "numeric";
