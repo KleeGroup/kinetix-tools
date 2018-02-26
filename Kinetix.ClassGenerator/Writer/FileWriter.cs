@@ -23,17 +23,18 @@ namespace Kinetix.ClassGenerator.Writer
         /// Crée une nouvelle instance.
         /// </summary>
         /// <param name="fileName">Nom du fichier à écrire.</param>
-        public FileWriter(string fileName)
+        public FileWriter(string fileName, bool encoderShouldEmitUTF8Identifier = true)
             : base(CultureInfo.InvariantCulture)
         {
             _fileName = fileName ?? throw new ArgumentNullException("fileName");
             _sb = new StringBuilder();
+            Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier);
         }
 
         /// <summary>
         /// Retourne l'encodage à utiliser.
         /// </summary>
-        public override Encoding Encoding => new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+        public override Encoding Encoding { get; }
 
         /// <summary>
         /// Retourne le numéro de la ligne qui contient la version.

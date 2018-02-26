@@ -138,7 +138,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// <param name="modelClassList">Liste des classe du namespace.</param>
         private static void WriteNameSpaceNode(string outputFileNameJavascript, string namespaceName, ICollection<ModelClass> modelClassList)
         {
-            using (var writerJs = new FileWriter(outputFileNameJavascript))
+            using (var writerJs = new FileWriter(outputFileNameJavascript, encoderShouldEmitUTF8Identifier: false))
             {
                 writerJs.WriteLine($"export const {FirstToLower(namespaceName)} = {{");
                 int i = 1;
