@@ -45,7 +45,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             var classList = nameSpace.ClassList
                 .Where(x => x.DataContract.IsPersistent)
                 .Where(x => x.Stereotype == Stereotype.Reference || x.Stereotype == Stereotype.Statique)
-                .OrderBy(x => x.Name);
+                .OrderBy(x => Pluralize(x.Name), StringComparer.Ordinal);
 
             if (!classList.Any())
             {
@@ -103,10 +103,10 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                 foreach (ModelClass classe in classList)
                 {
-                    var serviceName = "Load" + classe.Name + "List";
+                    var serviceName = "Load" + Pluralize(classe.Name);
                     w.WriteLine();
                     w.WriteLine(2, "/// <inheritdoc cref=\"" + interfaceName + "." + serviceName + "\" />");
-                    w.WriteLine(2, "public ICollection<" + classe.Name + "> Load" + classe.Name + "List()\r\n{");
+                    w.WriteLine(2, "public ICollection<" + classe.Name + "> Load" + Pluralize(classe.Name) + "()\r\n{");
                     w.WriteLine(3, LoadReferenceAccessorBody(classe.Name, classe.DefaultOrderModelProperty));
                     w.WriteLine(2, "}");
                 }
@@ -155,7 +155,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     w.WriteSummary(2, "Reference accessor for type " + classe.Name);
                     w.WriteReturns(2, "List of " + classe.Name);
                     w.WriteLine(2, ReferenceAccessorAttribute);
-                    w.WriteLine(2, "ICollection<" + classe.Name + "> Load" + classe.Name + "List();");
+                    w.WriteLine(2, "ICollection<" + classe.Name + "> Load" + Pluralize(classe.Name) + "();");
 
                     if (count != classList.Count())
                     {
