@@ -7,15 +7,11 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
     /// </summary>
     public class PostgreSchemaGenerator : AbstractSchemaGenerator
     {
-        /// <summary>
-        /// Séparateur de lots de commandes PL-SQL.
-        /// </summary>
         protected override string BatchSeparator => ";";
 
-        /// <summary>
-        /// Indique si le moteur de BDD visé supporte "primary key clustered ()".
-        /// </summary>
         protected override bool SupportsClusteredKey => false;
+
+        protected override bool UseQuotes => true;
 
         /// <summary>
         /// Gère l'auto-incrémentation des clés primaires en ajoutant identity à la colonne.

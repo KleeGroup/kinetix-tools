@@ -30,6 +30,11 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         }
 
         /// <summary>
+        /// Utilise des guillemets autour des noms d'objets dans les scripts.
+        /// </summary>
+        protected virtual bool UseQuotes => false;
+
+        /// <summary>
         /// Indique si le moteur de BDD visé supporte "primary key clustered ()".
         /// </summary>
         protected abstract bool SupportsClusteredKey
@@ -414,18 +419,18 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             writer.WriteLine("/**");
             writer.WriteLine("  * Génération de la contrainte de clef étrangère pour " + tableName + "." + propertyName);
             writer.WriteLine(" **/");
-            writer.WriteLine("alter table " + tableName);
-            string constraintName = "FK_" + property.Class.Trigram + "_" + propertyName;
+            writer.WriteLine("alter table " + Quote(tableName));
+            string constraintName = Quote("FK_" + property.Class.Trigram + "_" + propertyName);
 
-            writer.WriteLine("\tadd constraint " + constraintName + " foreign key (" + propertyName + ")");
-            writer.Write("\t\treferences " + property.DataDescription.ReferenceClass.DataContract.Name.ToUpperInvariant() + " (");
+            writer.WriteLine("\tadd constraint " + constraintName + " foreign key (" + Quote(propertyName) + ")");
+            writer.Write("\t\treferences " + Quote(property.DataDescription.ReferenceClass.DataContract.Name.ToUpperInvariant()) + " (");
 
             int currentProperty = 0;
             int propertyCount = property.DataDescription.ReferenceClass.PrimaryKey.Count;
             foreach (ModelProperty targetPkProperty in property.DataDescription.ReferenceClass.PrimaryKey)
             {
                 ++currentProperty;
-                writer.Write(targetPkProperty.DataMember.Name.ToUpperInvariant());
+                writer.Write(Quote(targetPkProperty.DataMember.Name.ToUpperInvariant()));
                 if (currentProperty < propertyCount)
                 {
                     writer.Write(", ");
@@ -444,13 +449,13 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         /// <param name="property">Propriété cible de l'index.</param>
         private void GenerateIndexForeignKey(StreamWriter writer, ModelProperty property)
         {
-            string tableName = property.Class.DataContract.Name.ToUpperInvariant();
+            string tableName = Quote(property.Class.DataContract.Name.ToUpperInvariant());
             string propertyName = property.DataMember.Name.ToUpperInvariant();
             writer.WriteLine("/**");
             writer.WriteLine("  * Création de l'index de clef étrangère pour " + tableName + "." + propertyName);
             writer.WriteLine(" **/");
-            writer.WriteLine("create index IDX_" + property.Class.Trigram + "_" + propertyName + "_FK on " + tableName + " (");
-            writer.WriteLine("\t" + propertyName + " ASC");
+            writer.WriteLine("create index " + Quote("IDX_" + property.Class.Trigram + "_" + propertyName + "_FK") + " on " + tableName + " (");
+            writer.WriteLine("\t" + Quote(propertyName) + " ASC");
             writer.WriteLine(")");
             WriteTableSpaceIndex(writer, property.Class);
             writer.WriteLine(BatchSeparator);
@@ -466,7 +471,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         private string GetInsertLine(string tableName, Dictionary<string, string> propertyValuePairs)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO " + tableName + "(");
+            sb.Append("INSERT INTO " + Quote(tableName) + "(");
             bool isFirst = true;
             foreach (string columnName in propertyValuePairs.Keys)
             {
@@ -476,7 +481,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 }
 
                 isFirst = false;
-                sb.Append(columnName);
+                sb.Append(Quote(columnName));
             }
 
             sb.Append(") VALUES(");
@@ -565,7 +570,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         private void WritePrimaryKeyConstraint(StreamWriter writerCrebas, ModelClass classe)
         {
             int pkCount = 0;
-            writerCrebas.Write("\tconstraint PK_" + classe.DataContract.Name.ToUpperInvariant() + " primary key ");
+            writerCrebas.Write("\tconstraint " + Quote("PK_" + classe.DataContract.Name.ToUpperInvariant()) + " primary key ");
             if (SupportsClusteredKey)
             {
                 writerCrebas.Write("clustered ");
@@ -575,7 +580,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             foreach (ModelProperty pkProperty in classe.PrimaryKey)
             {
                 ++pkCount;
-                writerCrebas.Write(pkProperty.DataMember.Name.ToUpperInvariant());
+                writerCrebas.Write(Quote(pkProperty.DataMember.Name.ToUpperInvariant()));
                 if (pkCount < classe.PrimaryKey.Count)
                 {
                     writerCrebas.Write(",");
@@ -601,7 +606,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         {
             ICollection<ModelProperty> fkPropertiesList = new List<ModelProperty>();
 
-            string tableName = CheckIdentifierLength(classe.DataContract.Name.ToUpperInvariant());
+            string tableName = Quote(CheckIdentifierLength(classe.DataContract.Name.ToUpperInvariant()));
 
             writerCrebas.WriteLine("/**");
             writerCrebas.WriteLine("  * Création de la table " + tableName);
@@ -621,7 +626,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             {
                 string persistentType = CodeUtils.PowerDesignerPersistentDataTypeToSqlDatType(property.DataDescription.Domain.PersistentDataType);
                 persistentType = GetLengthInformation(property, persistentType);
-                writerCrebas.Write("\t" + CheckIdentifierLength(property.DataMember.Name) + " " + persistentType);
+                writerCrebas.Write("\t" + Quote(CheckIdentifierLength(property.DataMember.Name)) + " " + persistentType);
                 if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID")
                 {
                     WriteIdentityColumn(writerCrebas);
@@ -664,7 +669,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                         throw new ArgumentNullException(nameof(GeneratorParameters.ProceduralSql.UKFile));
                     }
 
-                    writerUk.WriteLine("alter table " + classe.DataContract.Name.ToUpperInvariant() + " add constraint " + CheckIdentifierLength("UK_" + classe.DataContract.Name.ToUpperInvariant() + '_' + property.Name.ToUpperInvariant()) + " unique (" + property.DataMember.Name + ")");
+                    writerUk.WriteLine("alter table " + Quote(classe.DataContract.Name.ToUpperInvariant()) + " add constraint " + Quote(CheckIdentifierLength("UK_" + classe.DataContract.Name.ToUpperInvariant() + '_' + property.Name.ToUpperInvariant())) + " unique (" + Quote(property.DataMember.Name) + ")");
                     writerUk.WriteLine(BatchSeparator);
                     writerUk.WriteLine();
                 }
@@ -774,6 +779,18 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             writerUk.WriteLine(")");
             writerUk.WriteLine(BatchSeparator);
             writerUk.WriteLine();
+        }
+
+        private string Quote(string name)
+        {
+            if (!UseQuotes)
+            {
+                return name;
+            }
+            else
+            {
+                return $@"""{name}""";
+            }
         }
     }
 }

@@ -31,5 +31,14 @@
             get;
             set;
         }
+
+        /// <summary>
+        /// Le nom du schéma de base de données à cibler (si non renseigné, EF utilise 'dbo').
+        /// </summary>
+        public string DbSchema
+        {
+            get;
+            set;
+        }
     }
 }

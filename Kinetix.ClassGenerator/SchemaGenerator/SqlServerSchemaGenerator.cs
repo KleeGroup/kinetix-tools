@@ -8,14 +8,8 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
     /// </summary>
     public class SqlServerSchemaGenerator : AbstractSchemaGenerator
     {
-        /// <summary>
-        /// Séparateur de lots de commandes Transact-SQL.
-        /// </summary>
         protected override string BatchSeparator => "go";
 
-        /// <summary>
-        /// Indique si le moteur de BDD visé supporte "primary key clustered ()".
-        /// </summary>
         protected override bool SupportsClusteredKey => true;
 
         /// <summary>

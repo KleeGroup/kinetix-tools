@@ -72,7 +72,14 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (item.DataContract.IsPersistent && !item.IsView)
             {
-                w.WriteAttribute(1, "Table", $@"""{item.DataContract.Name}""");
+                if (GeneratorParameters.CSharp.DbSchema != null)
+                {
+                    w.WriteAttribute(1, "Table", $@"""{item.DataContract.Name}""", $@"Schema = ""{GeneratorParameters.CSharp.DbSchema}""");
+                }
+                else
+                {
+                    w.WriteAttribute(1, "Table", $@"""{item.DataContract.Name}""");
+                }
             }
 
             w.WriteClassDeclaration(item.Name, item.ParentClass?.Name, new List<string>());
