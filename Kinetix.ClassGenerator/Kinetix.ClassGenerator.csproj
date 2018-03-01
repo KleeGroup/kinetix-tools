@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.Caching\Kinetix.Caching.csproj" />
     <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.ComponentModel\Kinetix.ComponentModel.csproj" />
-    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.Security\Kinetix.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -49,13 +49,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     }
                 }
 
-                var isPostgre = GeneratorParameters.ProceduralSql?.TargetDBMS.ToLower() == "postgre";
-
-                if (isPostgre)
-                {
-                    usings.Add("Npgsql");
-                }
-
                 foreach (var us in usings.OrderBy(x => x))
                 {
                     w.WriteLine($"using {us};");
@@ -69,14 +62,10 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(1, "{");
                 w.WriteSummary(2, "Constructeur par défaut.");
                 w.WriteParam("options", "Options du DbContext.");
-                w.WriteParam("transaction", "Transaction en cours.");
 
-                var transactionType = isPostgre ? "Npgsql" : "Sql";
-
-                w.WriteLine(2, $"public {strippedProjectName}DbContext(DbContextOptions<{dbContextName}> options, {transactionType}Transaction transaction)");
+                w.WriteLine(2, $"public {strippedProjectName}DbContext(DbContextOptions<{dbContextName}> options)");
                 w.WriteLine(3, ": base(options)");
                 w.WriteLine(2, "{");
-                w.WriteLine(3, "Database.UseTransaction(transaction);");
                 w.WriteLine(2, "}");
 
                 foreach (ModelRoot model in modelRootList)
