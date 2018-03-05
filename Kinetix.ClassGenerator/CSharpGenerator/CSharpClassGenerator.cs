@@ -405,6 +405,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("System.Collections.Generic");
             }
 
+            if (item.PropertyList.Any(prop => prop.DataType?.Contains("Npgsql") ?? false))
+            {
+                usings.Add("NpgsqlTypes");
+            }
+
             if (!string.IsNullOrEmpty(item.DefaultProperty)
                 || item.Stereotype == Stereotype.Reference
                 || item.Stereotype == Stereotype.Statique)

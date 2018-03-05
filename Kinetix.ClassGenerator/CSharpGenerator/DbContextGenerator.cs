@@ -72,7 +72,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 {
                     foreach (ModelNamespace ns in model.Namespaces.Values)
                     {
-                        foreach (ModelClass classe in ns.ClassList)
+                        foreach (ModelClass classe in ns.ClassList.OrderBy(c => c.Name))
                         {
                             if (classe.DataContract.IsPersistent)
                             {

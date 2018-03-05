@@ -14,7 +14,7 @@ namespace Kinetix.ClassGenerator
         private static readonly Regex RegExDecimal = new Regex("^DC[0-9]*,[0-9]*$");
         private static readonly Regex RegExNumeric = new Regex("^N[0-9]*,[0-9]*$");
         private static readonly Regex RegExVarChar = new Regex("^VA[0-9]*$");
-        private static readonly Regex RegNotNullableType = new Regex(@"^((u)?int|(u)?long|(s)?byte|(u)?short|bool|System.DateTime|System.TimeSpan|decimal|System.Guid)$");
+        private static readonly Regex RegNotNullableType = new Regex(@"^((u)?int|(u)?long|(s)?byte|(u)?short|bool|System.DateTime|System.TimeSpan|decimal|System.Guid|NpgsqlTypes.NpgsqlPoint|NpgsqlTypes.NpgsqlPolygon)$");
         private static IDictionary<string, string> regType;
 
         /// <summary>
@@ -253,6 +253,21 @@ namespace Kinetix.ClassGenerator
             if (persistentDataType == "PIC")
             {
                 return "image";
+            }
+
+            if (persistentDataType == "VBIN")
+            {
+                return "jsonb";
+            }
+
+            if (persistentDataType == "MN")
+            {
+                return "polygon";
+            }
+
+            if (persistentDataType == "LA")
+            {
+                return "point";
             }
 
             if (persistentDataType == "VBIN")

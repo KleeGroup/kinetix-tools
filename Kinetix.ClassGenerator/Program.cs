@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Kinetix.ClassGenerator.Configuration;
 using Kinetix.ClassGenerator.Main;
 
@@ -49,7 +50,7 @@ namespace Kinetix.ClassGenerator
                 Console.WriteLine();
                 Console.WriteLine("Fin de la génération");
             }
-            catch (Exception ex)
+            catch (ReflectionTypeLoadException ex)
             {
                 Console.Error.WriteLine("Une erreur est arrivée durant la génération des classes : ");
                 Console.Error.WriteLine(ex.ToString());

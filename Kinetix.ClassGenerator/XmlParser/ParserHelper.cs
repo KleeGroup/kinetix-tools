@@ -405,7 +405,9 @@ namespace Kinetix.ClassGenerator.XmlParser
                 type == "decimal" ||
                 type == "System.Guid" ||
                 type == "System.DateTime" ||
-                type == "System.TimeSpan";
+                type == "System.TimeSpan" ||
+                type == "NpgsqlTypes.NpgsqlPoint" ||
+                type == "NpgsqlTypes.NpgsqlPolygon";
         }
 
         /// <summary>
