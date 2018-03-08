@@ -11,7 +11,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
 
         protected override bool SupportsClusteredKey => false;
 
-        protected override bool UseQuotes => true;
+        protected override bool UseQuotes => false;
 
         /// <summary>
         /// Gère l'auto-incrémentation des clés primaires en ajoutant identity à la colonne.
