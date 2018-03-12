@@ -15,12 +15,14 @@ namespace Kinetix.SpaServiceGenerator
         /// <summary>
         /// Le chemin vers le répertoire de définitions.
         /// </summary>
-        public string DefinitionPath { get; set; }
+        public int FolderCount { get; set; }
 
         /// <summary>
         /// Le nom du projet, namespace global (exemple : "Chaine").
         /// </summary>
         public string ProjectName { get; set; }
+
+        public string ServerPath => GetModulePathPrefix("server", FolderCount);
 
         /// <summary>
         /// La liste des services.
@@ -79,6 +81,11 @@ namespace Kinetix.SpaServiceGenerator
                 return "QueryOutput";
             }
 
+            if (type.Name == "IActionResult")
+            {
+                return "any";
+            }
+
             switch (type.SpecialType)
             {
                 case SpecialType.None:
@@ -124,11 +131,16 @@ namespace Kinetix.SpaServiceGenerator
         /// <returns>La liste d'imports (type, chemin du module, nom du fichier).</returns>
         private IEnumerable<Tuple<string, string, string>> GetImportList()
         {
+            var definitionPath = GetModulePathPrefix("model", FolderCount + 1);
+
             var returnTypes = Services.SelectMany(service => GetTypes(service.ReturnType));
             var parameterTypes = Services.SelectMany(service => service.Parameters.SelectMany(parameter => GetTypes(parameter.Type)));
 
             var types = returnTypes.Concat(parameterTypes)
-                .Where(type => !type.ContainingNamespace.ToString().Contains("Kinetix") && !type.ContainingNamespace.ToString().Contains("System"));
+                .Where(type =>
+                    !type.ContainingNamespace.ToString().Contains("Kinetix")
+                 && !type.ContainingNamespace.ToString().Contains("System")
+                 && !type.ContainingNamespace.ToString().Contains("Microsoft"));
 
             var referenceTypes = types.Where(type =>
                 type.DeclaringSyntaxReferences.Any(s =>
@@ -166,7 +178,7 @@ namespace Kinetix.SpaServiceGenerator
                     .Replace(".", "/")
                     .ToDashCase();
 
-                return Tuple.Create(type.Name, $"{DefinitionPath}/{module}", type.Name.ToDashCase());
+                return Tuple.Create(type.Name, $"{definitionPath}/{module}", type.Name.ToDashCase());
             }).Distinct().ToList();
 
             if (returnTypes.Any(type => type?.Name == "QueryOutput"))
@@ -180,7 +192,7 @@ namespace Kinetix.SpaServiceGenerator
 
             if (referenceTypes.Any())
             {
-                imports.Add(Tuple.Create(string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), DefinitionPath, "references"));
+                imports.Add(Tuple.Create(string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), definitionPath, "references"));
             }
 
             return imports.OrderBy(type => type.Item1);
@@ -210,6 +222,16 @@ namespace Kinetix.SpaServiceGenerator
                     }
                 }
             }
+        }
+
+        private string GetModulePathPrefix(string module, int count)
+        {
+            if (count == 0)
+            {
+                return $"./{module}";
+            }
+
+            return $"{string.Join(string.Empty, Enumerable.Range(0, FolderCount).Select(_ => "../"))}{module}";
         }
     }
 }

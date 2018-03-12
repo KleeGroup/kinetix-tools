@@ -18,7 +18,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+    #line 1 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
     public partial class ReferenceTemplate : ReferenceTemplateBase
     {
@@ -31,69 +31,97 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             this.Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera per" +
                     "due.\r\n*/\r\n");
             
-            #line 10 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 10 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
  foreach (var reference in References) { 
             
             #line default
             #line hidden
             this.Write("\r\nexport type ");
             
-            #line 12 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 12 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(reference.Name));
             
             #line default
             #line hidden
             this.Write("Code = ");
             
-            #line 12 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 12 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GetConstValues(reference)));
             
             #line default
             #line hidden
             this.Write(";\r\nexport interface ");
             
-            #line 13 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 13 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(reference.Name));
             
             #line default
             #line hidden
             this.Write(" {\r\n");
             
-            #line 14 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 14 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
  foreach (var property in reference.PropertyList) { 
             
             #line default
             #line hidden
             this.Write("    ");
             
-            #line 15 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 15 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(property.Name)));
             
             #line default
             #line hidden
             
-            #line 15 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 15 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(property.DataMember.IsRequired || property.IsPrimaryKey ? string.Empty : "?"));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 15 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 15 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ToTSType(property)));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 16 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 16 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("}\r\n");
+            this.Write("}\r\nexport const ");
             
-            #line 18 "C:\Users\damie\Desktop\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(reference.Name)));
+            
+            #line default
+            #line hidden
+            this.Write(" = {type: {} as ");
+            
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(reference.Name));
+            
+            #line default
+            #line hidden
+            this.Write(", valueKey: \"");
+            
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(reference.PrimaryKey.First().Name)));
+            
+            #line default
+            #line hidden
+            this.Write("\", labelKey: \"");
+            
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(reference.DefaultProperty ?? "Libelle")));
+            
+            #line default
+            #line hidden
+            this.Write("\"};\r\n");
+            
+            #line 19 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\ReferenceTemplate.tt"
  } 
             
             #line default

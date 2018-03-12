@@ -130,7 +130,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             #line hidden
             
             #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(property.DataMember.IsRequired || property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?"));
+            this.Write(this.ToStringHelper.ToStringWithCulture(property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?"));
             
             #line default
             #line hidden
@@ -463,7 +463,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             this.Write("isRequired: ");
             
             #line 68 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(property.DataMember.IsRequired.ToString())));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int")).ToString())));
             
             #line default
             #line hidden
@@ -481,7 +481,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             
             #line default
             #line hidden
-            this.Write("translationKey: \"");
+            this.Write("label: \"");
             
             #line 70 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToNamespace(Model.Namespace.Name)));
@@ -533,6 +533,47 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             #line default
             #line hidden
             this.Write("    }\r\n};\r\n");
+            
+            #line 78 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+ if (Model.IsReference) { 
+            
+            #line default
+            #line hidden
+            this.Write(" \r\nexport const ");
+            
+            #line 79 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(Model.Name)));
+            
+            #line default
+            #line hidden
+            this.Write(" = {type: {} as ");
+            
+            #line 79 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Name));
+            
+            #line default
+            #line hidden
+            this.Write(", valueKey: \"");
+            
+            #line 79 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(Model.PrimaryKey.First().Name)));
+            
+            #line default
+            #line hidden
+            this.Write("\", labelKey: \"");
+            
+            #line 79 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(Model.DefaultProperty ?? "Libelle")));
+            
+            #line default
+            #line hidden
+            this.Write("\"}; \r\n");
+            
+            #line 80 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
+ } 
+            
+            #line default
+            #line hidden
             return this.GenerationEnvironment.ToString();
         }
     }

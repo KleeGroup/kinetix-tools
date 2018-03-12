@@ -35,24 +35,23 @@ namespace Kinetix.SpaServiceGenerator
 
         private static async Task Generate(Solution solution, string spaRoot, string projectName)
         {
-            var definitionPath = "../../model";
             var outputPath = $"{spaRoot}/app/services";
 
             var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(projectName) && projet.AssemblyName.EndsWith("FrontEnd"));
-            var controllers = frontEnds.SelectMany(f => f.Documents).Where(document =>
-                document.Name.Contains("Controller")
-                && document.Folders.Contains("Controllers")
-                && !document.Folders.Contains("Transverse")
-                && document.Folders.Count == 2
-                && !document.Name.Contains("ReferenceList"));
+            var controllers = frontEnds.SelectMany(f => f.Documents).Where(document => document.Name.Contains("Controller"));
 
             foreach (var controller in controllers)
             {
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
 
-                var controllerName = $"{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts";
-                Console.Out.WriteLine($"Generating {controllerName}");
+                var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
+                var secondFolder = controller.Folders.Count > 1 ? $"/{string.Join("/", controller.Folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
+                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + controller.Folders.Count - 1;
+
+                var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
+
+                Console.WriteLine($"Generating {controllerName}");
 
                 var methods = controllerClass.ChildNodes().OfType<MethodDeclarationSyntax>();
                 var model = await controller.GetSemanticModelAsync();
@@ -61,7 +60,7 @@ namespace Kinetix.SpaServiceGenerator
                     .Where(method => method.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)))
                     .Select(method => GetService(method, model));
 
-                var fileName = $"{outputPath}/{controller.Folders.Last().ToDashCase()}/{controllerName}";
+                var fileName = $"{outputPath}/{controllerName}";
                 var fileInfo = new FileInfo(fileName);
 
                 var directoryInfo = fileInfo.Directory;
@@ -70,7 +69,7 @@ namespace Kinetix.SpaServiceGenerator
                     Directory.CreateDirectory(directoryInfo.FullName);
                 }
 
-                var template = new ServiceSpa { ProjectName = projectName, DefinitionPath = definitionPath, Services = serviceList };
+                var template = new ServiceSpa { ProjectName = projectName, FolderCount = folderCount, Services = serviceList };
                 var output = template.TransformText();
                 File.WriteAllText(fileName, output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
@@ -91,9 +90,9 @@ namespace Kinetix.SpaServiceGenerator
                     ((param as XmlElementSyntax).StartTag.Attributes.First() as XmlNameAttributeSyntax).Identifier.ToString(),
                     (param as XmlElementSyntax).Content.ToString()));
 
-            var verb = method.AttributeLists.First().Attributes.First().ToString();
+            var verb = method.AttributeLists.First().Attributes.First().Name.ToString();
 
-            ICollection<Parameter> parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter
+            var parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter
             {
                 Type = model.GetSymbolInfo(parameter.Type).Symbol as INamedTypeSymbol,
                 Name = parameter.Identifier.ToString(),
@@ -102,10 +101,10 @@ namespace Kinetix.SpaServiceGenerator
                 IsFromUri = parameter.AttributeLists.FirstOrDefault() != null ? parameter.AttributeLists.FirstOrDefault().Attributes.Where(attr => attr.ToString() == "FromUri").Any() : false,
             }).ToList();
 
-            IList<string> routeParameters = new List<string>();
-            string route = ((method.AttributeLists.Last().Attributes.First().ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
+            var routeParameters = new List<string>();
+            var route = ((method.AttributeLists.Last().Attributes.First().ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
                     .Expression as LiteralExpressionSyntax).Token.ValueText;
-            MatchCollection matches = Regex.Matches(route, "(?s){.+?}");
+            var matches = Regex.Matches(route, "(?s){.+?}");
             foreach (Match match in matches)
             {
                 routeParameters.Add(match.Value.Replace("{", "").Replace("}", ""));
@@ -118,7 +117,7 @@ namespace Kinetix.SpaServiceGenerator
                 .Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name))
                 .ToList();
 
-            ICollection<Parameter> bodyParameters = new List<Parameter>();
+            var bodyParameters = new List<Parameter>();
             if ((verb == "HttpPost" || verb == "HttpPut") && parameterList.Except(uriParameters).Any())
             {
                 var bodyParams = parameterList
