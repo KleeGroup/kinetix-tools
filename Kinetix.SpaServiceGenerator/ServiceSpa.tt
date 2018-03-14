@@ -10,8 +10,9 @@
 */
 
 import * as server from "<#= ServerPath #>";
+
 <# foreach (var import in GetImportList()) { #>
-import {<#= import.Item1 #>} from "<#= import.Item2 #>/<#= import.Item3 #>";
+import {<#= import.import #>} from "<#= import.path #>";
 <# } #>
 <# foreach (var service in Services) { #>
 

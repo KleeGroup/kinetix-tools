@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Kinetix.SpaServiceGenerator.Model;
 using Microsoft.CodeAnalysis;
@@ -128,8 +127,8 @@ namespace Kinetix.SpaServiceGenerator
         /// <summary>
         /// Récupère la liste d'imports de types pour les services.
         /// </summary>
-        /// <returns>La liste d'imports (type, chemin du module, nom du fichier).</returns>
-        private IEnumerable<Tuple<string, string, string>> GetImportList()
+        /// <returns>La liste d'imports (type, chemin du module).</returns>
+        private IEnumerable<(string import, string path)> GetImportList()
         {
             var definitionPath = GetModulePathPrefix("model", FolderCount + 1);
 
@@ -178,21 +177,26 @@ namespace Kinetix.SpaServiceGenerator
                     .Replace(".", "/")
                     .ToDashCase();
 
-                return Tuple.Create(type.Name, $"{definitionPath}/{module}", type.Name.ToDashCase());
+                return (type.Name, $"{definitionPath}/{module}/{type.Name.ToDashCase()}");
             }).Distinct().ToList();
 
             if (returnTypes.Any(type => type?.Name == "QueryOutput"))
             {
-                imports.Add(Tuple.Create("QueryInput, QueryOutput", "focus4", "collections"));
+                imports.Add(("QueryInput, QueryOutput", "focus4/collections"));
             }
             else if (parameterTypes.Any(type => type?.Name == "QueryInput"))
             {
-                imports.Add(Tuple.Create("QueryInput", "focus4", "collections"));
+                imports.Add(("QueryInput", "focus4/collections"));
+            }
+
+            if (returnTypes.Any(type => type?.Name == "AutocompleteResult"))
+            {
+                imports.Add(("AutocompleteResult", "focus4/components/autocomplete"));
             }
 
             if (referenceTypes.Any())
             {
-                imports.Add(Tuple.Create(string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), definitionPath, "references"));
+                imports.Add((string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), $"{definitionPath}/references"));
             }
 
             return imports.OrderBy(type => type.Item1);
