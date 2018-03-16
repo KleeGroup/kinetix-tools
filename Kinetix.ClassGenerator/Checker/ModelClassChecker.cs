@@ -173,16 +173,6 @@ namespace Kinetix.ClassGenerator.Checker
                     RegisterBug(classe, "Cette classe persistente n'a pas le droit d'hériter de la classe [" + classe.ParentClass.Name + "].");
                 }
             }
-            else
-            {
-                foreach (ModelProperty property in classe.PrimaryKey)
-                {
-                    if (property.DataDescription.IsPrimaryKey && property.IsPersistent)
-                    {
-                        RegisterBug(classe, "Une clé primaire est définie pour cette classe non persistente.");
-                    }
-                }
-            }
         }
 
         /// <summary>
