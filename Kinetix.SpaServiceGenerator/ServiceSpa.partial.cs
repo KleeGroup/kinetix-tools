@@ -235,7 +235,7 @@ namespace Kinetix.SpaServiceGenerator
                 return $"./{module}";
             }
 
-            return $"{string.Join(string.Empty, Enumerable.Range(0, FolderCount).Select(_ => "../"))}{module}";
+            return $"{string.Join(string.Empty, Enumerable.Range(0, count).Select(_ => "../"))}{module}";
         }
     }
 }
