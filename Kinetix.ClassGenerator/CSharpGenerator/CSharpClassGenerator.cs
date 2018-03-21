@@ -107,7 +107,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             if (nbConstValues != 0)
             {
                 int i = 0;
-                foreach (string constFieldName in item.ConstValues.Keys.OrderBy(x => x))
+                foreach (string constFieldName in item.ConstValues.Keys.OrderBy(x => x, StringComparer.Ordinal))
                 {
                     ++i;
                     var valueLibelle = item.ConstValues[constFieldName];
