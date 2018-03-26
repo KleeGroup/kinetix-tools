@@ -35,11 +35,6 @@ namespace Kinetix.ClassGenerator.XmlParser
 #pragma warning disable SA1401
 
         /// <summary>
-        /// Liste des domaines.
-        /// </summary>
-        protected readonly ICollection<IDomain> DomainList;
-
-        /// <summary>
         /// Liste des modeles power designer.
         /// </summary>
         protected readonly ICollection<string> ModelFiles;
@@ -59,10 +54,9 @@ namespace Kinetix.ClassGenerator.XmlParser
         /// </summary>
         /// <param name="modelFiles">Liste des modèles à analyser.</param>
         /// <param name="domainList">Liste des domaines.</param>
-        protected AbstractParser(ICollection<string> modelFiles, ICollection<IDomain> domainList)
+        protected AbstractParser(ICollection<string> modelFiles)
             : this()
         {
-            DomainList = domainList ?? throw new ArgumentNullException("domainList");
             ModelFiles = modelFiles ?? throw new ArgumentNullException("modelFiles");
         }
 
@@ -156,41 +150,6 @@ namespace Kinetix.ClassGenerator.XmlParser
                 FileName = item.Model.ModelFile,
                 Code = "UNKNOWN_DOMAIN"
             });
-        }
-
-        /// <summary>
-        /// Effectue les vérifications de cohérence sur les domaines.
-        /// </summary>
-        /// <param name="item">L'élément testé.</param>
-        protected void CheckDomain(ModelDomain item)
-        {
-            if (item == null)
-            {
-                throw new ArgumentNullException("item");
-            }
-
-            bool found = false;
-            foreach (IDomain domain in DomainList)
-            {
-                if (domain.Name == item.Code)
-                {
-                    found = true;
-                    if (item.PersistentLength != null && domain.Length > item.PersistentLength)
-                    {
-                        AddLengthDomainError(item, domain);
-                    }
-
-                    if (!ParserHelper.IsSameDataType(domain.DataType, item.DataType))
-                    {
-                        AddDataTypeDomainError(item, domain);
-                    }
-                }
-            }
-
-            if (!found && item.Code != DomainManager<object>.AliasDomain)
-            {
-                AddUnknownDomainError(item);
-            }
         }
 
         /// <summary>

@@ -7,13 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build" Version="15.5.180" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Build" Version="15.6.82" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.Caching\Kinetix.Caching.csproj" />
     <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.ComponentModel\Kinetix.ComponentModel.csproj" />
   </ItemGroup>
 

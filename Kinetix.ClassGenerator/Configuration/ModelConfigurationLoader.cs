@@ -32,11 +32,6 @@ namespace Kinetix.ClassGenerator.Configuration
                 throw new ArgumentNullException(nameof(GeneratorParameters.ModelFiles));
             }
 
-            if (GeneratorParameters.DomainFactoryAssembly == null)
-            {
-                throw new ArgumentNullException(nameof(GeneratorParameters.DomainFactoryAssembly));
-            }
-
             GeneratorParameters.ExtModelFiles = GeneratorParameters.ExtModelFiles ?? new List<string>();
             GeneratorParameters.Pause = GeneratorParameters.Pause ?? true;
             GeneratorParameters.VortexFile = GeneratorParameters.VortexFile ?? "Kinetix.ClassGenerator.log";

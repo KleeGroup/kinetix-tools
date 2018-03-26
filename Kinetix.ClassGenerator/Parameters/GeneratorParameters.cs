@@ -44,15 +44,6 @@ namespace Kinetix.ClassGenerator.Parameters
         }
 
         /// <summary>
-        /// Nom de l'assembly contenant des implémentations de AbstractDomainFactory.
-        /// </summary>
-        public string DomainFactoryAssembly
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Nom de l'assembly contenant des implémentations de AbstractListFactory.
         /// </summary>
         public string ListFactoryAssembly

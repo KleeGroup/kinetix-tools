@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using Kinetix.ClassGenerator.Model;
-using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator.Checker
 {
@@ -15,15 +14,6 @@ namespace Kinetix.ClassGenerator.Checker
         /// </summary>
         public static readonly ModelRootChecker Instance = new ModelRootChecker();
         private static readonly Dictionary<string, string> TrigramDictionary = new Dictionary<string, string>();
-
-        /// <summary>
-        /// Obtient ou définit la liste des domaines.
-        /// </summary>
-        public ICollection<IDomain> DomainList
-        {
-            get;
-            set;
-        }
 
         /// <summary>
         /// Vérifie l'intégrité du modèle.
@@ -56,14 +46,6 @@ namespace Kinetix.ClassGenerator.Checker
             foreach (ModelDomain domain in root.CreatedDomains)
             {
                 ModelDomainChecker.Instance.Check(domain);
-            }
-
-            foreach (IDomain domain in DomainList)
-            {
-                if (!root.HasDomainByCode(domain.Name))
-                {
-                    RegisterBug(objet, "Le domaine " + domain.Name + " est déclaré dans la Factory mais pas dans le modèle.");
-                }
             }
 
             foreach (string nsKey in root.Namespaces.Keys)

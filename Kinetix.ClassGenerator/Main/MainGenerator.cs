@@ -14,8 +14,6 @@ using Kinetix.ClassGenerator.SsdtSchemaGenerator;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.XmlParser;
 using Kinetix.ClassGenerator.XmlParser.OomReader;
-using Kinetix.ComponentModel;
-using Kinetix.ComponentModel.Annotations;
 using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.Main
@@ -41,11 +39,6 @@ namespace Kinetix.ClassGenerator.Main
         private readonly ISqlServerSsdtInsertGenerator _ssdtInsertGenerator = new SqlServerSsdtInsertGenerator();
 
         /// <summary>
-        /// Liste des domaines.
-        /// </summary>
-        private ICollection<IDomain> _domainList;
-
-        /// <summary>
         /// Liste des modèles objet en mémoire.
         /// </summary>
         private ICollection<ModelRoot> _modelList;
@@ -58,9 +51,6 @@ namespace Kinetix.ClassGenerator.Main
             // Vérification.
             CheckModelFiles();
             CheckOutputDirectory();
-
-            // Chargements des domaines.
-            _domainList = LoadDomain();
 
             // Chargement des modèles objet en mémoire.
             LoadObjectModel();
@@ -129,28 +119,6 @@ namespace Kinetix.ClassGenerator.Main
                     Console.Error.WriteLine("Le répertoire de génération " + outputDir + " est en lecture seule.");
                 }
             }
-        }
-
-        /// <summary>
-        /// Charge les domaines utilisés par l'application.
-        /// </summary>
-        /// <returns>Liste des domaines de l'application.</returns>
-        private static ICollection<IDomain> LoadDomain()
-        {
-            List<IDomain> domainList = new List<IDomain>();
-            Assembly assembly = Assembly.LoadFile(Path.Combine(Directory.GetCurrentDirectory(), Singletons.GeneratorParameters.DomainFactoryAssembly));
-            foreach (Module module in assembly.GetModules())
-            {
-                foreach (Type type in module.GetTypes())
-                {
-                    if (type.GetCustomAttributes(typeof(DomainMetadataTypeAttribute), false).Length > 0)
-                    {
-                        domainList.AddRange(Singletons.DomainManager.RegisterDomainMetadataType(type));
-                    }
-                }
-            }
-
-            return domainList;
         }
 
         /// <summary>
@@ -237,7 +205,7 @@ namespace Kinetix.ClassGenerator.Main
         /// <returns>Parser de modèle objet.</returns>
         private IModelParser LoadModelParser()
         {
-            return new OomParser(Singletons.GeneratorParameters.ModelFiles, Singletons.GeneratorParameters.DomainModelFile, Singletons.GeneratorParameters.ExtModelFiles, _domainList);
+            return new OomParser(Singletons.GeneratorParameters.ModelFiles, Singletons.GeneratorParameters.DomainModelFile, Singletons.GeneratorParameters.ExtModelFiles);
         }
 
         /// <summary>
@@ -257,7 +225,7 @@ namespace Kinetix.ClassGenerator.Main
 
             // Génère les warnings pour le modèle.
             List<NVortexMessage> messageList = new List<NVortexMessage>(modelParser.ErrorList);
-            messageList.AddRange(CodeChecker.Check(_modelList, _domainList));
+            messageList.AddRange(CodeChecker.Check(_modelList));
             messageList.AddRange(StaticListChecker.Instance.Check(_modelList, staticTableInitList));
             messageList.AddRange(ReferenceListChecker.Instance.Check(_modelList, referenceTableInitList));
             messageList.AddRange(AbstractSchemaGenerator.CheckAllIdentifiersNames(_modelList));

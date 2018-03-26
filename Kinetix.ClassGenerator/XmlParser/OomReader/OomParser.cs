@@ -86,9 +86,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <param name="modelFiles">Liste des modèles à analyser.</param>
         /// <param name="domainModelFile">Modele contenant les domaines.</param>
         /// <param name="extModelFiles">Liste des modèles de base de données externes à analyser.</param>
-        /// <param name="domainList">Liste des domaines.</param>
-        public OomParser(ICollection<string> modelFiles, string domainModelFile, ICollection<string> extModelFiles, ICollection<IDomain> domainList)
-            : base(modelFiles, domainList)
+        public OomParser(ICollection<string> modelFiles, string domainModelFile, ICollection<string> extModelFiles)
+            : base(modelFiles)
         {
             this._domainModelFile = domainModelFile;
             this._extModelFiles = extModelFiles;
@@ -283,7 +282,6 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Model = _currentModelRoot
                     };
                     _currentModelRoot.AddDomain(domainNode.Attributes["Id"].Value, domaine);
-                    CheckDomain(domaine);
                 }
             }
         }

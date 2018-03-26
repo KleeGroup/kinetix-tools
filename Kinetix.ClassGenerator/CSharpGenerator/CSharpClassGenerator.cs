@@ -45,7 +45,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             w.WriteLine(2, "public " + item.Name + "(" + item.ParentClass.Name + " bean)");
             w.WriteLine(3, ": base(bean)");
             w.WriteLine(2, "{");
-            w.WriteLine(3, "this.OnCreated();");
+            w.WriteLine(3, "OnCreated();");
             w.WriteLine(2, "}");
         }
 
@@ -229,20 +229,21 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
             {
-                w.WriteLine(3, "this." + property.Name + " = new " + property.DataType + "(bean." + property.Name + ");");
+                w.WriteLine(3, property.Name + " = new " + property.DataType + "(bean." + property.Name + ");");
             }
 
             foreach (var property in item.PropertyList.Where(p => p.IsCollection))
             {
-                w.WriteLine(3, "this." + property.Name + " = new List<" + LoadInnerDataType(property.DataType) + ">(bean." + property.Name + ");");
+                w.WriteLine(3, property.Name + " = new List<" + LoadInnerDataType(property.DataType) + ">(bean." + property.Name + ");");
             }
 
             foreach (var property in item.PropertyList.Where(p => p.IsPrimitive))
             {
-                w.WriteLine(3, "this." + property.Name + " = bean." + property.Name + ";");
+                w.WriteLine(3, property.Name + " = bean." + property.Name + ";");
             }
 
-            w.WriteLine(3, "this.OnCreated(bean);");
+            w.WriteLine();
+            w.WriteLine(3, "OnCreated(bean);");
             w.WriteLine(2, "}");
         }
 
@@ -262,7 +263,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
 
             w.WriteLine(2, "{");
-            w.WriteLine(3, "this.OnCreated();");
+            w.WriteLine(3, "OnCreated();");
             w.WriteLine(2, "}");
         }
 
@@ -357,7 +358,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 if (!string.IsNullOrEmpty(property.DataDescription.ReferenceType) && !property.DataDescription.ReferenceClass.IsExternal)
                 {
-                    w.WriteAttribute(2, "ReferencedType", $"typeof({property.DataDescription.ReferenceType})");
+                    w.WriteAttribute(2, "ReferencedType", $"typeof({property.DataDescription.ReferenceClass.Name})");
                 }
 
                 if (property.DataDescription.Domain != null)
@@ -405,14 +406,12 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         {
             var usings = new List<string> { "System" };
 
-            if (item.HasCollection || (item.ConstValues != null && item.ConstValues.Count > 0))
+            if (item.HasCollection || (GeneratorParameters.CSharp.UseTypeSafeConstValues == true && item.ConstValues != null && item.ConstValues.Count > 0))
             {
                 usings.Add("System.Collections.Generic");
             }
 
-            if (!string.IsNullOrEmpty(item.DefaultProperty)
-                || item.Stereotype == Stereotype.Reference
-                || item.Stereotype == Stereotype.Statique)
+            if (!string.IsNullOrEmpty(item.DefaultProperty))
             {
                 usings.Add("System.ComponentModel");
             }
@@ -427,14 +426,14 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("System.ComponentModel.DataAnnotations.Schema");
             }
 
-            foreach (string value in item.UsingList)
-            {
-                usings.Add(value);
-            }
-
             if (item.HasDomainAttribute || item.ParentClass == null)
             {
                 usings.Add("Kinetix.ComponentModel.Annotations");
+            }
+
+            foreach (string value in item.UsingList)
+            {
+                usings.Add(value);
             }
 
             foreach (var property in item.PropertyList)
@@ -442,6 +441,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 if (!string.IsNullOrEmpty(property.DataDescription?.Domain?.CustomUsings))
                 {
                     usings.AddRange(property.DataDescription?.Domain?.CustomUsings.Split(',').Select(u => u.Trim()));
+                }
+
+                if (!string.IsNullOrEmpty(property.DataDescription.ReferenceClass?.Namespace?.Name))
+                {
+                    usings.Add($"{GeneratorParameters.RootNamespace}.{property.DataDescription.ReferenceClass.Namespace.Name}");
                 }
             }
 
@@ -459,7 +463,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <returns>Code généré.</returns>
         private static string LoadPropertyInit(string fieldName, string dataType)
         {
-            var res = $"this.{fieldName} = ";
+            var res = $"{fieldName} = ";
             if (IsCSharpBaseType(dataType))
             {
                 res += GetCSharpDefaultValueBaseType(dataType) + ";";

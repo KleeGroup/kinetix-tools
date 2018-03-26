@@ -98,9 +98,9 @@ namespace Kinetix.ClassGenerator.Checker
         {
             if (ConstRegexList.IsMatch(property.DataType))
             {
-                if (!property.Name.EndsWith("List", StringComparison.Ordinal))
+                if (!property.Name.EndsWith("List", StringComparison.Ordinal) && !property.Name.EndsWith("s", StringComparison.Ordinal))
                 {
-                    RegisterCodeStyle(property.Class, "La propriété [" + property.Name + "] retourne une collection. Elle doit se terminer par \"List\".");
+                    RegisterCodeStyle(property.Class, "La propriété [" + property.Name + "] retourne une collection. Elle doit se terminer par \"List\" ou un \"s\".");
                 }
             }
 

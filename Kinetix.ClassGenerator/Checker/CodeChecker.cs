@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator.Checker
 {
@@ -14,15 +13,12 @@ namespace Kinetix.ClassGenerator.Checker
         /// Methode de controle du modele.
         /// </summary>
         /// <param name="modelList">Liste des modeles parsés.</param>
-        /// <param name="domainList">Liste des domaines chargés depuis l'assembly de déclaration.</param>
         /// <returns>La liste des erreurs.</returns>
-        public static ICollection<NVortexMessage> Check(ICollection<ModelRoot> modelList, ICollection<IDomain> domainList)
+        public static ICollection<NVortexMessage> Check(ICollection<ModelRoot> modelList)
         {
-            ModelRootChecker modelChecker = ModelRootChecker.Instance;
-            modelChecker.DomainList = domainList;
-            foreach (ModelRoot model in modelList)
+            foreach (var model in modelList)
             {
-                modelChecker.Check(model);
+                ModelRootChecker.Instance.Check(model);
             }
 
             return AbstractModelChecker.NVortexMessageList;
