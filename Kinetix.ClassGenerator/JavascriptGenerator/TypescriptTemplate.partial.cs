@@ -176,6 +176,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             {
                 return $"{property.DataDescription.ReferenceClass.Name}Code";
             }
+            else if (type == "string" && property.IsDomain("DO_JSON"))
+            {
+                return "{}";
+            }
 
             return ToTSType(type, removeBrackets);
         }

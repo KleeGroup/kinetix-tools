@@ -363,6 +363,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 if (property.DataDescription.Domain != null)
                 {
                     w.WriteAttribute(2, "Domain", $@"""{property.DataDescription.Domain.Code}""");
+
+                    if (!string.IsNullOrEmpty(property.DataDescription.Domain.CustomAnnotation))
+                    {
+                        w.WriteLine(2, property.DataDescription.Domain.CustomAnnotation);
+                    }
                 }
             }
 
@@ -405,11 +410,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("System.Collections.Generic");
             }
 
-            if (item.PropertyList.Any(prop => prop.DataType?.Contains("Npgsql") ?? false))
-            {
-                usings.Add("NpgsqlTypes");
-            }
-
             if (!string.IsNullOrEmpty(item.DefaultProperty)
                 || item.Stereotype == Stereotype.Reference
                 || item.Stereotype == Stereotype.Statique)
@@ -437,7 +437,18 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("Kinetix.ComponentModel.Annotations");
             }
 
-            w.WriteUsings(usings.ToArray());
+            foreach (var property in item.PropertyList)
+            {
+                if (!string.IsNullOrEmpty(property.DataDescription?.Domain?.CustomUsings))
+                {
+                    usings.AddRange(property.DataDescription?.Domain?.CustomUsings.Split(',').Select(u => u.Trim()));
+                }
+            }
+
+            w.WriteUsings(usings
+                .Where(u => u != $"{GeneratorParameters.RootNamespace}.{item.Namespace.Name}")
+                .Distinct()
+                .ToArray());
         }
 
         /// <summary>

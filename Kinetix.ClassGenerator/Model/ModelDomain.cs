@@ -119,5 +119,9 @@ namespace Kinetix.ClassGenerator.Model
                 return sb.ToString();
             }
         }
+
+        public string CustomAnnotation { get; set; }
+
+        public string CustomUsings { get; set; }
     }
 }

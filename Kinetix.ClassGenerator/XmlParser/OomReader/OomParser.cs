@@ -18,6 +18,9 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
     /// </summary>
     internal class OomParser : AbstractParser
     {
+        private const string DomainCustomAnnotation = "a:ClientCheckExpression";
+        private const string DomainCustomUsings = "a:ServerCheckExpression";
+
         private const string NodeModel = "/Model/o:RootObject/c:Children/o:Model";
         private const string NodeNamespace = "/Model/o:RootObject/c:Children/o:Model/c:Packages";
         private const string NodeDomains = "/Model/o:RootObject/c:Children/o:Model/c:Domains";
@@ -273,6 +276,9 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         PersistentDataType = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyPersistentDataType, _currentNsManager)),
                         PersistentLength = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentLength, _currentNsManager)),
                         PersistentPrecision = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentPrecision, _currentNsManager)),
+
+                        CustomAnnotation = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomAnnotation, _currentNsManager)),
+                        CustomUsings = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomUsings, _currentNsManager)),
 
                         Model = _currentModelRoot
                     };
