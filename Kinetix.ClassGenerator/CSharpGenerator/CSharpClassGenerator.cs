@@ -277,7 +277,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 w.WriteLine();
                 w.WriteSummary(2, "Initialisation des objets composés.");
-                w.WriteLine(2, "private static void Initialize()");
+                w.WriteLine(2, "private void Initialize()");
                 w.WriteLine(2, "{");
 
                 foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
