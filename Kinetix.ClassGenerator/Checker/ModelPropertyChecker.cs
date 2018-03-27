@@ -104,7 +104,7 @@ namespace Kinetix.ClassGenerator.Checker
                 }
             }
 
-            if (property.DataType == "bool" && !property.Name.StartsWith("Is", StringComparison.Ordinal) && !property.Name.StartsWith("Has", StringComparison.Ordinal))
+            if (property.DataType == "bool?" && !property.Name.StartsWith("Is", StringComparison.Ordinal) && !property.Name.StartsWith("Has", StringComparison.Ordinal))
             {
                 RegisterCodeStyle(property.Class, "Le propriété [" + property.Name + "] de type " + property.DataType + " devrait commencer par Is ou Has");
             }
@@ -120,20 +120,9 @@ namespace Kinetix.ClassGenerator.Checker
             {
                 RegisterBug(property.Class, "La propriété [" + property.Name + "] est de type primitif et n'a pas de domaine.");
             }
-            else if (property.DataDescription.Domain != null)
+            else if (property.DataDescription.Domain != null && !ModelDomainChecker.Instance.DomainList.ContainsKey(property.DataDescription.Domain.Code))
             {
-                if (!ModelDomainChecker.Instance.DomainList.ContainsKey(property.DataDescription.Domain.Code))
-                {
-                    RegisterBug(property.Class, "Le domaine de la propriété [" + property.Name + "] n'existe pas.");
-                }
-                else
-                {
-                    ModelDomain domaine = ModelDomainChecker.Instance.DomainList[property.DataDescription.Domain.Code];
-                    if (!domaine.DataType.Equals(property.DataType) && !("ICollection<" + domaine.DataType + ">").Equals(property.DataType))
-                    {
-                        RegisterBug(property.Class, "Le datatype de la propriété [" + property.Name + "] ne correspond pas au datatype du domaine [" + domaine.Code + "].");
-                    }
-                }
+                RegisterBug(property.Class, "Le domaine de la propriété [" + property.Name + "] n'existe pas.");
             }
         }
     }

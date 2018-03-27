@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
 using Kinetix.ComponentModel;
@@ -97,59 +96,6 @@ namespace Kinetix.ClassGenerator.XmlParser
             {
                 property.Metadata = comment.Substring(index + 9);
             }
-        }
-
-        /// <summary>
-        /// Ajoute une erreur sur le type de données divergents entre domaine et Factory.
-        /// </summary>
-        /// <param name="item">Le domaine déclaré dans le modèle.</param>
-        /// <param name="domain">Le domaine issu de la factory.</param>
-        [SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", Justification = "Non internationalisé")]
-        protected void AddDataTypeDomainError(ModelDomain item, IDomain domain)
-        {
-            ErrorList.Add(new NVortexMessage()
-            {
-                Category = Category.Error,
-                IsError = true,
-                Description = "Le domaine " + item.Code + " définit un type " + item.DataType + " différent de la Factory (" + domain.DataType.ToString() + ")",
-                FileName = item.Model.ModelFile,
-                Code = "DATA_TYPE_DIVERGENT_DOMAIN"
-            });
-        }
-
-        /// <summary>
-        /// Ajoute une erreur sur la longueur divergente entre domaine et Factory.
-        /// </summary>
-        /// <param name="item">Le domaine déclaré dans le modèle.</param>
-        /// <param name="domain">Le domaine issu de la factory.</param>
-        [SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", Justification = "Non internationalisé")]
-        protected void AddLengthDomainError(ModelDomain item, IDomain domain)
-        {
-            ErrorList.Add(new NVortexMessage()
-            {
-                Category = Category.Error,
-                IsError = true,
-                Description = "Le domain " + item.Code + " définit une longueur différente (" + item.PersistentLength + " < " + domain.Length + ") de celle de la factory.",
-                FileName = item.Model.ModelFile,
-                Code = "LENGTH_DIVERGENT_DOMAIN"
-            });
-        }
-
-        /// <summary>
-        /// Ajoute une erreur si le domaine déclaré est inexistant dans la factory.
-        /// </summary>
-        /// <param name="item">Le domaine déclaré dans le modèle.</param>
-        [SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", Justification = "Non internationalisé")]
-        protected void AddUnknownDomainError(ModelDomain item)
-        {
-            ErrorList.Add(new NVortexMessage()
-            {
-                Category = Category.Error,
-                IsError = true,
-                Description = "Le domaine " + item.Code + " n'existe pas dans la Factory.",
-                FileName = item.Model.ModelFile,
-                Code = "UNKNOWN_DOMAIN"
-            });
         }
 
         /// <summary>

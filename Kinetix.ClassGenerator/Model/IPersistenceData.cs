@@ -9,15 +9,5 @@
         /// Obtient ou définit le type persistant.
         /// </summary>
         string PersistentDataType { get; set; }
-
-        /// <summary>
-        /// Retourne la longueur persistente du domaine.
-        /// </summary>
-        int? PersistentLength { get; set; }
-
-        /// <summary>
-        /// Retourne la précision du dommaine.
-        /// </summary>
-        int? PersistentPrecision { get; set; }
     }
 }

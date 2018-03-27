@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Kinetix.ClassGenerator
 {
@@ -10,11 +9,6 @@ namespace Kinetix.ClassGenerator
     /// </summary>
     public static class CodeUtils
     {
-        private static readonly Regex RegExChar = new Regex("^A[0-9]*$");
-        private static readonly Regex RegExDecimal = new Regex("^DC[0-9]*,[0-9]*$");
-        private static readonly Regex RegExNumeric = new Regex("^N[0-9]*,[0-9]*$");
-        private static readonly Regex RegExVarChar = new Regex("^VA[0-9]*$");
-        private static readonly Regex RegNotNullableType = new Regex(@"^((u)?int|(u)?long|(s)?byte|(u)?short|bool|System.DateTime|System.TimeSpan|decimal|System.Guid|NpgsqlTypes.NpgsqlPoint|NpgsqlTypes.NpgsqlPolygon)$");
         private static IDictionary<string, string> regType;
 
         /// <summary>
@@ -112,22 +106,6 @@ namespace Kinetix.ClassGenerator
         }
 
         /// <summary>
-        /// Détermine si le type est un type de base C#
-        /// non nullable.
-        /// </summary>
-        /// <param name="name">Nom du type à définir.</param>
-        /// <returns>Vrai si le type est un type C#.</returns>
-        public static bool IsNonNullableCSharpBaseType(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException("name");
-            }
-
-            return RegNotNullableType.Match(name).Success;
-        }
-
-        /// <summary>
         /// Retourne le type contenu dans la collection.
         /// </summary>
         /// <param name="dataType">Type de données qualifié.</param>
@@ -181,132 +159,6 @@ namespace Kinetix.ClassGenerator
         }
 
         /// <summary>
-        /// Retourne le type SQL à partir d'un type persistent PowerDesigner.
-        /// </summary>
-        /// <param name="persistentDataType">Type persistent PowerDesigner.</param>
-        /// <returns>Le type SQL associé.</returns>
-        public static string PowerDesignerPersistentDataTypeToSqlDatType(string persistentDataType)
-        {
-            var isPostgre = Singletons.GeneratorParameters.ProceduralSql?.TargetDBMS?.ToLower() == "postgre";
-
-            if (string.IsNullOrEmpty(persistentDataType))
-            {
-                throw new ArgumentNullException(nameof(persistentDataType));
-            }
-
-            if (persistentDataType == "I")
-            {
-                return "int";
-            }
-
-            if (persistentDataType == "D")
-            {
-                if (isPostgre)
-                {
-                    return "date";
-                }
-                else
-                {
-                    return "datetime2";
-                }
-            }
-
-            if (persistentDataType == "DT")
-            {
-                if (isPostgre)
-                {
-                    return "timestamp";
-                }
-                else
-                {
-                    return "datetime2";
-                }
-            }
-
-            if (persistentDataType == "BL")
-            {
-                if (isPostgre)
-                {
-                    return "bool";
-                }
-                else
-                {
-                    return "bit";
-                }
-            }
-
-            if (persistentDataType == "SI")
-            {
-                return "smallint";
-            }
-
-            if (persistentDataType == "T")
-            {
-                return "time";
-            }
-
-            if (persistentDataType == "TXT")
-            {
-                return "text";
-            }
-
-            if (persistentDataType == "PIC")
-            {
-                return "image";
-            }
-
-            if (persistentDataType == "VBIN")
-            {
-                return "jsonb";
-            }
-
-            if (persistentDataType == "MN")
-            {
-                return "polygon";
-            }
-
-            if (persistentDataType == "LA")
-            {
-                return "point";
-            }
-
-            if (persistentDataType == "VBIN")
-            {
-                return "jsonb";
-            }
-
-            if (RegExNumeric.IsMatch(persistentDataType))
-            {
-                return "numeric";
-            }
-
-            if (RegExVarChar.IsMatch(persistentDataType))
-            {
-                if (isPostgre)
-                {
-                    return "varchar";
-                }
-                else
-                {
-                    return "nvarchar";
-                }
-            }
-
-            if (RegExChar.IsMatch(persistentDataType))
-            {
-                return "nchar";
-            }
-
-            if (RegExDecimal.IsMatch(persistentDataType))
-            {
-                return "decimal";
-            }
-
-            return persistentDataType;
-        }
-
-
-        /// <summary>
         /// Supprime les points de la chaîne.
         /// </summary>
         /// <param name="dottedString">Chaîne avec points.</param>
@@ -328,18 +180,18 @@ namespace Kinetix.ClassGenerator
         {
             regType = new Dictionary<string, string>
             {
-                { "int", "0" },
-                { "uint", "0" },
-                { "float", "0.0f" },
-                { "double", "0.0" },
-                { "bool", "false" },
-                { "short", "0" },
-                { "ushort", "0" },
-                { "long", "0" },
-                { "ulong", "0" },
-                { "decimal", "0" },
-                { "byte", "0" },
-                { "sbyte", "0" },
+                { "int?", "0" },
+                { "uint?", "0" },
+                { "float?", "0.0f" },
+                { "double?", "0.0" },
+                { "bool?", "false" },
+                { "short?", "0" },
+                { "ushort?", "0" },
+                { "long?", "0" },
+                { "ulong?", "0" },
+                { "decimal?", "0" },
+                { "byte?", "0" },
+                { "sbyte?", "0" },
                 { "string", "\"\"" }
             };
         }

@@ -21,7 +21,7 @@ import {<#= import.Item1 #>} from "<#= import.Item2 #>/<#= import.Item3 #>";<#
 
 export interface <#= Model.Name #><# if (Model.ParentClass != null) { #> extends <#= Model.ParentClass.Name #><# } #> {
 <# foreach (var property in Model.PropertyList) { #>
-    <#= Utils.ToFirstLower(property.Name) #><#= property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?" #>: <#= ToTSType(property) #>;
+    <#= Utils.ToFirstLower(property.Name) #><#= property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int?" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?" #>: <#= ToTSType(property) #>;
 <# } #>
 }
 
@@ -65,7 +65,7 @@ export const <#= Model.Name #>Entity = {
 
         <#        }
                } if (!IsArray(property) && !property.IsFromComposition) { 
-                 #>isRequired: <#= Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int")).ToString()) #>,
+                 #>isRequired: <#= Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString()) #>,
             <# } #><# if (!IsArray(property) && !property.IsFromComposition) { 
                  #>label: "<#= Utils.ToNamespace(Model.Namespace.Name) #>.<#= Utils.ToFirstLower(Model.Name) #>.<#= Utils.ToFirstLower(property.Name) #>"
         <# } #>}<# if (property != Model.PropertyList.Last()) { #>,<# }

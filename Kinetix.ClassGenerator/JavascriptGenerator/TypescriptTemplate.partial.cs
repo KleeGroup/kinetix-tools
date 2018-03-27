@@ -68,7 +68,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             var types = Model.PropertyList
                 .Where(property =>
                     (property.DataDescription?.ReferenceClass?.FullyQualifiedName.StartsWith(RootNamespace, StringComparison.Ordinal) ?? false)
-                 && property.DataType != "string" && property.DataType != "int")
+                 && property.DataType != "string" && property.DataType != "int?")
                 .Select(property => property.DataDescription?.ReferenceClass?.FullyQualifiedName);
 
             string parentClassName = null;
@@ -162,13 +162,13 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     type = property.DataDescription?.ReferenceClass?.FullyQualifiedName;
                     if (property.IsCollection)
                     {
-                        type = $"System.Collections.Generic.ICollection<{type}>";
+                        type = $"ICollection<{type}>";
                     }
 
                     break;
-                case "System.Collections.Generic.ICollection<string>":
+                case "ICollection<string>":
                     return "string[]";
-                case "System.Collections.Generic.ICollection<int>":
+                case "ICollection<int>":
                     return "number[]";
             }
 
@@ -176,7 +176,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             {
                 return $"{property.DataDescription.ReferenceClass.Name}Code";
             }
-            else if (type == "string" && property.IsDomain("DO_JSON"))
+            else if (type == "string" && (property.DataDescription?.Domain?.PersistentDataType?.Contains("json") ?? false))
             {
                 return "{}";
             }
@@ -194,19 +194,19 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         {
             switch (type)
             {
-                case "int":
-                case "decimal":
-                case "short":
-                case "System.TimeSpan":
+                case "int?":
+                case "decimal?":
+                case "short?":
+                case "TimeSpan?":
                     return "number";
-                case "System.DateTime":
-                case "System.Guid":
+                case "DateTime?":
+                case "Guid?":
                 case "string":
                     return "string";
-                case "bool":
+                case "bool?":
                     return "boolean";
                 default:
-                    if (type?.StartsWith("System.Collections.Generic.ICollection") ?? false)
+                    if (type?.StartsWith("ICollection") ?? false)
                     {
                         var typeName = $"{ToTSType(Regex.Replace(type, ".+<(.+)>", "$1"))}";
                         if (!removeBrackets)

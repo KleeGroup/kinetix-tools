@@ -516,35 +516,6 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         }
 
         /// <summary>
-        /// Retourne les informations de taille de champ.
-        /// </summary>
-        /// <param name="property">Propriété.</param>
-        /// <param name="persistentType">Nom du type persistant.</param>
-        /// <returns>Informations de taille.</returns>
-        /// <todo who="ADE" type="BUG">Gérer proprement la précision du datetime2.</todo>
-        private string GetLengthInformation(ModelProperty property, string persistentType)
-        {
-            bool hasLength = property.DataDescription.Domain.PersistentLength.HasValue;
-            bool hasPrecision = property.DataDescription.Domain.PersistentPrecision.HasValue;
-            if (hasLength)
-            {
-                persistentType += "(" + property.DataDescription.Domain.PersistentLength;
-                if (hasPrecision)
-                {
-                    persistentType += "," + property.DataDescription.Domain.PersistentPrecision;
-                }
-
-                persistentType += ")";
-            }
-            else if (persistentType == "datetime2")
-            {
-                persistentType += "(" + Singletons.DomainManager.GetDomain(property.DataDescription.Domain.Code).Length + ")";
-            }
-
-            return persistentType;
-        }
-
-        /// <summary>
         /// Ecrit dans le writer le script d'insertion dans la table staticTable ayant pour model modelClass.
         /// </summary>
         /// <param name="writer">Writer.</param>
@@ -624,8 +595,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             bool hasUniqueMultipleProperties = false;
             foreach (ModelProperty property in classe.PersistentPropertyList)
             {
-                string persistentType = CodeUtils.PowerDesignerPersistentDataTypeToSqlDatType(property.DataDescription.Domain.PersistentDataType);
-                persistentType = GetLengthInformation(property, persistentType);
+                var persistentType = property.DataDescription.Domain.PersistentDataType;
                 writerCrebas.Write("\t" + Quote(CheckIdentifierLength(property.DataMember.Name)) + " " + persistentType);
                 if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID")
                 {
@@ -717,8 +687,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 {
                     triggerCommandInsert += property.DataMember.Name + ", ";
                     triggerCommandValue += ":new." + property.DataMember.Name + ", ";
-                    string persistentType = CodeUtils.PowerDesignerPersistentDataTypeToSqlDatType(property.DataDescription.Domain.PersistentDataType);
-                    persistentType = GetLengthInformation(property, persistentType);
+                    var persistentType = property.DataDescription.Domain.PersistentDataType;
                     writerCrebas.Write("\t" + CheckIdentifierLength(property.DataMember.Name) + " " + persistentType);
 
                     writerCrebas.Write(",");

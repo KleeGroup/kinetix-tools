@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Kinetix.ClassGenerator.XmlParser;
 
 namespace Kinetix.ClassGenerator.Model
 {
@@ -113,35 +112,17 @@ namespace Kinetix.ClassGenerator.Model
         /// <summary>
         /// Retourne si le type contenu est une collection.
         /// </summary>
-        public bool IsCollection
-        {
-            get
-            {
-                return DataType.StartsWith("System.Collections.Generic.ICollection<", StringComparison.CurrentCulture) || DataType.StartsWith("ICollection<", StringComparison.CurrentCulture);
-            }
-        }
+        public bool IsCollection => DataType.StartsWith("System.Collections.Generic.ICollection<", StringComparison.CurrentCulture) || DataType.StartsWith("ICollection<", StringComparison.CurrentCulture);
 
         /// <summary>
         /// Retourne si le type contenu est un DateTime.
         /// </summary>
-        public bool IsDateTime
-        {
-            get
-            {
-                return DataType.StartsWith("System.DateTime", StringComparison.CurrentCulture);
-            }
-        }
+        public bool IsDateTime => DataType == "DateTime?";
 
         /// <summary>
         /// Retourne si le type est primitif.
         /// </summary>
-        public bool IsPrimitive
-        {
-            get
-            {
-                return ParserHelper.IsPrimitiveType(DataType);
-            }
-        }
+        public bool IsPrimitive => DataType.EndsWith("?") || DataType == "string";
 
         /// <summary>
         /// Indique si la propriété est unique.
@@ -202,35 +183,17 @@ namespace Kinetix.ClassGenerator.Model
         /// <summary>
         /// Indique si la propriété est une clef primaire.
         /// </summary>
-        public bool IsPrimaryKey
-        {
-            get
-            {
-                return DataDescription.IsPrimaryKey;
-            }
-        }
+        public bool IsPrimaryKey => DataDescription.IsPrimaryKey;
 
         /// <summary>
         /// Indique si la propriété est une clef de partition.
         /// </summary>
-        public bool IsPartitionKey
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(this.Class.PartitionKeyColumnName) && this.Class.PartitionKeyColumnName == this.DataMember.Name;
-            }
-        }
+        public bool IsPartitionKey => !string.IsNullOrEmpty(Class.PartitionKeyColumnName) && Class.PartitionKeyColumnName == DataMember.Name;
 
         /// <summary>
         /// Indique si la propriété est persistée mais non applicative (non visible dans le DTO).
         /// </summary>
-        public bool IsDatabaseOnly
-        {
-            get
-            {
-                return Kinetix.ClassGenerator.Model.Stereotype.DatabaseOnly == this.Stereotype;
-            }
-        }
+        public bool IsDatabaseOnly => Model.Stereotype.DatabaseOnly == Stereotype;
 
         /// <summary>
         /// Retourne la classe de la propriété.
@@ -262,32 +225,21 @@ namespace Kinetix.ClassGenerator.Model
         /// <summary>
         /// Indique si la propriété est traduite.
         /// </summary>
-        public bool IsTranslated
-        {
-            get
-            {
-                return this.Class.IsReference &&
-                    !this.Class.IsNonTranslatable &&
-                    !this.IsNonTranslatable &&
-                    this.IsPersistent &&
-                    this.IsPrimitive &&
-                    !this.IsPrimaryKey &&
-                    !this.DataDescription.IsForeignKey &&
-                    this.DataDescription.Domain != null &&
-                    this.DataDescription.Domain.IsTranslatable;
-            }
-        }
+        public bool IsTranslated =>
+            Class.IsReference &&
+            !Class.IsNonTranslatable &&
+            !IsNonTranslatable &&
+            IsPersistent &&
+            IsPrimitive &&
+            !IsPrimaryKey &&
+            !DataDescription.IsForeignKey &&
+            DataDescription.Domain != null &&
+            DataDescription.Domain.IsTranslatable;
 
         /// <summary>
         /// Liste des annotations.
         /// </summary>
-        public ICollection<ModelAnnotation> Annotations
-        {
-            get
-            {
-                return _annotations;
-            }
-        }
+        public ICollection<ModelAnnotation> Annotations => _annotations;
 
         /// <summary>
         /// Retourne true si le domaine de la propriété est du même type que domainCode.

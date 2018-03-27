@@ -9,7 +9,6 @@ using System.Xml;
 using Kinetix.ClassGenerator.Checker;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator.XmlParser.OomReader
 {
@@ -46,8 +45,6 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyDataType = "a:DataType";
         private const string PropertyMultiplicity = "a:Multiplicity";
         private const string PropertyPersistentDataType = "a:PersistentDataType";
-        private const string PropertyPersistentLength = "a:PersistentLength";
-        private const string PropertyPersistentPrecision = "a:PersistentPrecision";
         private const string PropertyCreator = "a:Creator";
         private const string PropertyStereotype = "a:Stereotype";
         private const string PropertyIndicatorA = "a:RoleAIndicator";
@@ -273,8 +270,6 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Code = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyCode, _currentNsManager)),
                         DataType = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyDataType, _currentNsManager)),
                         PersistentDataType = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyPersistentDataType, _currentNsManager)),
-                        PersistentLength = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentLength, _currentNsManager)),
-                        PersistentPrecision = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentPrecision, _currentNsManager)),
 
                         CustomAnnotation = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomAnnotation, _currentNsManager)),
                         CustomUsings = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomUsings, _currentNsManager)),
@@ -351,14 +346,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (match.Success)
                             {
                                 string innerType = match.Value.Substring(1, match.Value.Length - 2);
-                                if (!_classByNameMap.ContainsKey(innerType))
-                                {
-                                    if (!ParserHelper.IsPrimitiveType(innerType))
-                                    {
-                                        RegisterError(Category.Bug, "Ajout des usings dans la classe [" + classe.Name + "] : la classe [" + innerType + "] n'a pas été trouvée.");
-                                    }
-                                }
-                                else
+                                if (_classByNameMap.ContainsKey(innerType))
                                 {
                                     ModelClass usingClasse = _classByNameMap[innerType];
                                     classe.AddUsing(usingClasse.Namespace);
@@ -839,7 +827,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 Name = "DateCreation",
                 Comment = "Date de création de l'objet.",
                 IsPersistent = true,
-                DataType = "System.DateTime",
+                DataType = "DateTime?",
                 Stereotype = null,
                 Class = classe,
                 ModelFile = modelFile,
@@ -861,7 +849,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 Name = "DateModif",
                 Comment = "Date de dernière modification de l'objet.",
                 IsPersistent = true,
-                DataType = "System.DateTime",
+                DataType = "DateTime?",
                 Stereotype = null,
                 Class = classe,
                 ModelFile = modelFile,
@@ -883,7 +871,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 Name = "NumeroVersion",
                 Comment = "Numéro de version",
                 IsPersistent = true,
-                DataType = "int",
+                DataType = "int?",
                 Stereotype = null,
                 Class = classe,
                 ModelFile = modelFile,
@@ -913,7 +901,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 Name = "DateModification",
                 Comment = "Date de dernière modification de l'objet.",
                 IsPersistent = true,
-                DataType = "System.DateTime",
+                DataType = "DateTime?",
                 Stereotype = null,
                 Class = classe,
                 ModelFile = modelFile,
@@ -935,7 +923,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 Name = "DateEnvoi",
                 Comment = "Date de dernièr export de l'objet.",
                 IsPersistent = true,
-                DataType = "System.DateTime",
+                DataType = "DateTime?",
                 Stereotype = null,
                 Class = classe,
                 ModelFile = modelFile,
@@ -1020,7 +1008,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Name = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyCode, _currentNsManager)),
                         Comment = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyComment, _currentNsManager)),
                         IsPersistent = !string.IsNullOrEmpty(persistent) && "0".Equals(persistent) ? false : true,
-                        DataType = ParserHelper.Convert(ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyDataType, _currentNsManager))),
+                        DataType = GetModelDomainByPropertyNode(propertyNode).DataType,
                         Stereotype = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyStereotype, _currentNsManager)),
                         Class = classe,
                         ModelFile = modelFile,
@@ -1069,12 +1057,6 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     if (property.DataDescription.Domain == null)
                     {
                         RegisterError(Category.Error, "Propriété " + classe.Name + "." + property.Name + " : aucun domaine n'a été défini.");
-                        continue;
-                    }
-
-                    if (property.DataDescription.Domain.Code != DomainManager<object>.AliasDomain && !ParserHelper.IsPrimitiveType(property.DataType))
-                    {
-                        RegisterError(Category.Error, "Propriété " + classe.Name + "." + property.Name + " : le type de la propriété " + property.DataType + " n'est pas primitif, il faut utiliser les liens de composition.");
                         continue;
                     }
 

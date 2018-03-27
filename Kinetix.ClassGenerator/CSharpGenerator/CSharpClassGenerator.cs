@@ -337,16 +337,14 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (!property.Class.IsView && property.IsPersistent && property.DataMember != null)
             {
-                var dbType = PowerDesignerPersistentDataTypeToSqlDatType(property.DataDescription?.Domain?.PersistentDataType);
-                if (dbType == "jsonb")
+                if (property.DataDescription.Domain.PersistentDataType.Contains("json"))
                 {
-                    w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""", $@"TypeName = ""{dbType}""");
+                    w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""", $@"TypeName = ""{property.DataDescription.Domain.PersistentDataType}""");
                 }
                 else
                 {
                     w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""");
                 }
-
             }
 
             if (property.DataMember.IsRequired && !property.DataDescription.IsPrimaryKey)
@@ -383,13 +381,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (property.IsPrimitive)
             {
-                var dataType = LoadShortDataType(property.DataType);
-                if (IsNonNullableCSharpBaseType(property.DataType))
-                {
-                    dataType += "?";
-                }
-
-                w.WriteLine(2, $"public {dataType} {property.Name} {{ get; set; }}");
+                w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
             }
             else
             {

@@ -142,7 +142,7 @@ namespace Kinetix.ClassGenerator.XmlParser
             string dataType = classSourceproperty.DataDescription.Domain.DataType;
             switch (dataType)
             {
-                case "int":
+                case "int?":
                     codeId = "Id";
                     break;
                 case "string":
@@ -206,7 +206,7 @@ namespace Kinetix.ClassGenerator.XmlParser
             string dataType = classSourceproperty.DataDescription.Domain.DataType;
             switch (dataType)
             {
-                case "int":
+                case "int?":
                     codeId = "IdList";
                     break;
                 case "string":
@@ -326,88 +326,6 @@ namespace Kinetix.ClassGenerator.XmlParser
             }
 
             return ((IList<ModelProperty>)classe.PrimaryKey)[0];
-        }
-
-        /// <summary>
-        /// Vérifie que les types de données sont équivalents.
-        /// </summary>
-        /// <param name="dataType">Type de données issu du domaine.</param>
-        /// <param name="parsedDataType">Type de données issu du modele.</param>
-        /// <returns><code>True</code> si les deux type sont identiques, <code>False</code> sinon.</returns>
-        internal static bool IsSameDataType(Type dataType, string parsedDataType)
-        {
-            if (dataType.ToString() != parsedDataType)
-            {
-                if (dataType.ToString() == "System.Byte[]" && parsedDataType == "byte[]")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Collections.Generic.ICollection`1[System.String]" && parsedDataType == "System.Collections.Generic.ICollection<string>")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Collections.Generic.ICollection`1[System.Int32]" && parsedDataType == "System.Collections.Generic.ICollection<int>")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.String" && parsedDataType == "string")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Int32" && parsedDataType == "int")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Boolean" && parsedDataType == "bool")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Int16" && parsedDataType == "short")
-                {
-                    return true;
-                }
-
-                if (dataType.ToString() == "System.Decimal" && parsedDataType == "decimal")
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Retourne si le type concerné est un type primitif.
-        /// </summary>
-        /// <param name="type">Le type concerné.</param>
-        /// <returns><code>True</code> si le type est primitif, <code>False</code> sinon.</returns>
-        internal static bool IsPrimitiveType(string type)
-        {
-            return type == "int" ||
-                type == "short" ||
-                type == "string" ||
-                type == "char" ||
-                type == "long" ||
-                type == "bool" ||
-                type == "byte" ||
-                type == "byte[]" ||
-                type == "System.Collections.Generic.ICollection<string>" ||
-                type == "System.Collections.Generic.ICollection<int>" ||
-                type == "float" ||
-                type == "decimal" ||
-                type == "System.Guid" ||
-                type == "System.DateTime" ||
-                type == "System.TimeSpan" ||
-                type == "NpgsqlTypes.NpgsqlPoint" ||
-                type == "NpgsqlTypes.NpgsqlPolygon";
         }
 
         /// <summary>

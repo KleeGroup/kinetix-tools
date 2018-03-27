@@ -61,16 +61,16 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         {
             switch (type)
             {
-                case "int":
-                case "decimal":
-                case "short":
-                case "System.TimeSpan":
+                case "int?":
+                case "decimal?":
+                case "short?":
+                case "TimeSpan?":
                     return "number";
-                case "System.DateTime":
-                case "System.Guid":
+                case "DateTime?":
+                case "Guid?":
                 case "string":
                     return "string";
-                case "bool":
+                case "bool?":
                     return "boolean";
                 default:
                     return "any";

@@ -25,22 +25,9 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                     property.DataMember : // Propriété non applicative : les données de persistence sont portées par le champ directement.
                     (IPersistenceData)property.DataDescription.Domain; // Propriété applicative : les données de persistences sont portées par le domaine.
 
-            string persistentType = CodeUtils.PowerDesignerPersistentDataTypeToSqlDatType(persistenceData.PersistentDataType);
+            var persistentType = persistenceData.PersistentDataType;
 
-            bool hasLength = persistenceData.PersistentLength.HasValue;
-            bool hasPrecision = persistenceData.PersistentPrecision.HasValue;
-
-            if (hasLength)
-            {
-                persistentType += "(" + persistenceData.PersistentLength;
-                if (hasPrecision)
-                {
-                    persistentType += "," + persistenceData.PersistentPrecision;
-                }
-
-                persistentType += ")";
-            }
-            else if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID")
+            if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID")
             {
                 persistentType += " identity";
             }

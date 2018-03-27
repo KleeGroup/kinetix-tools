@@ -130,7 +130,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             #line hidden
             
             #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?"));
+            this.Write(this.ToStringHelper.ToStringWithCulture(property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int?" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?"));
             
             #line default
             #line hidden
@@ -463,7 +463,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             this.Write("isRequired: ");
             
             #line 68 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int")).ToString())));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString())));
             
             #line default
             #line hidden
