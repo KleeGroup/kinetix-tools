@@ -92,11 +92,18 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(1, ServiceBehaviorAttribute);
                 w.WriteClassDeclaration(implementationName, null, new List<string> { interfaceName });
 
-                w.WriteLine(2, $"private readonly {GeneratorParameters.RootNamespace}DbContext _dbContext;");
+                var dbContextName = $"{GeneratorParameters.RootNamespace}DbContext";
+                var schema = GeneratorParameters.CSharp.DbSchema;
+                if (schema != null)
+                {
+                    dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
+                }
+
+                w.WriteLine(2, $"private readonly {dbContextName} _dbContext;");
                 w.WriteLine();
                 w.WriteSummary(2, "Constructeur");
                 w.WriteParam("dbContext", "DbContext");
-                w.WriteLine(2, $"public {implementationName}({GeneratorParameters.RootNamespace}DbContext dbContext)");
+                w.WriteLine(2, $"public {implementationName}({dbContextName} dbContext)");
                 w.WriteLine(2, "{");
                 w.WriteLine(3, "_dbContext = dbContext;");
                 w.WriteLine(2, "}");

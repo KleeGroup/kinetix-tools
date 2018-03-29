@@ -263,6 +263,22 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
 
             w.WriteLine(2, "{");
+
+            if (item.NeedsInitialization)
+            {
+                foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
+                {
+                    w.WriteLine(3, LoadPropertyInit(property.Name, property.DataType));
+                }
+
+                foreach (var property in item.PropertyList.Where(p => p.IsCollection))
+                {
+                    w.WriteLine(3, LoadPropertyInit(property.Name, "List<" + LoadInnerDataType(property.DataType) + ">"));
+                }
+
+                w.WriteLine();
+            }
+
             w.WriteLine(3, "OnCreated();");
             w.WriteLine(2, "}");
         }
@@ -274,26 +290,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="item">Classe générée.</param>
         private static void GenerateExtensibilityMethods(CSharpWriter w, ModelClass item)
         {
-            if (item.NeedsInitialization)
-            {
-                w.WriteLine();
-                w.WriteSummary(2, "Initialisation des objets composés.");
-                w.WriteLine(2, "private void Initialize()");
-                w.WriteLine(2, "{");
-
-                foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
-                {
-                    w.WriteLine(3, LoadPropertyInit(property.Name, property.DataType));
-                }
-
-                foreach (var property in item.PropertyList.Where(p => p.IsCollection))
-                {
-                    w.WriteLine(3, LoadPropertyInit(property.Name, "List<" + LoadInnerDataType(property.DataType) + ">"));
-                }
-
-                w.WriteLine(2, "}");
-            }
-
             w.WriteLine();
             w.WriteSummary(2, "Methode d'extensibilité possible pour les constructeurs.");
             w.WriteLine(2, "partial void OnCreated();");

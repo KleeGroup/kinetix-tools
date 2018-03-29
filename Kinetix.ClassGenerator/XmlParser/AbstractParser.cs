@@ -163,8 +163,8 @@ namespace Kinetix.ClassGenerator.XmlParser
                 mp.DataMember = alias.DataMember;
                 mp.DataDescription.Domain = alias.DataDescription.Domain;
                 mp.DataDescription.Libelle = alias.DataDescription.Libelle;
-                mp.DataDescription.ReferenceClass = alias.DataDescription.ReferenceClass;
-                mp.DataDescription.ReferenceType = alias.DataDescription.ReferenceType;
+                mp.DataDescription.ReferenceClass = alias.DataDescription.ReferenceClass ?? (alias.Class.IsStatique && alias.IsPrimaryKey ? alias.Class : null);
+                mp.DataDescription.ReferenceType = alias.DataDescription.ReferenceType ?? (alias.Class.IsStatique && alias.IsPrimaryKey ? alias.Class.FullyQualifiedName : null);
                 mp.DataDescription.ResourceKey = alias.DataDescription.ResourceKey;
                 mp.Role = alias.Role;
 

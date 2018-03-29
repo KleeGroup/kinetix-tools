@@ -26,15 +26,15 @@ namespace Kinetix.SpaServiceGenerator
         /// Deuxième argument : racine de la SPA.
         /// Troisième argument : namespace du projet (exemple : "Kinetix").
         /// </param>
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            var msWorkspace = MSBuildWorkspace.Create();
-            var solution = msWorkspace.OpenSolutionAsync(args[0]).Result;
-            Generate(solution, args[1], args[2]).Wait();
-        }
+            var solutionPath = args[0];
+            var spaRoot = args[1];
+            var projectName = args[2];
 
-        private static async Task Generate(Solution solution, string spaRoot, string projectName)
-        {
+            var msWorkspace = MSBuildWorkspace.Create();
+            var solution = await msWorkspace.OpenSolutionAsync(args[0]);
+
             var outputPath = $"{spaRoot}/app/services";
 
             var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(projectName) && projet.AssemblyName.EndsWith("FrontEnd"));
@@ -43,7 +43,7 @@ namespace Kinetix.SpaServiceGenerator
             foreach (var controller in controllers)
             {
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
-                var controllerClass = syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+                var controllerClass = GetClassDeclaration(syntaxTree);
 
                 var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
                 var secondFolder = controller.Folders.Count > 1 ? $"/{string.Join("/", controller.Folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
@@ -51,14 +51,24 @@ namespace Kinetix.SpaServiceGenerator
 
                 var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
 
+                var model = await solution.GetDocument(syntaxTree).GetSemanticModelAsync();
+
                 Console.WriteLine($"Generating {controllerName}");
 
-                var methods = controllerClass.ChildNodes().OfType<MethodDeclarationSyntax>();
-                var model = await controller.GetSemanticModelAsync();
+                var methods = GetMethodDeclarations(controllerClass, model);
+
+                var modelClass = model.GetDeclaredSymbol(controllerClass);
+                if (modelClass.BaseType.Name != "Controller")
+                {
+                    var baseClassSyntaxTree = modelClass.BaseType.DeclaringSyntaxReferences.First().SyntaxTree;
+                    methods = methods.Concat(GetMethodDeclarations(
+                        GetClassDeclaration(baseClassSyntaxTree),
+                        await solution.GetDocument(baseClassSyntaxTree).GetSemanticModelAsync()));
+                }
 
                 var serviceList = methods
-                    .Where(method => method.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)))
-                    .Select(method => GetService(method, model));
+                    .Where(m => m.method.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)))
+                    .Select(GetService);
 
                 var fileName = $"{outputPath}/{controllerName}";
                 var fileInfo = new FileInfo(fileName);
@@ -75,8 +85,13 @@ namespace Kinetix.SpaServiceGenerator
             }
         }
 
-        private static ServiceDeclaration GetService(MethodDeclarationSyntax method, SemanticModel model)
+        private static ClassDeclarationSyntax GetClassDeclaration(SyntaxTree syntaxTree) => syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+        private static IEnumerable<(MethodDeclarationSyntax method, SemanticModel model)> GetMethodDeclarations(ClassDeclarationSyntax controllerClass, SemanticModel model) => controllerClass.ChildNodes().OfType<MethodDeclarationSyntax>().Select(method => (method, model));
+
+        private static ServiceDeclaration GetService((MethodDeclarationSyntax method, SemanticModel model) m)
         {
+            var (method, model) = m;
+
             var documentation = method.GetLeadingTrivia()
                 .First(i => i.GetStructure() is DocumentationCommentTriviaSyntax)
                 .GetStructure() as DocumentationCommentTriviaSyntax;

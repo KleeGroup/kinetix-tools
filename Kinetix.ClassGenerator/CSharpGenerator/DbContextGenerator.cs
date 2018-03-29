@@ -23,12 +23,19 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
             var rootName = GeneratorParameters.RootNamespace;
             var strippedProjectName = RemoveDots(rootName);
+
             var dbContextName = $"{strippedProjectName}DbContext";
+            var schema = GeneratorParameters.CSharp.DbSchema;
+            if (schema != null)
+            {
+                dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
+            }
+
             var destDirectory = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
 
             Directory.CreateDirectory(destDirectory);
 
-            var targetFileName = Path.Combine(destDirectory, "generated", strippedProjectName + "DbContext.cs");
+            var targetFileName = Path.Combine(destDirectory, "generated", $"{dbContextName}.cs");
             using (var w = new CSharpWriter(targetFileName))
             {
                 var usings = new List<string> { "Microsoft.EntityFrameworkCore" };
@@ -63,7 +70,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteSummary(2, "Constructeur par défaut.");
                 w.WriteParam("options", "Options du DbContext.");
 
-                w.WriteLine(2, $"public {strippedProjectName}DbContext(DbContextOptions<{dbContextName}> options)");
+                w.WriteLine(2, $"public {dbContextName}(DbContextOptions<{dbContextName}> options)");
                 w.WriteLine(3, ": base(options)");
                 w.WriteLine(2, "{");
                 w.WriteLine(2, "}");
