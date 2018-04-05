@@ -495,7 +495,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 }
 
                 isFirst = false;
-                sb.Append(value);
+                sb.Append(string.IsNullOrEmpty(value) ? "null" : value);
             }
 
             sb.Append(");");
