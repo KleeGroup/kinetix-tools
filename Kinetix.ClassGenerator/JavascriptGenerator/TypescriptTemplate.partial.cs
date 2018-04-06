@@ -63,7 +63,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// Récupère la liste d'imports de types pour les services.
         /// </summary>
         /// <returns>La liste d'imports (type, chemin du module, nom du fichier).</returns>
-        private IEnumerable<Tuple<string, string, string>> GetImportList()
+        private IEnumerable<(string import, string path)> GetImportList()
         {
             var types = Model.PropertyList
                 .Where(property =>
@@ -94,8 +94,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     module = $"../{module}";
                 }
 
-                return Tuple.Create($"{name}, {name}Node" + (type == parentClassName ? $", {name}Entity" : string.Empty), module, name.ToDashCase());
-            }).Distinct().OrderBy(type => type.Item1).ToList();
+                return (import: $"{name}, {name}Node" + (type == parentClassName ? $", {name}Entity" : string.Empty), path: $"{module}/{name.ToDashCase()}");
+            }).Distinct().ToList();
 
             var references = Model.PropertyList
                 .Where(property => property.DataDescription?.ReferenceClass != null && property.DataType == "string")
@@ -105,10 +105,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             if (references.Any())
             {
-                imports.Add(Tuple.Create(string.Join(", ", references), "..", "references"));
+                imports.Add((string.Join(", ", references), "../references"));
             }
 
-            return imports;
+            return imports.OrderBy(i => i.path);
         }
 
         /// <summary>

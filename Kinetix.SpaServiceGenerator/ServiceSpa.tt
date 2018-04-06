@@ -10,8 +10,10 @@
 */
 
 import * as server from "<#= ServerPath #>";
+<# if (GetImportList().Any()) { #>
 
-<# foreach (var import in GetImportList()) { #>
+<# }
+foreach (var import in GetImportList()) { #>
 import {<#= import.import #>} from "<#= import.path #>";
 <# } #>
 <# foreach (var service in Services) { #>
@@ -34,14 +36,14 @@ export function <#= Utils.ToFirstLower(service.Name) #>(<#
     }
     if (service.UriParameters.Count() > 0) {
         #>, <#
-    } #>options: server.RequestInitExtended<{<#
+    } #>options: server.RequestInitExtended<# if(service.QueryParameters.Any()) { #><{<#
         foreach (var queryParameter in service.QueryParameters) {
             #><#= queryParameter.Name #><#= queryParameter.IsOptional ? "?" : "" #>: <#= GetTSType(queryParameter.Type) #><#
             if (queryParameter.Name != service.QueryParameters.Last().Name) {
                 #>, <#
             }
         }
-    #>}> = {}) {
+    #>}><# } #> = {}) {
     return server.<#= Utils.ToFirstLower(service.Verb) #><<#= GetTSType(service.ReturnType) #>, {<#
             foreach (var queryParameter in service.QueryParameters) {
                 #><#= queryParameter.Name #><#= queryParameter.IsOptional ? "?" : "" #>: <#= GetTSType(queryParameter.Type) #><#

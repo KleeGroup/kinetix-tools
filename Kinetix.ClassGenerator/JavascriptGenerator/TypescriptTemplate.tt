@@ -14,7 +14,7 @@ import {<#= string.Join(", ", GetDomainList()) #>} from "../../domains";
    foreach (var import in imports) { 
 #>
 
-import {<#= import.Item1 #>} from "<#= import.Item2 #>/<#= import.Item3 #>";<# 
+import {<#= import.import #>} from "<#= import.path #>";<# 
 } if (imports.Any()) { #>
 
 <# } #>

@@ -26,7 +26,7 @@ namespace Kinetix.SpaServiceGenerator
         /// <summary>
         /// La liste des services.
         /// </summary>
-        public IEnumerable<ServiceDeclaration> Services { get; set; }
+        public ICollection<ServiceDeclaration> Services { get; set; }
 
         /// <summary>
         /// Récupère le type Typescript correspondant à un type C#.
@@ -128,7 +128,7 @@ namespace Kinetix.SpaServiceGenerator
         /// Récupère la liste d'imports de types pour les services.
         /// </summary>
         /// <returns>La liste d'imports (type, chemin du module).</returns>
-        private IEnumerable<(string import, string path)> GetImportList()
+        private ICollection<(string import, string path)> GetImportList()
         {
             var definitionPath = GetModulePathPrefix("model", FolderCount + 1);
 
@@ -168,17 +168,7 @@ namespace Kinetix.SpaServiceGenerator
                     }
                 }));
 
-            var imports = types.Except(referenceTypes).Select(type =>
-            {
-                var module = type.ContainingNamespace.ToString()
-                    .Replace($"{ProjectName}.", string.Empty)
-                    .Replace("DataContract", string.Empty)
-                    .Replace("Contract", string.Empty)
-                    .Replace(".", "/")
-                    .ToDashCase();
-
-                return (type.Name, $"{definitionPath}/{module}/{type.Name.ToDashCase()}");
-            }).Distinct().ToList();
+            var imports = new List<(string import, string path)>();
 
             if (returnTypes.Any(type => type?.Name == "QueryOutput"))
             {
@@ -194,12 +184,25 @@ namespace Kinetix.SpaServiceGenerator
                 imports.Add(("AutocompleteResult", "focus4/components/autocomplete"));
             }
 
+            var localImports = types.Except(referenceTypes).Select(type =>
+            {
+                var module = type.ContainingNamespace.ToString()
+                    .Replace($"{ProjectName}.", string.Empty)
+                    .Replace("DataContract", string.Empty)
+                    .Replace("Contract", string.Empty)
+                    .Replace(".", "/")
+                    .ToDashCase();
+
+                return (type.Name, Path: $"{definitionPath}/{module}/{type.Name.ToDashCase()}");
+            }).Distinct();
+
             if (referenceTypes.Any())
             {
-                imports.Add((string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), $"{definitionPath}/references"));
+                localImports = localImports.Concat(new[] { (string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), $"{definitionPath}/references") });
             }
 
-            return imports.OrderBy(type => type.Item1);
+            imports.AddRange(localImports.OrderBy(i => i.Path));
+            return imports;
         }
 
         /// <summary>

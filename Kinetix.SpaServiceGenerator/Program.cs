@@ -68,7 +68,8 @@ namespace Kinetix.SpaServiceGenerator
 
                 var serviceList = methods
                     .Where(m => m.method.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)))
-                    .Select(GetService);
+                    .Select(GetService)
+                    .ToList();
 
                 var fileName = $"{outputPath}/{controllerName}";
                 var fileInfo = new FileInfo(fileName);
@@ -105,19 +106,23 @@ namespace Kinetix.SpaServiceGenerator
                     ((param as XmlElementSyntax).StartTag.Attributes.First() as XmlNameAttributeSyntax).Identifier.ToString(),
                     (param as XmlElementSyntax).Content.ToString()));
 
-            var verb = method.AttributeLists.First().Attributes.First().Name.ToString();
+            var verbRouteAttribute = method.AttributeLists
+                .SelectMany(list => list.Attributes)
+                .Single(attr => attr.ToString().StartsWith("Http"));
+
+            var verb = verbRouteAttribute.Name.ToString();
 
             var parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter
             {
                 Type = model.GetSymbolInfo(parameter.Type).Symbol as INamedTypeSymbol,
                 Name = parameter.Identifier.ToString(),
                 IsOptional = parameter.Default != null,
-                IsFromBody = parameter.AttributeLists.FirstOrDefault() != null ? parameter.AttributeLists.FirstOrDefault().Attributes.Where(attr => attr.ToString() == "FromBody").Any() : false,
-                IsFromUri = parameter.AttributeLists.FirstOrDefault() != null ? parameter.AttributeLists.FirstOrDefault().Attributes.Where(attr => attr.ToString() == "FromUri").Any() : false,
+                IsFromBody = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromBody"),
+                IsFromUri = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromUrl")
             }).ToList();
 
             var routeParameters = new List<string>();
-            var route = ((method.AttributeLists.Last().Attributes.First().ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
+            var route = ((verbRouteAttribute.ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
                     .Expression as LiteralExpressionSyntax).Token.ValueText;
             var matches = Regex.Matches(route, "(?s){.+?}");
             foreach (Match match in matches)
@@ -125,12 +130,8 @@ namespace Kinetix.SpaServiceGenerator
                 routeParameters.Add(match.Value.Replace("{", "").Replace("}", ""));
             }
 
-            var uriParameters = parameterList
-                .Where(param => !param.IsFromBody && routeParameters.Contains(param.Name))
-                .ToList();
-            var queryParameters = parameterList
-                .Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name))
-                .ToList();
+            var uriParameters = parameterList.Where(param => !param.IsFromBody && routeParameters.Contains(param.Name));
+            var queryParameters = parameterList.Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name));
 
             var bodyParameters = new List<Parameter>();
             if ((verb == "HttpPost" || verb == "HttpPut") && parameterList.Except(uriParameters).Any())
@@ -147,8 +148,7 @@ namespace Kinetix.SpaServiceGenerator
                 }
 
                 queryParameters = queryParameters
-                    .Where(param => !bodyParameters.Select(body => body.Name).Contains(param.Name))
-                    .ToList();
+                    .Where(param => !bodyParameters.Select(body => body.Name).Contains(param.Name));
             }
 
             return new ServiceDeclaration
@@ -158,8 +158,8 @@ namespace Kinetix.SpaServiceGenerator
                 Name = method.Identifier.ToString(),
                 ReturnType = model.GetSymbolInfo(method.ReturnType).Symbol as INamedTypeSymbol,
                 Parameters = parameterList,
-                UriParameters = uriParameters,
-                QueryParameters = queryParameters,
+                UriParameters = uriParameters.ToList(),
+                QueryParameters = queryParameters.ToList(),
                 BodyParameters = bodyParameters,
                 Documentation = new Documentation { Summary = summary, Parameters = parameters.ToList() },
                 IsPostPutMethod = verb == "HttpPost" || verb == "HttpPut"

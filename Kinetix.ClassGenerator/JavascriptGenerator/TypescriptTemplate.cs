@@ -55,21 +55,14 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             this.Write("\r\nimport {");
             
             #line 17 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(import.Item1));
+            this.Write(this.ToStringHelper.ToStringWithCulture(import.import));
             
             #line default
             #line hidden
             this.Write("} from \"");
             
             #line 17 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(import.Item2));
-            
-            #line default
-            #line hidden
-            this.Write("/");
-            
-            #line 17 "D:\Projets\CINP_BIRD\Tools\Kinetix.ClassGenerator\JavascriptGenerator\TypescriptTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(import.Item3));
+            this.Write(this.ToStringHelper.ToStringWithCulture(import.path));
             
             #line default
             #line hidden
