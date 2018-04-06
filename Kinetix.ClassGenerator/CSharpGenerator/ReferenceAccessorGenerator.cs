@@ -25,7 +25,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 foreach (var ns in model.Namespaces.Values)
                 {
-                    GenerateReferenceAccessor(ns, RemoveDots(modelRootList.First().Name));
+                    GenerateReferenceAccessor(ns);
                 }
             }
         }
@@ -34,8 +34,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// Génère les ReferenceAccessor pour un namespace.
         /// </summary>
         /// <param name="nameSpace">Namespace.</param>
-        /// <param name="projectName">Projet.</param>
-        private static void GenerateReferenceAccessor(ModelNamespace nameSpace, string projectName)
+        private static void GenerateReferenceAccessor(ModelNamespace nameSpace)
         {
             if (!nameSpace.HasPersistentClasses)
             {
@@ -52,41 +51,36 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 return;
             }
 
-            GenerateReferenceAccessorsInterface(classList, projectName, nameSpace.Name);
-            GenerateReferenceAccessorsImplementation(classList.Where(x => x.DisableAccessorImplementation == false), projectName, nameSpace.Name);
+            GenerateReferenceAccessorsInterface(classList, nameSpace.Name);
+            GenerateReferenceAccessorsImplementation(classList.Where(x => x.DisableAccessorImplementation == false), nameSpace.Name);
         }
 
         /// <summary>
         /// Génère l'implémentation des ReferenceAccessors.
         /// </summary>
         /// <param name="classList">Liste de ModelClass.</param>
-        /// <param name="projectName">Nom du projet.</param>
         /// <param name="nameSpaceName">Namespace.</param>
-        private static void GenerateReferenceAccessorsImplementation(IEnumerable<ModelClass> classList, string projectName, string nameSpaceName)
+        private static void GenerateReferenceAccessorsImplementation(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
-            var nameSpacePrefix = nameSpaceName.Replace("DataContract", string.Empty);
-            var implementationName = "Service" + nameSpacePrefix + "Accessors";
-            var interfaceName = 'I' + implementationName;
-            var nameSpaceContract = nameSpacePrefix + "Contract";
-            var nameSpaceImplementation = nameSpacePrefix + "Implementation";
-            var moduleMetier = ExtractModuleMetier(nameSpaceName);
-            var projectDir = Path.Combine(GeneratorParameters.CSharp.OutputDirectory, moduleMetier, projectName + "." + nameSpaceImplementation);
-            var csprojFileName = Path.Combine(projectDir, projectName + "." + nameSpaceImplementation + ".csproj");
+            var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
+            var implementationName = $"Dal{nameSpaceName.Replace("DataContract", string.Empty)}Accessors";
+            var interfaceName = $"I{implementationName}";
+
+            var projectDir = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
+
             Console.WriteLine("Generating class " + implementationName + " implementing " + interfaceName);
 
-            var implementationFileName = Path.Combine(projectDir, "generated", implementationName + ".cs");
+            var implementationFileName = Path.Combine(projectDir, "generated\\Reference", implementationName + ".cs");
             using (var w = new CSharpWriter(implementationFileName))
             {
                 w.WriteUsings(
                     "System.Collections.Generic",
                     "System.Linq",
-                    GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last(),
-                    $"{projectName}.{nameSpaceContract}",
-                    $"{projectName}.{nameSpaceName}",
+                    $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
                     "Kinetix.Services.Annotations");
 
                 w.WriteLine();
-                w.WriteNamespace(projectName + "." + nameSpaceImplementation);
+                w.WriteNamespace(projectName);
 
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
                 w.WriteLine(1, ServiceBehaviorAttribute);
@@ -123,34 +117,30 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
         }
 
-
         /// <summary>
         /// Génère l'interface déclarant les ReferenceAccessors d'un namespace.
         /// </summary>
         /// <param name="classList">Liste de ModelClass.</param>
-        /// <param name="projectName">Nom du projet.</param>
         /// <param name="nameSpaceName">Namespace.</param>
-        private static void GenerateReferenceAccessorsInterface(IEnumerable<ModelClass> classList, string projectName, string nameSpaceName)
+        private static void GenerateReferenceAccessorsInterface(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
-            var nameSpacePrefix = nameSpaceName.Replace("DataContract", string.Empty);
-            var interfaceName = $"IService{nameSpacePrefix}Accessors";
-            var nameSpaceContract = $"{nameSpacePrefix}Contract";
+            var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
+            var interfaceName = $"IDal{nameSpaceName.Replace("DataContract", string.Empty)}Accessors";
 
-            Console.WriteLine("Generating interface " + interfaceName + " containing reference accessors for namesSpace " + nameSpaceName);
+            Console.WriteLine("Generating interface " + interfaceName + " containing reference accessors for namespace " + nameSpaceName);
 
-            var projectDir = Path.Combine(GetDirectoryForProject(false, projectName, nameSpaceContract));
-            var csprojFileName = Path.Combine(projectDir, projectName + "." + nameSpaceContract + ".csproj");
-            var interfaceFileName = Path.Combine(projectDir, "generated", interfaceName + ".cs");
+            var projectDir = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
+            var interfaceFileName = Path.Combine(projectDir, "generated\\Reference", $"{interfaceName}.cs");
 
             using (var w = new CSharpWriter(interfaceFileName))
             {
                 w.WriteUsings(
                     "System.Collections.Generic",
-                    $"{projectName}.{nameSpaceName}",
+                    $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
                     "Kinetix.Services.Annotations");
 
                 w.WriteLine();
-                w.WriteNamespace(projectName + "." + nameSpaceContract);
+                w.WriteNamespace(projectName);
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
                 w.WriteLine(1, ServiceContractAttribute);
                 w.WriteLine(1, "public partial interface " + interfaceName + "\r\n{");
