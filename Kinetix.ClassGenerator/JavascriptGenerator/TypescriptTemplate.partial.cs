@@ -21,30 +21,6 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// </summary>
         public string RootNamespace { get; set; }
 
-        private string FocusImport
-        {
-            get
-            {
-                var list = new List<string>();
-                if (!Model.PropertyList.All(p => IsArray(p) || p.IsFromComposition))
-                {
-                    list.Add("EntityField");
-                }
-
-                if (Model.PropertyList.Any(p => IsArray(p)))
-                {
-                    list.Add("StoreListNode");
-                }
-
-                if (Model.ParentClass == null)
-                {
-                    list.Add("StoreNode");
-                }
-
-                return string.Join(", ", list);
-            }
-        }
-
         private string GetDomain(ModelProperty property)
         {
             return property?.DataDescription?.Domain?.Code;
@@ -94,7 +70,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     module = $"../{module}";
                 }
 
-                return (import: $"{name}, {name}Node" + (type == parentClassName ? $", {name}Entity" : string.Empty), path: $"{module}/{name.ToDashCase()}");
+                return (import: $"{name}Entity", path: $"{module}/{name.ToDashCase()}");
             }).Distinct().ToList();
 
             var references = Model.PropertyList

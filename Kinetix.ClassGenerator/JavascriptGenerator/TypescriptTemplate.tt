@@ -8,7 +8,7 @@
     Toute modification sera perdue.
 */
 
-import {<#= FocusImport #>} from "focus4/entity";
+import {EntityToType, StoreNode} from "focus4/entity";
 import {<#= string.Join(", ", GetDomainList()) #>} from "../../domains";
 <# var imports = GetImportList();
    foreach (var import in imports) { 
@@ -19,32 +19,8 @@ import {<#= import.import #>} from "<#= import.path #>";<#
 
 <# } #>
 
-export interface <#= Model.Name #><# if (Model.ParentClass != null) { #> extends <#= Model.ParentClass.Name #><# } #> {
-<# foreach (var property in Model.PropertyList) { #>
-    <#= Utils.ToFirstLower(property.Name) #><#= property.DataMember.IsRequired && !property.IsPrimaryKey || property.DataType != "int?" && property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?" #>: <#= ToTSType(property) #>;
-<# } #>
-}
-
-export interface <#= Model.Name #>Node extends <# if (Model.ParentClass == null) { #>StoreNode<<#= Model.Name #>><# } else { #><#= Model.ParentClass.Name #>Node<# } #> {
-<# foreach (var property in Model.PropertyList) { #>
-    <#= Utils.ToFirstLower(property.Name) #>: <# 
-        if (IsArray(property)) { 
-            #>StoreListNode<<# 
-        } else if (!property.IsFromComposition) {
-            #>EntityField<<# 
-        } #><#= ToTSType(property, true) #><#= GetReferencedType(property) != null ? "Node" : string.Empty #><#
-        if (GetDomain(property) != null) { 
-                #>, typeof <#= GetDomain(property) #><# }
-        #><# 
-        if (IsArray(property) || !property.IsFromComposition) { 
-            #>><# 
-        } #>;
-<# } #><#
-    if (Model.ParentClass != null) {
-    #>    set(config: Partial<<#= Model.Name #>>): void;
-<# }
-#>
-}
+export type <#= Model.Name #> = EntityToType<typeof <#= Model.Name #>Entity>;
+export type <#= Model.Name #>Node = StoreNode<typeof <#= Model.Name #>Entity>;
 
 export const <#= Model.Name #>Entity = {
     name: "<#= Utils.ToFirstLower(Model.Name) #>",
@@ -54,20 +30,15 @@ export const <#= Model.Name #>Entity = {
 <# } #>
 <# foreach (var property in Model.PropertyList) { #>
         <#= Utils.ToFirstLower(property.Name) #>: {
-            <# if (!IsArray(property) && !property.IsFromComposition) { #>name: "<#= Utils.ToFirstLower(property.Name) #>",
-            <# } #>type: <# if (IsArray(property)) { #>"list" as "list"<# } else if (property.IsFromComposition) { #>"object" as "object"<# } else { #>"field" as "field"<# } #>,
-            <# if (GetDomain(property) != null) { 
-                 #>domain: <#= GetDomain(property) #>,
-            <# } else {
-                 #>entityName: "<#= Utils.ToFirstLower(GetReferencedType(property)) #>"<# 
-                 if (!IsArray(property) && !property.IsFromComposition) { #>,
-            <#    } else { #>
-
-        <#        }
-               } if (!IsArray(property) && !property.IsFromComposition) { 
-                 #>isRequired: <#= Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString()) #>,
-            <# } #><# if (!IsArray(property) && !property.IsFromComposition) { 
-                 #>label: "<#= Utils.ToNamespace(Model.Namespace.Name) #>.<#= Utils.ToFirstLower(Model.Name) #>.<#= Utils.ToFirstLower(property.Name) #>"
+            type: <# if (IsArray(property)) { #>"list" as "list"<# } else if (property.IsFromComposition) { #>"object" as "object"<# } else { #>"field" as "field"<# } #>,
+        <# if (GetDomain(property) != null) {
+      #>    name: "<#= Utils.ToFirstLower(property.Name) #>",
+            fieldType: {} as <#= ToTSType(property) #>,
+            domain: <#= GetDomain(property) #>,
+            isRequired: <#= Utils.ToFirstLower((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString()) #>,
+            label: "<#= Utils.ToNamespace(Model.Namespace.Name) #>.<#= Utils.ToFirstLower(Model.Name) #>.<#= Utils.ToFirstLower(property.Name) #>"
+        <# } else {
+      #>    entity: <#= GetReferencedType(property) #>Entity
         <# } #>}<# if (property != Model.PropertyList.Last()) { #>,<# }
 #>
 
