@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Kinetix.ClassGenerator.Configuration;
 using Kinetix.ClassGenerator.Main;
@@ -36,6 +37,8 @@ namespace Kinetix.ClassGenerator
         {
             try
             {
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+
                 Console.WriteLine("******************************************************");
                 Console.WriteLine("*                Kinetix.ClassGenerator                  *");
                 Console.WriteLine("******************************************************");
