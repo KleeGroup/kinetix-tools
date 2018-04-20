@@ -42,10 +42,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 }
             }
 
-            var staticLists = new List<ModelClass>();
-
             foreach (var entry in nameSpaceMap)
             {
+                var staticLists = new List<ModelClass>();
+
                 foreach (var model in entry.Value)
                 {
                     if (!model.IsStatique)
@@ -73,25 +73,25 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                         staticLists.Add(model);
                     }
                 }
-            }
 
-            if (staticLists.Any())
-            {
-                Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
-                var fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/references.ts";
-                var fileInfo = new FileInfo(fileName);
-
-                var isNewFile = !fileInfo.Exists;
-
-                var directoryInfo = fileInfo.Directory;
-                if (!directoryInfo.Exists)
+                if (staticLists.Any())
                 {
-                    Directory.CreateDirectory(directoryInfo.FullName);
-                }
+                    Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
+                    var fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/references.ts";
+                    var fileInfo = new FileInfo(fileName);
 
-                var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) };
-                var result = template.TransformText();
-                File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                    var isNewFile = !fileInfo.Exists;
+
+                    var directoryInfo = fileInfo.Directory;
+                    if (!directoryInfo.Exists)
+                    {
+                        Directory.CreateDirectory(directoryInfo.FullName);
+                    }
+
+                    var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) };
+                    var result = template.TransformText();
+                    File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                }
             }
         }
     }

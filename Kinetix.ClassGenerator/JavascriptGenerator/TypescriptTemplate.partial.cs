@@ -81,7 +81,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             if (references.Any())
             {
-                imports.Add((string.Join(", ", references), "../references"));
+                imports.Add((string.Join(", ", references), "./references"));
             }
 
             return imports.OrderBy(i => i.path);
