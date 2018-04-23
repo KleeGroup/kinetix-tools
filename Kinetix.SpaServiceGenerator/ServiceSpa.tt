@@ -48,7 +48,7 @@ export function <#= Utils.ToFirstLower(service.Name) #>(<#
             foreach (var queryParameter in service.QueryParameters) {
                 #><#= queryParameter.Name #><#= queryParameter.IsOptional ? "?" : "" #>: <#= GetTSType(queryParameter.Type) #><#
                 if (queryParameter.Name != service.QueryParameters.Last().Name) {
-                    #>, <#
+                    #>; <#
                 }
             }
         #>}>(`./<#= service.Route.Replace("{", "${").Replace("?", "") #>`<#

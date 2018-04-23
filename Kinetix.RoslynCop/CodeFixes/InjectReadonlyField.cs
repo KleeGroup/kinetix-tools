@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -75,8 +76,9 @@ namespace Kinetix.RoslynCop.CodeFixes
             // On construit le texte de documentation en fonction du type de paramètre.
             var type = (champ.Parent as VariableDeclarationSyntax).Type;
             var texte = type is PredefinedTypeSyntax ? "Valeur injectée."
-                : type.ToString().StartsWith("IService", System.StringComparison.Ordinal) ? "Service injecté."
-                : type.ToString().StartsWith("IDal", System.StringComparison.Ordinal) ? "DAL injectée."
+                : type.ToString().EndsWith("Service", StringComparison.Ordinal) ? "Service injecté."
+                : type.ToString().EndsWith("Dal", StringComparison.Ordinal) ? "DAL injectée."
+                : type.ToString().EndsWith("DbContext", StringComparison.Ordinal) ? "DbContext injecté."
                 : "Composant injecté.";
 
             // On met à jour le constructeur.

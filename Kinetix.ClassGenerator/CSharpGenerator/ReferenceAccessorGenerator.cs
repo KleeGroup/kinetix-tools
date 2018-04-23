@@ -63,7 +63,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         private static void GenerateReferenceAccessorsImplementation(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
             var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
-            var implementationName = $"Dal{nameSpaceName.Replace("DataContract", string.Empty)}Accessors";
+            var implementationName = $"{nameSpaceName.Replace("DataContract", string.Empty)}AccessorsDal";
             var interfaceName = $"I{implementationName}";
 
             var projectDir = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
@@ -125,7 +125,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         private static void GenerateReferenceAccessorsInterface(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
             var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
-            var interfaceName = $"IDal{nameSpaceName.Replace("DataContract", string.Empty)}Accessors";
+            var interfaceName = $"I{nameSpaceName.Replace("DataContract", string.Empty)}AccessorsDal";
 
             Console.WriteLine("Generating interface " + interfaceName + " containing reference accessors for namespace " + nameSpaceName);
 

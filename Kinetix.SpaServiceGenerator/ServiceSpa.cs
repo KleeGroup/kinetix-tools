@@ -315,7 +315,7 @@ foreach (var import in GetImportList()) {
             
             #line default
             #line hidden
-            this.Write(", ");
+            this.Write("; ");
             
             #line 51 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
