@@ -42,12 +42,7 @@ namespace Kinetix.SpaServiceGenerator
                     return $"{GetTSType(type.TypeArguments.First() as INamedTypeSymbol)}[]";
                 }
 
-                if (type.Name == "Nullable")
-                {
-                    return GetTSType(type.TypeArguments.First() as INamedTypeSymbol);
-                }
-
-                if (type.Name == "Nullable")
+                if (type.Name == "Nullable" || type.Name == "ActionResult")
                 {
                     return GetTSType(type.TypeArguments.First() as INamedTypeSymbol);
                 }
@@ -80,9 +75,9 @@ namespace Kinetix.SpaServiceGenerator
                 return "QueryOutput";
             }
 
-            if (type.Name == "IActionResult")
+            if (type.Name.Contains("IActionResult"))
             {
-                return "any";
+                return "void";
             }
 
             switch (type.SpecialType)

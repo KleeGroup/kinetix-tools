@@ -69,6 +69,7 @@ namespace Kinetix.SpaServiceGenerator
                 var serviceList = methods
                     .Where(m => m.method.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)))
                     .Select(GetService)
+                    .Where(s => s != null)
                     .ToList();
 
                 var fileName = $"{outputPath}/{controllerName}";
@@ -92,6 +93,18 @@ namespace Kinetix.SpaServiceGenerator
         private static ServiceDeclaration GetService((MethodDeclarationSyntax method, SemanticModel model) m)
         {
             var (method, model) = m;
+
+            var returnType = model.GetSymbolInfo(method.ReturnType).Symbol as INamedTypeSymbol;
+
+            if (returnType.Name == "Task")
+            {
+                returnType = returnType.TypeArguments.First() as INamedTypeSymbol;
+            }
+
+            if (returnType.Name.Contains("Redirect"))
+            {
+                return null;
+            }
 
             var documentation = method.GetLeadingTrivia()
                 .First(i => i.GetStructure() is DocumentationCommentTriviaSyntax)
@@ -156,7 +169,7 @@ namespace Kinetix.SpaServiceGenerator
                 Verb = verb,
                 Route = route,
                 Name = method.Identifier.ToString(),
-                ReturnType = model.GetSymbolInfo(method.ReturnType).Symbol as INamedTypeSymbol,
+                ReturnType = returnType,
                 Parameters = parameterList,
                 UriParameters = uriParameters.ToList(),
                 QueryParameters = queryParameters.ToList(),

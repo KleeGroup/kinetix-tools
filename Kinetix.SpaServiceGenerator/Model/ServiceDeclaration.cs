@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace Kinetix.SpaServiceGenerator.Model {
-
+namespace Kinetix.SpaServiceGenerator.Model
+{
     /// <summary>
     /// Représente un service.
     /// </summary>
-    public struct ServiceDeclaration {
-
+    public class ServiceDeclaration
+    {
         /// <summary>
         /// La route du service.
         /// </summary>
