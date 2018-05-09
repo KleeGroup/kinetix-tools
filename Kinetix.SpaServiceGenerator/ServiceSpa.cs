@@ -12,6 +12,7 @@ namespace Kinetix.SpaServiceGenerator
     using System.Linq;
     using System.Text;
     using System.Collections.Generic;
+    using System.Text.RegularExpressions;
     using Kinetix.SpaServiceGenerator.Model;
     using System;
     
@@ -30,23 +31,23 @@ namespace Kinetix.SpaServiceGenerator
         public virtual string TransformText()
         {
             this.Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera per" +
-                    "due.\r\n*/\r\n\r\nimport * as server from \"");
+                    "due.\r\n*/\r\n\r\nimport {fetch} from \"");
             
-            #line 12 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 13 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ServerPath));
             
             #line default
             #line hidden
             this.Write("\";\r\n");
             
-            #line 13 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 14 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  if (GetImportList().Any()) { 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 15 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 16 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  }
 foreach (var import in GetImportList()) { 
             
@@ -54,79 +55,78 @@ foreach (var import in GetImportList()) {
             #line hidden
             this.Write("import {");
             
-            #line 17 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(import.import));
             
             #line default
             #line hidden
             this.Write("} from \"");
             
-            #line 17 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(import.path));
             
             #line default
             #line hidden
             this.Write("\";\r\n");
             
-            #line 18 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 19 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 19 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 20 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  foreach (var service in Services) { 
             
             #line default
             #line hidden
             this.Write("\r\n/**\r\n * ");
             
-            #line 22 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 23 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(service.Documentation.Summary));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 23 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  foreach (var param in service.Documentation.Parameters) { 
             
             #line default
             #line hidden
             this.Write(" * @param ");
             
-            #line 23 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(param.Item1));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 23 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(param.Item2));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 24 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 25 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  } 
             
             #line default
             #line hidden
-            this.Write(" * @param options Options to service call.\r\n */\r\nexport function ");
+            this.Write(" * @param options Fetch options.\r\n */\r\nexport function ");
             
-            #line 27 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 28 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(service.Name)));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 27 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 28 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-    if (service.BodyParameters.Any()) {
-        var parameter = service.BodyParameters.First();
+    foreach (var parameter in service.Parameters) { 
         
             
             #line default
@@ -150,101 +150,76 @@ foreach (var import in GetImportList()) {
             
             #line default
             #line hidden
-            this.Write(", ");
             
             #line 30 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-    }
-    foreach (var parameter in service.UriParameters) { 
-            
-            #line default
-            #line hidden
-            
-            #line 32 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Name));
-            
-            #line default
-            #line hidden
-            
-            #line 32 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.IsOptional ? "?" : ""));
-            
-            #line default
-            #line hidden
-            this.Write(": ");
-            
-            #line 32 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GetTSType(parameter.Type)));
-            
-            #line default
-            #line hidden
-            
-            #line 32 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-
-        if (parameter.Name != service.UriParameters.Last().Name) {
+        if (parameter.Name != service.Parameters.Last().Name) {
             
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 34 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 32 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
         }
     }
-    if (service.UriParameters.Count() > 0) {
+    if (service.Parameters.Count() > 0) {
         
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 38 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 36 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
     } 
             
             #line default
             #line hidden
-            this.Write("options: server.RequestInitExtended");
+            this.Write("options: RequestInit = {}): Promise<");
             
-            #line 39 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
- if(service.QueryParameters.Any()) { 
+            #line 37 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GetTSType(service.ReturnType)));
             
             #line default
             #line hidden
-            this.Write("<{");
+            this.Write("> {\r\n    return fetch(\"");
             
-            #line 39 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 38 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(service.Verb));
+            
+            #line default
+            #line hidden
+            this.Write("\", `./");
+            
+            #line 38 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Regex.Replace(service.Route.Replace("{", "${"), ":([a-z]+)", string.Empty)));
+            
+            #line default
+            #line hidden
+            this.Write("`, {");
+            
+            #line 38 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-        foreach (var queryParameter in service.QueryParameters) {
+        if (service.BodyParameter != null) {
             
             
             #line default
             #line hidden
+            this.Write("body: ");
             
-            #line 41 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(queryParameter.Name));
-            
-            #line default
-            #line hidden
-            
-            #line 41 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(queryParameter.IsOptional ? "?" : ""));
-            
-            #line default
-            #line hidden
-            this.Write(": ");
-            
-            #line 41 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GetTSType(queryParameter.Type)));
+            #line 40 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(service.BodyParameter.Name));
             
             #line default
             #line hidden
             
-            #line 41 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 40 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-            if (queryParameter.Name != service.QueryParameters.Last().Name) {
-                
+        }
+        if (service.BodyParameter != null && service.QueryParameters.Any()) {
+            
             
             #line default
             #line hidden
@@ -252,130 +227,57 @@ foreach (var import in GetImportList()) {
             
             #line 43 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-            }
         }
-    
+        if (service.QueryParameters.Any()) {
+            
             
             #line default
             #line hidden
-            this.Write("}>");
+            this.Write("query: {");
             
             #line 46 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write(" = {}) {\r\n    return server.");
-            
-            #line 47 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Utils.ToFirstLower(service.Verb)));
-            
-            #line default
-            #line hidden
-            this.Write("<");
-            
-            #line 47 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GetTSType(service.ReturnType)));
-            
-            #line default
-            #line hidden
-            this.Write(", {");
-            
-            #line 47 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-            foreach (var queryParameter in service.QueryParameters) {
+            foreach (var qParam in service.QueryParameters) {
                 
             
             #line default
             #line hidden
             
-            #line 49 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(queryParameter.Name));
+            #line 48 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(qParam.Name));
             
             #line default
             #line hidden
             
-            #line 49 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(queryParameter.IsOptional ? "?" : ""));
-            
-            #line default
-            #line hidden
-            this.Write(": ");
-            
-            #line 49 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GetTSType(queryParameter.Type)));
-            
-            #line default
-            #line hidden
-            
-            #line 49 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 48 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
-                if (queryParameter.Name != service.QueryParameters.Last().Name) {
+                if (qParam.Name != service.QueryParameters.Last().Name) {
                     
-            
-            #line default
-            #line hidden
-            this.Write("; ");
-            
-            #line 51 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-
-                }
-            }
-        
-            
-            #line default
-            #line hidden
-            this.Write("}>(`./");
-            
-            #line 54 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(service.Route.Replace("{", "${").Replace("?", "")));
-            
-            #line default
-            #line hidden
-            this.Write("`");
-            
-            #line 54 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-
-        if (service.BodyParameters.Any()) {
-            
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 56 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(service.BodyParameters.First().Name));
+            #line 50 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+
+                }
+            }
+            
             
             #line default
             #line hidden
+            this.Write("}");
             
-            #line 56 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 53 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
 
         }
         
             
             #line default
             #line hidden
+            this.Write("}, options);\r\n}\r\n");
             
-            #line 58 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-
-        if (!service.BodyParameters.Any() && service.IsPostPutMethod) {
-            
-            
-            #line default
-            #line hidden
-            this.Write(", {} ");
-            
-            #line 60 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
-
-        }
-        
-            
-            #line default
-            #line hidden
-            this.Write(", options);\r\n}\r\n");
-            
-            #line 64 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
+            #line 57 "D:\Projets\CINP_BIRD\Tools\Kinetix.SpaServiceGenerator\ServiceSpa.tt"
  } 
             
             #line default

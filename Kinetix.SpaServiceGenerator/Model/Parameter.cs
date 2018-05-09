@@ -1,12 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Kinetix.SpaServiceGenerator.Model {
-
+namespace Kinetix.SpaServiceGenerator.Model
+{
     /// <summary>
     /// Représente un paramètre de service.
     /// </summary>
-    public struct Parameter {
-
+    public class Parameter
+    {
         /// <summary>
         /// Le type du paramètre.
         /// </summary>
@@ -26,11 +26,6 @@ namespace Kinetix.SpaServiceGenerator.Model {
         /// Avec attribut FromBody ou non.
         /// </summary>
         public bool IsFromBody { get; set; }
-
-        /// <summary>
-        /// Avec attribut FromBody ou non.
-        /// </summary>
-        public bool IsFromUri { get; set; }
 
     }
 }

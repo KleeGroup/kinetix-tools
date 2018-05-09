@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kinetix.SpaServiceGenerator.Model {
-
+namespace Kinetix.SpaServiceGenerator.Model
+{
     /// <summary>
     /// Représente la documentation d'un service.
     /// </summary>
-    public struct Documentation {
+    public class Documentation
+    {
 
         /// <summary>
         /// Le summary.

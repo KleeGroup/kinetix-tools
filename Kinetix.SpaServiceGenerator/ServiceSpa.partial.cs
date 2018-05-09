@@ -144,11 +144,10 @@ namespace Kinetix.SpaServiceGenerator
                         .DescendantNodes()
                         .OfType<ClassDeclarationSyntax>()
                         .First();
+
                     var hasRefAttribute = classDecl
-                        .AttributeLists
-                        .FirstOrDefault()
-                        ?.Attributes
-                        .Any(attr => attr.Name.ToString() == "Reference") ?? false;
+                        .AttributeLists.SelectMany(l => l.Attributes)
+                        .Any(attr => attr.Name.ToString() == "Reference");
 
                     if (!hasRefAttribute)
                     {

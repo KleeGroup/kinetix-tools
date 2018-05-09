@@ -123,15 +123,14 @@ namespace Kinetix.SpaServiceGenerator
                 .SelectMany(list => list.Attributes)
                 .Single(attr => attr.ToString().StartsWith("Http"));
 
-            var verb = verbRouteAttribute.Name.ToString();
+            var verb = verbRouteAttribute.Name.ToString().Substring(4).ToUpper();
 
             var parameterList = method.ParameterList.ChildNodes().OfType<ParameterSyntax>().Select(parameter => new Parameter
             {
                 Type = model.GetSymbolInfo(parameter.Type).Symbol as INamedTypeSymbol,
                 Name = parameter.Identifier.ToString(),
                 IsOptional = parameter.Default != null,
-                IsFromBody = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromBody"),
-                IsFromUri = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromUrl")
+                IsFromBody = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromBody")
             }).ToList();
 
             var routeParameters = new List<string>();
@@ -143,27 +142,6 @@ namespace Kinetix.SpaServiceGenerator
                 routeParameters.Add(match.Value.Replace("{", "").Replace("}", ""));
             }
 
-            var uriParameters = parameterList.Where(param => !param.IsFromBody && routeParameters.Contains(param.Name));
-            var queryParameters = parameterList.Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name));
-
-            var bodyParameters = new List<Parameter>();
-            if ((verb == "HttpPost" || verb == "HttpPut") && parameterList.Except(uriParameters).Any())
-            {
-                var bodyParams = parameterList
-                    .Except(uriParameters)
-                    .Where(param => param.IsFromBody)
-                    // Concat here as a fallback (use of first below)
-                    .Concat(parameterList.Where(param => !param.IsFromUri));
-
-                if (bodyParams.Any())
-                {
-                    bodyParameters.Add(bodyParams.First());
-                }
-
-                queryParameters = queryParameters
-                    .Where(param => !bodyParameters.Select(body => body.Name).Contains(param.Name));
-            }
-
             return new ServiceDeclaration
             {
                 Verb = verb,
@@ -171,11 +149,10 @@ namespace Kinetix.SpaServiceGenerator
                 Name = method.Identifier.ToString(),
                 ReturnType = returnType,
                 Parameters = parameterList,
-                UriParameters = uriParameters.ToList(),
-                QueryParameters = queryParameters.ToList(),
-                BodyParameters = bodyParameters,
-                Documentation = new Documentation { Summary = summary, Parameters = parameters.ToList() },
-                IsPostPutMethod = verb == "HttpPost" || verb == "HttpPut"
+                UriParameters = parameterList.Where(param => !param.IsFromBody && routeParameters.Contains(param.Name)).ToList(),
+                QueryParameters = parameterList.Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name)).ToList(),
+                BodyParameter = parameterList.SingleOrDefault(param => param.IsFromBody),
+                Documentation = new Documentation { Summary = summary, Parameters = parameters.ToList() }
             };
         }
     }
