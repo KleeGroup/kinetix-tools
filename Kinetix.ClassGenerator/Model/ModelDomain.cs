@@ -60,6 +60,24 @@ namespace Kinetix.ClassGenerator.Model
         }
 
         /// <summary>
+        /// Retourne la longueur persistente du domaine.
+        /// </summary>
+        public int? PersistentLength
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Retourne la précision du dommaine.
+        /// </summary>
+        public int? PersistentPrecision
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Le modèle du domaine.
         /// </summary>
         public ModelRoot Model

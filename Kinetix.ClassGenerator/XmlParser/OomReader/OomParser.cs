@@ -45,6 +45,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyDataType = "a:DataType";
         private const string PropertyMultiplicity = "a:Multiplicity";
         private const string PropertyPersistentDataType = "a:PersistentDataType";
+        private const string PropertyPersistentLength = "a:PersistentLength";
+        private const string PropertyPersistentPrecision = "a:PersistentPrecision";
         private const string PropertyCreator = "a:Creator";
         private const string PropertyStereotype = "a:Stereotype";
         private const string PropertyIndicatorA = "a:RoleAIndicator";
@@ -270,7 +272,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Code = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyCode, _currentNsManager)),
                         DataType = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyDataType, _currentNsManager)),
                         PersistentDataType = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyPersistentDataType, _currentNsManager)),
-
+                        PersistentLength = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentLength, _currentNsManager)),
+                        PersistentPrecision = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentPrecision, _currentNsManager)),
                         CustomAnnotation = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomAnnotation, _currentNsManager)),
                         CustomUsings = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomUsings, _currentNsManager)),
 
