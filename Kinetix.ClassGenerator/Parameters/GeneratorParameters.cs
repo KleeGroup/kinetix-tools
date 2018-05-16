@@ -80,6 +80,15 @@ namespace Kinetix.ClassGenerator.Parameters
         }
 
         /// <summary>
+        /// Version de kinetix utilisée: Core ou Framework.
+        /// </summary>
+        public string Kinetix
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Paramètres pour la génération du C#.
         /// </summary>
         public CSharpParameters CSharp

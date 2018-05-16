@@ -417,7 +417,14 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (item.HasDomainAttribute || item.ParentClass == null)
             {
-                usings.Add("Kinetix.ComponentModel.Annotations");
+                if (GeneratorParameters.Kinetix == "Core")
+                {
+                    usings.Add("Kinetix.ComponentModel.Annotations");
+                }
+                else
+                {
+                    usings.Add("Kinetix.ComponentModel");
+                }
             }
 
             foreach (string value in item.UsingList)
