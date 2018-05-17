@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel;
 using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.Checker
@@ -34,9 +33,8 @@ namespace Kinetix.ClassGenerator.Checker
         /// Retourne le descripteur de propriété pour la primary key de la classe.
         /// </summary>
         /// <param name="classe">La classe en question.</param>
-        /// <param name="beanDefinition">La définition du bean d'initialisation.</param>
         /// <returns>Descripteur de la PK.</returns>
-        protected override BeanPropertyDescriptor GetReferenceKeyDescriptor(ModelClass classe, BeanDefinition beanDefinition)
+        protected override string GetReferenceKeyName(ModelClass classe)
         {
             if (classe.PrimaryKey.Count != 1)
             {
@@ -44,7 +42,7 @@ namespace Kinetix.ClassGenerator.Checker
             }
 
             ModelProperty pkProperty = ((IList<ModelProperty>)classe.PrimaryKey)[0];
-            return beanDefinition.Properties[pkProperty.Name];
+            return pkProperty.Name;
         }
 
         /// <summary>

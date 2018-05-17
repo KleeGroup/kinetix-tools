@@ -5,7 +5,6 @@ using System.Text;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto;
-using Kinetix.ComponentModel;
 using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
@@ -78,20 +77,19 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
         private static string GetInsertLine(ModelClass modelClass, ItemInit initItem, bool siPrimaryKeyIncluded)
         {
             // Remplissage d'un dictionnaire nom de colonne => valeur.
-            BeanDefinition definition = Singletons.BeanDescriptor.GetDefinition(initItem.Bean);
+            IDictionary<string, object> definition = initItem.Bean;
             Dictionary<string, string> nameValueDict = new Dictionary<string, string>();
             foreach (ModelProperty property in modelClass.PersistentPropertyList)
             {
                 if (!property.DataDescription.IsPrimaryKey || siPrimaryKeyIncluded || property.DataDescription.Domain.Code == "DO_CD")
                 {
-                    BeanPropertyDescriptor propertyDescriptor = definition.Properties[property.Name];
-                    object propertyValue = propertyDescriptor.GetValue(initItem.Bean);
+                    object propertyValue = definition[property.Name];
                     string propertyValueStr = propertyValue == null ? "NULL" : propertyValue.ToString();
                     if (property.DataType == "byte[]")
                     {
                         nameValueDict[property.DataMember.Name] = propertyValueStr;
                     }
-                    else if (propertyDescriptor.PrimitiveType == typeof(string))
+                    else if (propertyValue.GetType() == typeof(string))
                     {
                         nameValueDict[property.DataMember.Name] = propertyValue == null ? "NULL" : "N'" + ScriptUtils.PrepareDataToSqlDisplay(propertyValueStr) + "'";
                     }

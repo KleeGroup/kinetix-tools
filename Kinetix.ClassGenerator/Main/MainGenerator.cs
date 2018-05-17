@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using Kinetix.ClassGenerator.Checker;
 using Kinetix.ClassGenerator.Configuration;
 using Kinetix.ClassGenerator.CSharpGenerator;
@@ -15,6 +15,7 @@ using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.XmlParser;
 using Kinetix.ClassGenerator.XmlParser.OomReader;
 using Kinetix.ComponentModel.ListFactory;
+using Newtonsoft.Json;
 
 namespace Kinetix.ClassGenerator.Main
 {
@@ -122,35 +123,56 @@ namespace Kinetix.ClassGenerator.Main
         }
 
         /// <summary>
-        /// Returns collection of TableInit.
+        /// Returns collection of TableInit from a file.
         /// </summary>
-        /// <param name="isStatic">Indique si la table est statique.</param>
+        /// <param name="listFactoryFileName">Fichier de factory.</param>
         /// <returns>Collection of TableInit.</returns>
-        private static ICollection<TableInit> LoadTableInitList(bool isStatic)
+        private ICollection<TableInit> LoadTableInitListFromFile(string listFactoryFileName)
         {
-            ICollection<TableInit> list = null;
+            IDictionary<string, TableInit> dictionary = null;
 
-            if (Singletons.GeneratorParameters.ListFactoryAssembly != null)
+            if (!string.IsNullOrEmpty(listFactoryFileName))
             {
-                Assembly assembly = Assembly.LoadFile(Path.Combine(Directory.GetCurrentDirectory(), Singletons.GeneratorParameters.ListFactoryAssembly));
-                foreach (Module module in assembly.GetModules())
+                dictionary = new Dictionary<string, TableInit>();
+
+                string fileContent = File.ReadAllText(listFactoryFileName);
+
+                if (!string.IsNullOrEmpty(fileContent))
                 {
-                    foreach (Type type in module.GetTypes())
+                    var factory = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, object>>>>(fileContent);
+
+                    foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, object>>> tableFactory in factory)
                     {
-                        if (typeof(AbstractListFactory).IsAssignableFrom(type))
+                        string tableName = tableFactory.Key;
+
+                        if (string.IsNullOrEmpty(tableName))
                         {
-                            AbstractListFactory factory = (AbstractListFactory)Activator.CreateInstance(type);
-                            factory.Init();
-                            if ((isStatic && factory.IsStatic) || (!isStatic && !factory.IsStatic))
-                            {
-                                list = factory.Items;
-                            }
+                            throw new ArgumentNullException("tableName");
                         }
+
+                        if (dictionary.ContainsKey(tableName))
+                        {
+                            throw new NotSupportedException();
+                        }
+
+                        foreach (string itemTableName in dictionary.Keys.Where(itemTableName => string.Compare(itemTableName, tableName, StringComparison.OrdinalIgnoreCase) > 0))
+                        {
+                            throw new NotSupportedException("L'initialisation des listes statiques/références doit être effectuée dans l'ordre alphabétique, l'élément " + itemTableName + " précède l'élément " + tableName + ".");
+                        }
+
+                        TableInit table = new TableInit { ClassName = tableName, FactoryName = this.GetType().Name };
+
+                        foreach (KeyValuePair<string, Dictionary<string, object>> value in tableFactory.Value)
+                        {
+                            table.AddItem(value.Key, value.Value);
+                        }
+
+                        dictionary.Add(tableName, table);
                     }
                 }
             }
 
-            return list;
+            return dictionary?.Values;
         }
 
         /// <summary>
@@ -220,8 +242,8 @@ namespace Kinetix.ClassGenerator.Main
             _modelList = modelParser.Parse();
 
             // Charge les listes de références.
-            ICollection<TableInit> staticTableInitList = LoadTableInitList(true);
-            ICollection<TableInit> referenceTableInitList = LoadTableInitList(false);
+            ICollection<TableInit> staticTableInitList = LoadTableInitListFromFile(Singletons.GeneratorParameters.StaticListFactoryFileName);
+            ICollection<TableInit> referenceTableInitList = LoadTableInitListFromFile(Singletons.GeneratorParameters.ReferenceListFactoryFileName);
 
             // Génère les warnings pour le modèle.
             List<NVortexMessage> messageList = new List<NVortexMessage>(modelParser.ErrorList);

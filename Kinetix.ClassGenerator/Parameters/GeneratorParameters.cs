@@ -42,11 +42,20 @@ namespace Kinetix.ClassGenerator.Parameters
             get;
             set;
         }
+        
+        /// <summary>
+        /// Nom de la factory contenant les listes statiques.
+        /// </summary>
+        public string StaticListFactoryFileName
+        {
+            get;
+            set;
+        }
 
         /// <summary>
-        /// Nom de l'assembly contenant des implémentations de AbstractListFactory.
+        /// Nom de la factory contenant les listes de références.
         /// </summary>
-        public string ListFactoryAssembly
+        public string ReferenceListFactoryFileName
         {
             get;
             set;

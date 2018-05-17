@@ -253,15 +253,14 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         protected Dictionary<string, string> CreatePropertyValueDictionary(ModelClass modelClass, ItemInit initItem, bool isPrimaryKeyIncluded)
         {
             var nameValueDict = new Dictionary<string, string>();
-            var definition = Singletons.BeanDescriptor.GetDefinition(initItem.Bean);
+            IDictionary<string, object> definition = initItem.Bean;
             foreach (ModelProperty property in modelClass.PersistentPropertyList)
             {
                 if (!property.DataDescription.IsPrimaryKey || isPrimaryKeyIncluded)
                 {
-                    var propertyDescriptor = definition.Properties[property.Name];
-                    object propertyValue = propertyDescriptor.GetValue(initItem.Bean);
+                    object propertyValue = definition[property.Name];
                     string propertyValueStr = propertyValue == null ? string.Empty : propertyValue.ToString();
-                    if (propertyDescriptor.PrimitiveType == typeof(string))
+                    if (propertyValue.GetType() == typeof(string))
                     {
                         nameValueDict[property.DataMember.Name] = "'" + propertyValueStr.Replace("'", "''") + "'";
                     }

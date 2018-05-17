@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel;
 using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.Checker
@@ -89,11 +89,11 @@ namespace Kinetix.ClassGenerator.Checker
         {
             foreach (ItemInit itemInit in item.ItemInitList)
             {
-                BeanDefinition definition = Singletons.BeanDescriptor.GetDefinition(itemInit.Bean);
+                IDictionary<string, object> definition = itemInit.Bean;
                 Dictionary<string, bool> visitedProperties = new Dictionary<string, bool>();
                 foreach (ModelProperty property in classe.PersistentPropertyList)
                 {
-                    if (definition.Properties.Contains(property.Name) || property.DataDescription.IsPrimaryKey)
+                    if (definition.Keys.Contains(property.Name) || property.DataDescription.IsPrimaryKey)
                     {
                         visitedProperties.Add(property.Name, true);
                     }
@@ -109,15 +109,15 @@ namespace Kinetix.ClassGenerator.Checker
                     }
                 }
 
-                foreach (BeanPropertyDescriptor property in definition.Properties)
+                foreach (string propertyName in definition.Keys)
                 {
-                    if (!visitedProperties.ContainsKey(property.PropertyName))
+                    if (!visitedProperties.ContainsKey(propertyName))
                     {
                         messageList.Add(new NVortexMessage()
                         {
                             Category = Category.Error,
                             IsError = true,
-                            Description = item.FactoryName + " définit une initialisation pour le type " + item.ClassName + " avec la propriété " + property.PropertyName + " qui n'existe pas.",
+                            Description = item.FactoryName + " définit une initialisation pour le type " + item.ClassName + " avec la propriété " + propertyName + " qui n'existe pas.",
                             FileName = classe.Namespace.Model.ModelFile
                         });
                     }
@@ -165,49 +165,40 @@ namespace Kinetix.ClassGenerator.Checker
 
             foreach (ItemInit itemInit in item.ItemInitList)
             {
-                BeanDefinition definition = Singletons.BeanDescriptor.GetDefinition(itemInit.Bean);
-                BeanPropertyDescriptor propertyDescriptor = GetReferenceKeyDescriptor(classe, definition);
-                object propertyValue = propertyDescriptor.GetValue(itemInit.Bean);
-                if (propertyDescriptor.PrimitiveType == typeof(string))
+                IDictionary<string, object> definition = itemInit.Bean;
+                string propertyName = GetReferenceKeyName(classe);
+                object propertyValue = definition[propertyName];
+                if (propertyValue.GetType() == typeof(string))
                 {
                     propertyValue = "\"" + propertyValue + "\"";
                 }
 
-                BeanPropertyDescriptor libelleDescriptor = GetLibelleDescriptor(classe, definition);
+                string libelleName = GetLibelleName(definition);
                 string libelle = null;
-                if (libelleDescriptor != null)
+                if (libelleName != null)
                 {
-                    libelle = (string)libelleDescriptor.GetValue(itemInit.Bean);
+                    libelle = (string)definition[libelleName];
                 }
                 else
                 {
                     libelle = itemInit.VarName;
                 }
 
-                classe.ConstValues.Add(itemInit.VarName, new StaticListElement() { Code = propertyValue, Libelle = libelle, CodeType = propertyDescriptor.PrimitiveType.ToString() });
+                classe.ConstValues.Add(itemInit.VarName, new StaticListElement() { Code = propertyValue, Libelle = libelle, CodeType = propertyValue.GetType().ToString() });
             }
         }
 
-        private BeanPropertyDescriptor GetLibelleDescriptor(ModelClass classe, BeanDefinition beanDefinition)
+        private string GetLibelleName(IDictionary<string, object> beanDefinition)
         {
-            foreach (BeanPropertyDescriptor prop in beanDefinition.Properties)
-            {
-                if (prop.PropertyName.Equals("Libelle") || prop.PropertyName.Equals("Description"))
-                {
-                    return prop;
-                }
-            }
-
-            return null;
+            return beanDefinition.Keys.FirstOrDefault(key => new[] { "Libelle", "Description" }.Contains(key));
         }
 
         /// <summary>
         /// Methode a surcharger. 
         /// </summary>
         /// <param name="classe">Classe.</param>
-        /// <param name="definition">Definition.</param>
         /// <returns>Returns property reference.</returns>
-        protected abstract BeanPropertyDescriptor GetReferenceKeyDescriptor(ModelClass classe, BeanDefinition definition);
+        protected abstract string GetReferenceKeyName(ModelClass classe);
 
         /// <summary>
         /// To override.

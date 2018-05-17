@@ -12,8 +12,13 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
     public static class ReferenceAccessorGenerator
     {
         private const string ReferenceAccessorAttribute = "[ReferenceAccessor]";
-        private const string ServiceBehaviorAttribute = "[RegisterImpl]";
-        private const string ServiceContractAttribute = "[RegisterContract]";
+        private const string ReferenceAccessorAttributeExt = "[OperationContract]";
+
+        private static readonly IDictionary<string, (string ServiceBehaviorAttribute, string ServiceContractAttribute)> ServiceAttributes = new Dictionary<string, (string ServiceBehaviorAttribute, string ServiceContractAttribute)>
+        {
+            { "Core", (ServiceBehaviorAttribute: "[RegisterImpl]" , ServiceContractAttribute: "[RegisterContract]") },
+            { "Framework", (ServiceBehaviorAttribute: "[ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall, IncludeExceptionDetailInFaults = true)]", ServiceContractAttribute: "[ServiceContract]") }
+        };
 
         /// <summary>
         /// Génère les ReferenceAccessor.
@@ -73,17 +78,28 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             var implementationFileName = Path.Combine(projectDir, "generated\\Reference", implementationName + ".cs");
             using (var w = new CSharpWriter(implementationFileName))
             {
-                w.WriteUsings(
-                    "System.Collections.Generic",
-                    "System.Linq",
-                    $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
-                    "Kinetix.Services.Annotations");
+                if (GeneratorParameters.Kinetix == "Core")
+                {
+                    w.WriteUsings(
+                        "System.Collections.Generic",
+                        "System.Linq",
+                        $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
+                        "Kinetix.Services.Annotations");
+                }
+                else
+                {
+                    w.WriteUsings(
+                        "System.Collections.Generic",
+                        "System.Linq",
+                        "System.ServiceModel",
+                        $"{GeneratorParameters.RootNamespace}.{nameSpaceName}");
+                }
 
                 w.WriteLine();
                 w.WriteNamespace(projectName);
 
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
-                w.WriteLine(1, ServiceBehaviorAttribute);
+                w.WriteLine(1, ServiceAttributes[GeneratorParameters.Kinetix].ServiceBehaviorAttribute);
                 w.WriteClassDeclaration(implementationName, null, new List<string> { interfaceName });
 
                 var dbContextName = $"{GeneratorParameters.RootNamespace}DbContext";
@@ -134,15 +150,26 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             using (var w = new CSharpWriter(interfaceFileName))
             {
-                w.WriteUsings(
-                    "System.Collections.Generic",
-                    $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
-                    "Kinetix.Services.Annotations");
+                if (GeneratorParameters.Kinetix == "Core")
+                {
+                    w.WriteUsings(
+                        "System.Collections.Generic",
+                        $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
+                        "Kinetix.Services.Annotations");
+                }
+                else
+                {
+                    w.WriteUsings(
+                        "System.Collections.Generic",
+                        "System.ServiceModel",
+                        $"{GeneratorParameters.RootNamespace}.{nameSpaceName}",
+                        "Kinetix.ServiceModel");
+                }
 
                 w.WriteLine();
                 w.WriteNamespace(projectName);
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
-                w.WriteLine(1, ServiceContractAttribute);
+                w.WriteLine(1, ServiceAttributes[GeneratorParameters.Kinetix].ServiceContractAttribute);
                 w.WriteLine(1, "public partial interface " + interfaceName + "\r\n{");
 
                 var count = 0;
@@ -152,6 +179,10 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     w.WriteSummary(2, "Reference accessor for type " + classe.Name);
                     w.WriteReturns(2, "List of " + classe.Name);
                     w.WriteLine(2, ReferenceAccessorAttribute);
+                    if (GeneratorParameters.Kinetix == "Framework")
+                    {
+                        w.WriteLine(2, ReferenceAccessorAttributeExt);
+                    }
                     w.WriteLine(2, "ICollection<" + classe.Name + "> Load" + Pluralize(classe.Name) + "();");
 
                     if (count != classList.Count())
