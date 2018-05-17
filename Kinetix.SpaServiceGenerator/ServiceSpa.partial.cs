@@ -86,6 +86,7 @@ namespace Kinetix.SpaServiceGenerator
                     return type.Name;
                 case SpecialType.System_Int32:
                 case SpecialType.System_Decimal:
+                case SpecialType.System_Double:
                     return "number";
                 case SpecialType.System_DateTime:
                 case SpecialType.System_String:
