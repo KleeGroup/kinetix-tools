@@ -122,7 +122,7 @@ namespace Kinetix.ClassGenerator.Model
         /// <summary>
         /// Retourne si le type est primitif.
         /// </summary>
-        public bool IsPrimitive => DataType.EndsWith("?") || DataType == "string";
+        public bool IsPrimitive => DataType == "Point" || DataType == "Polygon" || DataType.EndsWith("?") || DataType == "string";
 
         /// <summary>
         /// Indique si la propriété est unique.
