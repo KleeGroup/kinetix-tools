@@ -18,6 +18,11 @@ namespace Kinetix.SpaServiceGenerator
     /// </summary>
     internal class Program
     {
+        private static string _solutionPath;
+        private static string _serviceRoot;
+        private static string _projectName;
+        private static string _kinetix;
+
         /// <summary>
         /// Point d'entrée.
         /// </summary>
@@ -28,17 +33,21 @@ namespace Kinetix.SpaServiceGenerator
         /// </param>
         public static async Task Main(string[] args)
         {
-            var solutionPath = args[0];
-            var spaRoot = args[1];
-            var projectName = args[2];
+            _solutionPath = args[0];
+            _serviceRoot = args[1];
+            _projectName = args[2];
+            _kinetix = args[3];
 
             var msWorkspace = MSBuildWorkspace.Create();
-            var solution = await msWorkspace.OpenSolutionAsync(args[0]);
+            var solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
 
-            var outputPath = $"{spaRoot}/app/services";
+            // If path is not to services add "standard" path 
+            var outputPath = _serviceRoot.EndsWith("services") ? _serviceRoot : $"{_serviceRoot}/app/services";
 
-            var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(projectName) && projet.AssemblyName.EndsWith("FrontEnd"));
-            var controllers = frontEnds.SelectMany(f => f.Documents).Where(document => document.Name.Contains("Controller"));
+            var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(_projectName) && projet.AssemblyName.EndsWith("FrontEnd"));
+            var controllers = frontEnds.SelectMany(f => f.Documents).Where(document =>
+                document.Name.Contains("Controller")
+                && !document.Folders.Contains("Transverse"));
 
             foreach (var controller in controllers)
             {
@@ -58,7 +67,10 @@ namespace Kinetix.SpaServiceGenerator
                 var methods = GetMethodDeclarations(controllerClass, model);
 
                 var modelClass = model.GetDeclaredSymbol(controllerClass);
-                if (modelClass.BaseType.Name != "Controller")
+
+                // If controller is not a direct Controller extender, ie it extends a base class
+                string aspControllerClass = _kinetix == "Core" ? "Controller" : "ApiController";
+                if (modelClass.BaseType.Name != aspControllerClass)
                 {
                     var baseClassSyntaxTree = modelClass.BaseType.DeclaringSyntaxReferences.First().SyntaxTree;
                     methods = methods.Concat(GetMethodDeclarations(
@@ -81,7 +93,7 @@ namespace Kinetix.SpaServiceGenerator
                     Directory.CreateDirectory(directoryInfo.FullName);
                 }
 
-                var template = new ServiceSpa { ProjectName = projectName, FolderCount = folderCount, Services = serviceList };
+                var template = new ServiceSpa { ProjectName = _projectName, FolderCount = folderCount, Services = serviceList };
                 var output = template.TransformText();
                 File.WriteAllText(fileName, output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
@@ -134,8 +146,25 @@ namespace Kinetix.SpaServiceGenerator
             }).ToList();
 
             var routeParameters = new List<string>();
-            var route = ((verbRouteAttribute.ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
-                    .Expression as LiteralExpressionSyntax).Token.ValueText;
+
+            string route;
+            if (_kinetix == "Core")
+            {
+                route = ((verbRouteAttribute.ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
+                        .Expression as LiteralExpressionSyntax)
+                        .Token.ValueText;
+            }
+            else
+            {
+                var routeAttribute = method.AttributeLists
+                    .SelectMany(list => list.Attributes)
+                    .Single(attr => attr.ToString().StartsWith("Route"));
+
+                route = ((routeAttribute.ArgumentList.ChildNodes().First() as AttributeArgumentSyntax)
+                    .Expression as LiteralExpressionSyntax)
+                    .Token.ValueText;
+            }
+
             var matches = Regex.Matches(route, "(?s){.+?}");
             foreach (Match match in matches)
             {
