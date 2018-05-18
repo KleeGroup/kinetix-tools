@@ -68,10 +68,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     }
                 }
 
-                foreach (var us in usings)
-                {
-                    w.WriteLine($"using {us};");
-                }
+                w.WriteUsings(usings.ToArray());
 
                 w.WriteLine();
                 w.WriteLine($"namespace {projectName}");
