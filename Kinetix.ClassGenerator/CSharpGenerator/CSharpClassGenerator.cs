@@ -381,6 +381,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
             else
             {
+                w.WriteAttribute(2, "NotMapped");
                 w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; private set; }}");
             }
         }
@@ -409,7 +410,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 usings.Add("System.ComponentModel.DataAnnotations");
             }
 
-            if (item.PropertyList.Any(prop => prop.IsPersistent && prop.DataMember != null))
+            if (item.PropertyList.Any(prop => prop.IsPersistent && prop.DataMember != null) || item.PropertyList.Any(p => !p.IsPrimitive))
             {
                 usings.Add("System.ComponentModel.DataAnnotations.Schema");
             }
