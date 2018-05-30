@@ -88,13 +88,13 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
                     {
                         nameValueDict[property.DataMember.Name] = propertyValueStr;
                     }
-                    else if (propertyValue.GetType() == typeof(string))
+                    else if (propertyValue != null && propertyValue.GetType() == typeof(string))
                     {
-                        nameValueDict[property.DataMember.Name] = propertyValue == null ? "NULL" : "N'" + ScriptUtils.PrepareDataToSqlDisplay(propertyValueStr) + "'";
+                        nameValueDict[property.DataMember.Name] = "N'" + ScriptUtils.PrepareDataToSqlDisplay(propertyValueStr) + "'";
                     }
                     else
                     {
-                        nameValueDict[property.DataMember.Name] = propertyValue == null ? "NULL" : propertyValueStr;
+                        nameValueDict[property.DataMember.Name] = propertyValueStr;
                     }
                 }
             }

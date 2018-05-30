@@ -258,8 +258,8 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 if (!property.DataDescription.IsPrimaryKey || isPrimaryKeyIncluded)
                 {
                     object propertyValue = definition[property.Name];
-                    string propertyValueStr = propertyValue == null ? string.Empty : propertyValue.ToString();
-                    if (propertyValue.GetType() == typeof(string))
+                    string propertyValueStr = propertyValue == null ? "null" : propertyValue.ToString();
+                    if (propertyValue != null && propertyValue.GetType() == typeof(string))
                     {
                         nameValueDict[property.DataMember.Name] = "'" + propertyValueStr.Replace("'", "''") + "'";
                     }
