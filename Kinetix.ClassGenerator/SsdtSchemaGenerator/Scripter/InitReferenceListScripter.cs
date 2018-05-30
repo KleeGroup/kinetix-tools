@@ -5,7 +5,6 @@ using System.Text;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto;
-using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
 {

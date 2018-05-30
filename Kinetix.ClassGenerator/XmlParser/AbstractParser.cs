@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator.XmlParser
 {
@@ -115,7 +114,7 @@ namespace Kinetix.ClassGenerator.XmlParser
                     {
                         foreach (ModelProperty mp in item.PropertyList)
                         {
-                            if (!mp.IsFromComposition && mp.DataDescription.Domain.Code == DomainManager<object>.AliasDomain)
+                            if (!mp.IsFromComposition && mp.DataDescription.Domain.Code == "DO_ALIAS")
                             {
                                 objectToUpdate.Add(mp);
                             }

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Kinetix.ClassGenerator.Model;
-using Kinetix.ComponentModel;
 
 namespace Kinetix.ClassGenerator.Checker
 {
@@ -43,11 +42,11 @@ namespace Kinetix.ClassGenerator.Checker
             {
                 RegisterBug(property.Class, "Le nom de la propriété n'est pas renseigné.");
             }
-            else if ((property.DataDescription.Domain == null || property.DataDescription.Domain.Code != DomainManager<object>.AliasDomain) && !IsPascalCaseValid(property.Name))
+            else if ((property.DataDescription.Domain == null || property.DataDescription.Domain.Code != "DO_ALIAS") && !IsPascalCaseValid(property.Name))
             {
                 RegisterCodeStyle(property.Class, "Le code de la propriété [" + property.Name + "] n'est pas valide.");
             }
-            else if ((property.DataDescription.Domain != null && property.DataDescription.Domain.Code == DomainManager<object>.AliasDomain) && !IsAliasPropertyNameValid(property.Name))
+            else if ((property.DataDescription.Domain != null && property.DataDescription.Domain.Code == "DO_ALIAS") && !IsAliasPropertyNameValid(property.Name))
             {
                 RegisterCodeStyle(property.Class, "Le code de la propriété [" + property.Name + "] n'est pas valide.");
             }

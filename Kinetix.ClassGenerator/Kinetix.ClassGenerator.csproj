@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sources\Kinetix\Kinetix.ComponentModel\Kinetix.ComponentModel.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="mscorlib" />
   </ItemGroup>
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.SchemaGenerator
 {

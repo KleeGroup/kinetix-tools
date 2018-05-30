@@ -1,5 +1,4 @@
 ﻿using Kinetix.ClassGenerator.Model;
-using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto
 {

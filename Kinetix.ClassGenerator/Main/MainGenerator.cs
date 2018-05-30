@@ -14,7 +14,6 @@ using Kinetix.ClassGenerator.SsdtSchemaGenerator;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.XmlParser;
 using Kinetix.ClassGenerator.XmlParser.OomReader;
-using Kinetix.ComponentModel.ListFactory;
 using Newtonsoft.Json;
 
 namespace Kinetix.ClassGenerator.Main

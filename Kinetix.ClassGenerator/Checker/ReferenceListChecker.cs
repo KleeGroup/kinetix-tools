@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.ComponentModel.ListFactory;
 
 namespace Kinetix.ClassGenerator.Checker
 {
