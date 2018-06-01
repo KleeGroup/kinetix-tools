@@ -375,15 +375,12 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 }
             }
 
-            if (property.IsPrimitive)
-            {
-                w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
-            }
-            else
+            if (!property.IsPrimitive)
             {
                 w.WriteAttribute(2, "NotMapped");
-                w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; private set; }}");
             }
+
+            w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
         }
 
         /// <summary>
