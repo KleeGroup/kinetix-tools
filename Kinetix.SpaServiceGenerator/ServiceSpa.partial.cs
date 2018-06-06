@@ -181,8 +181,10 @@ namespace Kinetix.SpaServiceGenerator
 
             var localImports = types.Except(referenceTypes).Select(type =>
             {
+                var fixedProjectName = $"{ProjectName.Substring(0, 1).ToUpper()}{ProjectName.Substring(1).ToLowerInvariant()}";
+
                 var module = type.ContainingNamespace.ToString()
-                    .Replace($"{ProjectName}.", string.Empty)
+                    .Replace($"{fixedProjectName}.", string.Empty)
                     .Replace("DataContract", string.Empty)
                     .Replace("Contract", string.Empty)
                     .Replace(".", "/")

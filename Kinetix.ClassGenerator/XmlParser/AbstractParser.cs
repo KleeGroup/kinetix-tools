@@ -140,9 +140,9 @@ namespace Kinetix.ClassGenerator.XmlParser
             foreach (ModelProperty mp in objectToUpdate)
             {
                 string[] splittedName = mp.Name.Split('_');
-                if (splittedName.Length != 2 && splittedName.Length != 3)
+                if (splittedName.Length != 2 && splittedName.Length != 3 && splittedName.Length != 4)
                 {
-                    throw new Exception("La propriété d'alias '" + mp.Name + "' est mal formattée. Format Attendu : Table_Colonne ou Table_Colonne_Role");
+                    throw new Exception("La propriété d'alias '" + mp.Name + "' est mal formattée. Format Attendu : Table_Colonne ou Table_Colonne_Pre ou Table_Colonne__Post ou Table_Colonne_Pre_Post");
                 }
 
                 string key = FormatAliasColumn(splittedName[0], splittedName[1]);
@@ -154,14 +154,28 @@ namespace Kinetix.ClassGenerator.XmlParser
 
                 ModelProperty alias = modelPropertyMap[key];
                 mp.Name = alias.Name;
-                if (splittedName.Length == 3)
+
+                if (splittedName.Length >= 3)
                 {
-                    mp.Name += splittedName[2];
+                    mp.Name = splittedName[2] + mp.Name;
+                }
+
+                if (splittedName.Length >= 4)
+                {
+                    mp.Name += splittedName[3];
+                }
+
+                if (mp.DataDescription.Libelle.StartsWith("[Override]"))
+                {
+                    mp.DataDescription.Libelle = mp.DataDescription.Libelle.Replace("[Override]", "");
+                }
+                else
+                {
+                    mp.DataDescription.Libelle = alias.DataDescription.Libelle;
                 }
 
                 mp.DataMember = alias.DataMember;
                 mp.DataDescription.Domain = alias.DataDescription.Domain;
-                mp.DataDescription.Libelle = alias.DataDescription.Libelle;
                 mp.DataDescription.ReferenceClass = alias.DataDescription.ReferenceClass ?? (alias.Class.IsStatique && alias.IsPrimaryKey ? alias.Class : null);
                 mp.DataDescription.ReferenceType = alias.DataDescription.ReferenceType ?? (alias.Class.IsStatique && alias.IsPrimaryKey ? alias.Class.FullyQualifiedName : null);
                 mp.DataDescription.ResourceKey = alias.DataDescription.ResourceKey;

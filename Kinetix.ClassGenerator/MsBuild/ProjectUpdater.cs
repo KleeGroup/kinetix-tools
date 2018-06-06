@@ -28,24 +28,24 @@ namespace Kinetix.ClassGenerator.MsBuild
         public void AddItems(string projetFilePath, ICollection<ProjectItem> items)
         {
 
-            Project project = new Project(projetFilePath);
+            //Project project = new Project(projetFilePath);
 
-            var missingItems = items.Where(x => !HasItem(project, x.ItemPath));
+            //var missingItems = items.Where(x => !HasItem(project, x.ItemPath));
 
-            if (!missingItems.Any())
-            {
-                project.ProjectCollection.UnloadProject(project);
-                return;
-            }
+            //if (!missingItems.Any())
+            //{
+            //    project.ProjectCollection.UnloadProject(project);
+            //    return;
+            //}
 
-            foreach (var item in missingItems)
-            {
-                Console.WriteLine("Project adding " + item.ItemPath + "...");
-                project.AddItem(item.BuildAction, item.ItemPath);
-            }
+            //foreach (var item in missingItems)
+            //{
+            //    Console.WriteLine("Project adding " + item.ItemPath + "...");
+            //    project.AddItem(item.BuildAction, item.ItemPath);
+            //}
 
-            project.Save(projetFilePath);
-            project.ProjectCollection.UnloadProject(project);
+            //project.Save(projetFilePath);
+            //project.ProjectCollection.UnloadProject(project);
         }
 
         /// <summary>
