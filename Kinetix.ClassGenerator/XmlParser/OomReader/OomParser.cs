@@ -55,6 +55,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyRoleMultiplicityB = "a:RoleBMultiplicity";
         private const string PropertyRoleNameA = "a:RoleAName";
         private const string PropertyRoleNameB = "a:RoleBName";
+        private const string PropertyNavigabilityA = "a:RoleANavigability";
+        private const string PropertyNavigabilityB = "a:RoleBNavigability";
         private const string PropertyTargetId = "a:TargetID";
         private const string PropertyObjectId = "a:ObjectID";
         private const string DomaineIdCode = "DO_ID";
@@ -397,6 +399,9 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         string multiplicityB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleMultiplicityB, _currentNsManager));
                         string roleAName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameA, _currentNsManager));
                         string roleBName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameB, _currentNsManager));
+                        int navigabilityA = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityA, _currentNsManager)).GetValueOrDefault(0); // By default A is set to 0 (won't be present)
+                        int navigabilityB = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityB, _currentNsManager)).GetValueOrDefault(1); // By default B is set to 1 (won't be present)
+
                         ModelClass[] classAssociationTab;
                         try
                         {
@@ -528,9 +533,29 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         }
                         else
                         {
-                            bool treated = false;
-                            if (Multiplicity01.Equals(multiplicityA) || Multiplicity11.Equals(multiplicityA))
+                            bool isTreated = false;
+                            bool associateBIntoA = false;
+                            bool associateAIntoB = false;
+
+                            // For 0..1/1..1 & 1..1/1..0 the FK will only be on the 1..1 side
+                            // For 0..1 / 0..1 the FK will only be on the side with the navigability property set
+                            if ((Multiplicity01.Equals(multiplicityA) && !Multiplicity11.Equals(multiplicityB)) || Multiplicity11.Equals(multiplicityA))
                             {
+                                associateBIntoA = true;
+                            }
+                            if ((Multiplicity01.Equals(multiplicityB) && !Multiplicity11.Equals(multiplicityA)) || Multiplicity11.Equals(multiplicityB))
+                            {
+                                associateAIntoB = true;
+                            }
+                            if (Multiplicity01.Equals(multiplicityA) && Multiplicity01.Equals(multiplicityB))
+                            {
+                                associateBIntoA = navigabilityA == 1;
+                                associateAIntoB = navigabilityB == 1;
+                            }
+
+                            if (associateBIntoA)
+                            {
+                                // On ajoute la clé primaire de la classe B dans la classe A
                                 ModelProperty property = ParserHelper.BuildClassAssociationProperty(classB, classA, multiplicityA, roleAName, name);
                                 if (classA.DataContract.IsPersistent && !classB.DataContract.IsPersistent)
                                 {
@@ -541,10 +566,10 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                                 property.Class = classA;
                                 classA.AddProperty(property);
                                 IndexAssociation(property, comment);
-                                treated = true;
+                                isTreated = true;
                             }
 
-                            if (Multiplicity01.Equals(multiplicityB) || Multiplicity11.Equals(multiplicityB))
+                            if (associateAIntoB)
                             {
                                 // On ajoute la clé primaire de la classe A dans la classe B
                                 ModelProperty property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name);
@@ -557,10 +582,10 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                                 property.Class = classB;
                                 classB.AddProperty(property);
                                 IndexAssociation(property, comment);
-                                treated = true;
+                                isTreated = true;
                             }
 
-                            if (!treated)
+                            if (!isTreated)
                             {
                                 RegisterError(Category.Bug, "Le lien d'association [" + code + "] entre les classes [" + classA.Name + "] et [" + classB.Name + "] nommé " + name + " (code=" + code + ") n'est pas géré actuellement.");
                             }
