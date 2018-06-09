@@ -7,7 +7,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Kinetix.ClassGenerator.Checker;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.NVortex;
 
 namespace Kinetix.ClassGenerator.XmlParser.OomReader
