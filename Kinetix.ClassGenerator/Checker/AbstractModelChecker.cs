@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.NVortex;
 
 namespace Kinetix.ClassGenerator.Checker
@@ -25,8 +25,6 @@ namespace Kinetix.ClassGenerator.Checker
         private static readonly Regex RegexDataBaseTableNameUesl = new Regex(@"^[TV]_[A-Z][a-zA-Z0-9]+$");
         private static readonly Regex RegexDataBaseFieldName = new Regex(@"^[A-Z0-9]{3}([_A-Z0-9]+)$");
         private static readonly Regex RegexDomaineName = new Regex(@"^DO([_A-Z0-9]+)$");
-        private static readonly string SourceDtoDirectory = (Singletons.GeneratorParameters.CSharp?.OutputDirectory ?? string.Empty) +
-                Path.DirectorySeparatorChar + "Kinetix.Dto" + Path.DirectorySeparatorChar;
 
         /// <summary>
         /// Vérifie l'objet passé en paramètres.
@@ -161,12 +159,12 @@ namespace Kinetix.ClassGenerator.Checker
             NVortexMessage message = new NVortexMessage();
             if (objet is ModelClass itemClass)
             {
-                message.FileName = SourceDtoDirectory + itemClass.Namespace.Name + Path.DirectorySeparatorChar + itemClass.Name + ".cs";
+                message.FileName = itemClass.Namespace.Name + Path.DirectorySeparatorChar + itemClass.Name + ".cs";
             }
 
             if (objet is ModelProperty itemProperty)
             {
-                message.FileName = SourceDtoDirectory + itemProperty.Class.Namespace.Name + Path.DirectorySeparatorChar + itemProperty.Class.Name + ".cs";
+                message.FileName = itemProperty.Class.Namespace.Name + Path.DirectorySeparatorChar + itemProperty.Class.Name + ".cs";
             }
 
             message.IsError = isFatal;
