@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Kinetix.ClassGenerator.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
@@ -50,6 +50,11 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 {
                     if (!model.IsStatique)
                     {
+                        if (!GeneratorParameters.Javascript.IsGenerateEntities && model.DataContract.IsPersistent)
+                        {
+                            continue;
+                        }
+
                         var fileName = model.Name.ToDashCase();
                         Console.Out.WriteLine($"Generating Typescript file: {fileName}.ts ...");
 

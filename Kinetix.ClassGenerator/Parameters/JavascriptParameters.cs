@@ -8,19 +8,16 @@
         /// <summary>
         /// Dossier de sortie pour le modèle.
         /// </summary>
-        public string ModelOutputDirectory
-        {
-            get;
-            set;
-        }
+        public string ModelOutputDirectory { get; set; }
 
         /// <summary>
         /// Dossier de sortie pour les ressources.
         /// </summary>
-        public string ResourceOutputDirectory
-        {
-            get;
-            set;
-        }
+        public string ResourceOutputDirectory { get; set; }
+
+        /// <summary>
+        /// If should generate entities in JS.
+        /// </summary>
+        public bool IsGenerateEntities { get; set; } = true;
     }
 }

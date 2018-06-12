@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Kinetix.ClassGenerator.Model;
+using Kinetix.ClassGenerator.Writer;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Kinetix.ClassGenerator.Model;
-using Kinetix.ClassGenerator.Writer;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
@@ -35,6 +35,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 foreach (var modelNameSpace in model.Namespaces.Values)
                 {
                     string namespaceName = modelNameSpace.Name;
+
                     if (namespaceName.EndsWith("DataContract", StringComparison.Ordinal))
                     {
                         namespaceName = namespaceName.Substring(0, namespaceName.Length - 12);
@@ -53,10 +54,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 }
             }
 
-            int i = 1;
             foreach (KeyValuePair<string, List<ModelClass>> entry in nameSpaceMap)
             {
-                var isLast = nameSpaceMap.Count == i++;
                 var dirInfo = Directory.CreateDirectory(GeneratorParameters.Javascript.ResourceOutputDirectory);
                 var fileName = FirstToLower(entry.Key);
 
