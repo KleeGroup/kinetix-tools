@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Kinetix.ClassGenerator.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
@@ -44,7 +44,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             var types = Model.PropertyList
                 .Where(property =>
                     (property.DataDescription?.ReferenceClass?.FullyQualifiedName.StartsWith(RootNamespace, StringComparison.Ordinal) ?? false)
-                 && property.DataType != "string" && property.DataType != "int?")
+                    && property.DataType != "string" && property.DataType != "int?")
                 .Select(property => property.DataDescription?.ReferenceClass?.FullyQualifiedName);
 
             string parentClassName = null;
@@ -74,7 +74,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             }).Distinct().ToList();
 
             var references = Model.PropertyList
-                .Where(property => property.DataDescription?.ReferenceClass != null && property.DataType == "string")
+                .Where(property => property.DataDescription?.ReferenceClass != null && property.DataType == "string" && property.DataDescription.ReferenceClass.IsReference)
                 .Select(property => $"{property.DataDescription.ReferenceClass.Name}Code")
                 .Distinct()
                 .OrderBy(x => x);
@@ -148,7 +148,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     return "number[]";
             }
 
-            if (type == "string" && property.DataDescription.ReferenceClass != null)
+            if (type == "string" && property.DataDescription.ReferenceClass != null && property.DataDescription.ReferenceClass.IsReference)
             {
                 return $"{property.DataDescription.ReferenceClass.Name}Code";
             }
