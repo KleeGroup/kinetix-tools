@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Kinetix.SpaServiceGenerator.Model;
+﻿using Kinetix.SpaServiceGenerator.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -135,7 +135,8 @@ namespace Kinetix.SpaServiceGenerator
                 .Where(type =>
                     !type.ContainingNamespace.ToString().Contains("Kinetix")
                  && !type.ContainingNamespace.ToString().Contains("System")
-                 && !type.ContainingNamespace.ToString().Contains("Microsoft"));
+                 && !type.ContainingNamespace.ToString().Contains("Microsoft")
+                 && type.Name != "AutocompleteResult");
 
             var referenceTypes = types.Where(type =>
                 type.DeclaringSyntaxReferences.Any(s =>
