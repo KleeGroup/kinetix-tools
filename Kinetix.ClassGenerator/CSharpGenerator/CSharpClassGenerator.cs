@@ -383,6 +383,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     w.WriteAttribute(2, "DatabaseGenerated", "DatabaseGeneratedOption.None");
                 }
             }
+            else if (property.DefaultValue != null)
+            {
+                Console.WriteLine(property.DefaultValue);
+                w.WriteAttribute(2, "DatabaseGenerated", "DatabaseGeneratedOption.Identity");
+            }
 
             if (!property.IsPrimitive)
             {
