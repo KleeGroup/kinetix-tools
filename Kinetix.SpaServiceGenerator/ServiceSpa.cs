@@ -169,7 +169,7 @@ namespace Kinetix.SpaServiceGenerator
                     !type.ContainingNamespace.ToString().Contains("Kinetix")
                  && !type.ContainingNamespace.ToString().Contains("System")
                  && !type.ContainingNamespace.ToString().Contains("Microsoft")
-                 && type.Name != "AutocompleteResult"));
+                 && type.Name != "AutocompleteResult");
 
             var referenceTypes = types.Where(type =>
                 type.DeclaringSyntaxReferences.Any(s =>

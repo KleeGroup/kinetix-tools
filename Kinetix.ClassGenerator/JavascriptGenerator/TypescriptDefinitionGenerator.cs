@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common;
+using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
@@ -25,7 +25,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             if (parameters.ModelOutputDirectory == null)
             {
                 return;
-            }           
+            }
 
             var nameSpaceMap = new Dictionary<string, List<ModelClass>>();
             foreach (var model in modelRootList)
@@ -51,10 +51,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 {
                     if (!model.IsStatique)
                     {
-                        if (!parameters.IsGenerateEntities && model.DataContract.IsPersistent) 
-                        { 
-                            continue; 
-                        } 
+                        if (!parameters.IsGenerateEntities && model.DataContract.IsPersistent)
+                        {
+                            continue;
+                        }
 
                         var fileName = model.Name.ToDashCase();
                         Console.Out.WriteLine($"Generating Typescript file: {fileName}.ts ...");
@@ -80,7 +80,6 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     }
                 }
 
->>>>>>> Kinetix.Tools.Core + T4 and parameters singleton removal
                 if (staticLists.Any())
                 {
                     Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
