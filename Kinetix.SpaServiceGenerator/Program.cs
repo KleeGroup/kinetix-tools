@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Buildalyzer;
+using Buildalyzer.Workspaces;
 using Kinetix.SpaServiceGenerator.Model;
+using Kinetix.Tools.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.MSBuild;
-using Kinetix.Tools.Common;
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -39,8 +40,13 @@ namespace Kinetix.SpaServiceGenerator
             _projectName = args[2];
             _kinetix = args[3];
 
-            var msWorkspace = MSBuildWorkspace.Create();
-            var solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
+            var solution = new AnalyzerManager(_solutionPath).GetWorkspace().CurrentSolution;
+
+            // Weirdly, I have a lot of duplicate project references after loading a solution, so this is a quick hack to fix that.
+            foreach (var project in solution.Projects)
+            {
+                solution = solution.WithProjectReferences(project.Id, project.ProjectReferences.Distinct());
+            }
 
             // If path is not to services add "standard" path 
             var outputPath = _serviceRoot.EndsWith("services") ? _serviceRoot : $"{_serviceRoot}/app/services";
@@ -57,7 +63,7 @@ namespace Kinetix.SpaServiceGenerator
 
                 var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
                 var secondFolder = controller.Folders.Count > 1 ? $"/{string.Join("/", controller.Folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
-                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + controller.Folders.Count - 1;
+                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + controller.Folders.Count;
 
                 var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
 
