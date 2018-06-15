@@ -126,7 +126,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             if (Model.IsReference)
             {
-                Write(" \r\nexport const ");
+                Write("\r\nexport const ");
                 Write(Model.Name.ToFirstLower());
                 Write(" = {type: {} as ");
                 Write(Model.Name);
@@ -134,7 +134,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write(Model.PrimaryKey.First().Name.ToFirstLower());
                 Write("\", labelKey: \"");
                 Write(Model.DefaultProperty?.ToFirstLower() ?? "libelle");
-                Write("\"}; \r\n");
+                Write("\"};\r\n");
             }
 
             return GenerationEnvironment.ToString();

@@ -48,6 +48,7 @@ namespace Kinetix.ClassGenerator
                 }
 
                 cSharp.UseTypeSafeConstValues = cSharp.UseTypeSafeConstValues ?? false;
+                cSharp.Kinetix = cSharp.Kinetix ?? "Core";
             }
 
             var pSql = parameters.ProceduralSql;
