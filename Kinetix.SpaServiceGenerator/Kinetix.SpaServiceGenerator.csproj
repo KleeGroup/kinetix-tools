@@ -1,24 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="mscorlib" />
+    <PackageReference Include="Buildalyzer.Workspaces" Version="0.5.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build" Version="15.7.179" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.7.179" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.7.179" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
-    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Kinetix.Tools.Common\Kinetix.Tools.Common.csproj" />
   </ItemGroup>

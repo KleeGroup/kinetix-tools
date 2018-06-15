@@ -385,7 +385,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
             else if (property.DefaultValue != null)
             {
-                Console.WriteLine(property.DefaultValue);
                 w.WriteAttribute(2, "DatabaseGenerated", "DatabaseGeneratedOption.Identity");
             }
 

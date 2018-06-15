@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace Kinetix.ClassGenerator
 {
@@ -37,6 +38,7 @@ namespace Kinetix.ClassGenerator
             try
             {
                 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
                 Console.WriteLine("******************************************************");
                 Console.WriteLine("*                Kinetix.ClassGenerator                  *");
