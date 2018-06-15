@@ -1,6 +1,4 @@
-﻿using Kinetix.ClassGenerator.Model;
-using Kinetix.ClassGenerator.Writer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using Kinetix.Tools.Common;
