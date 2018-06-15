@@ -7,8 +7,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Kinetix.ClassGenerator.Checker;
-using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.NVortex;
+using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.XmlParser.OomReader
 {
@@ -59,6 +59,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyNavigabilityB = "a:RoleBNavigability";
         private const string PropertyTargetId = "a:TargetID";
         private const string PropertyObjectId = "a:ObjectID";
+        private const string PropertyDefaultValue = "a:DefaultValue";
         private const string DomaineIdCode = "DO_ID";
         private const string DomaineHorodatageCode = "DO_TIMESTAMP";
         private const string DomaineEntierCode = "DO_ENTIER";
@@ -1030,6 +1031,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     string propertyId = propertyNode.Attributes["Id"].Value;
                     string persistent = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistent, _currentNsManager));
                     string multiplicity = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyMultiplicity, _currentNsManager));
+                    string defaultValue = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyDefaultValue, _currentNsManager));
 
                     ModelProperty property = new ModelProperty()
                     {
@@ -1040,6 +1042,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Stereotype = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyStereotype, _currentNsManager)),
                         Class = classe,
                         ModelFile = modelFile,
+                        DefaultValue = string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue,
                         DataDescription = new ModelDataDescription()
                         {
                             Libelle = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyName, _currentNsManager)),

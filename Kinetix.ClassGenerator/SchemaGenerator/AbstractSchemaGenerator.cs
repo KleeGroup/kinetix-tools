@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.NVortex;
+using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SchemaGenerator
@@ -623,6 +623,11 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 if (property.DataMember.IsRequired)
                 {
                     writerCrebas.Write(" not null");
+                }
+
+                if (!string.IsNullOrWhiteSpace(property.DefaultValue))
+                {
+                    writerCrebas.Write($" default {property.DefaultValue}");
                 }
 
                 writerCrebas.Write(",");
