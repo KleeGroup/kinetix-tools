@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto;
-using Kinetix.ClassGenerator.SsdtSchemaGenerator.MsBuild;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter;
 using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common.Parameters;
@@ -69,10 +68,10 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             };
 
             // Script un fichier par classe.            
-            _engine.Write(new InitReferenceListScripter(_parameters), referenceClassList, insertScriptFolderPath, BuildActions.None);
+            _engine.Write(new InitReferenceListScripter(_parameters), referenceClassList, insertScriptFolderPath);
 
             // Script le fichier appelant les fichiers dans le bon ordre.
-            _engine.Write(new InitReferenceListMainScripter(), referenceClassSet, insertScriptFolderPath, BuildActions.None);
+            _engine.Write(new InitReferenceListMainScripter(), referenceClassSet, insertScriptFolderPath);
 
             // TODO : delta ?
         }

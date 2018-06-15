@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
-using Kinetix.ClassGenerator.SsdtSchemaGenerator.MsBuild;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter;
 using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common.Parameters;
@@ -43,10 +42,10 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             InitCollection(modelRootList, tableList);
 
             // Script de table.
-            _engine.Write(new SqlTableScripter(), tableList, tableScriptFolder, BuildActions.Build);
+            _engine.Write(new SqlTableScripter(), tableList, tableScriptFolder);
 
             // Script de type table.
-            _engine.Write(new SqlTableTypeScripter(), tableList, tableTypeScriptFolder, BuildActions.Build);
+            _engine.Write(new SqlTableTypeScripter(), tableList, tableTypeScriptFolder);
         }
 
         /// <summary>

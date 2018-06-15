@@ -1,5 +1,4 @@
-﻿using Kinetix.ClassGenerator.SsdtSchemaGenerator.MsBuild;
-using Kinetix.Tools.Common;
+﻿using Kinetix.Tools.Common;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 {
@@ -10,18 +9,15 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
     internal class SqlFileWriter : FileWriter
     {
         private readonly string _sqlprojFileName;
-        private readonly string _buildAction;
 
         /// <summary>
         /// Crée une nouvelle instance.
         /// </summary>
         /// <param name="fileName">Nom du fichier à écrire.</param>
         /// <param name="sqlprojFileName">Nom du fichier sqlproj.</param>
-        /// <param name="buildAction">Action de build pour le fichier.</param>
-        public SqlFileWriter(string fileName, string sqlprojFileName = null, string buildAction = null)
+        public SqlFileWriter(string fileName, string sqlprojFileName = null)
             : base(fileName)
         {
-            _buildAction = buildAction;
             _sqlprojFileName = sqlprojFileName;
         }
 
@@ -30,24 +26,5 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
         /// </summary>
         /// <returns>Toket de début de ligne de commentaire.</returns>
         protected override string StartCommentToken => "----";
-
-        /// <summary>
-        /// Appelé après la création d'un nouveau fichier.
-        /// </summary>
-        /// <param name="fileName">Nom du fichier.</param>
-        protected override void FinishFile(string fileName)
-        {
-            if (string.IsNullOrEmpty(_sqlprojFileName))
-            {
-                return;
-            }
-
-            /* Chemin relatif au csproj */
-            string localFileName = ProjectFileUtils.GetProjectRelativeFileName(fileName, _sqlprojFileName);
-
-            /* Met à jour le fichier csproj. */
-            new ProjectUpdater()
-                .AddItem(_sqlprojFileName, new ProjectItem { ItemPath = localFileName, BuildAction = _buildAction });
-        }
     }
 }
