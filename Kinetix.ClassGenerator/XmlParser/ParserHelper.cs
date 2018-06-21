@@ -114,9 +114,9 @@ namespace Kinetix.ClassGenerator.XmlParser
         /// <param name="multiplicity">La multiplicité de l'association.</param>
         /// <param name="role">Le rôle de l'association.</param>
         /// <param name="name">Nom de l'association.</param>
-        /// <param name="columnName">Nom de la colonne.</param>
+        /// <paral name="initialValue">Valeur par défaut.</paral>
         /// <returns>La propriété relative à l'association.</returns>
-        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, string columnName = null)
+        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, string initialValue = null)
         {
             ModelProperty classSourceproperty = GetPrimaryKeyProperty(sourceClass);
             if (classSourceproperty == null)
@@ -152,15 +152,11 @@ namespace Kinetix.ClassGenerator.XmlParser
                     throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Type de clé étrangère non-géré : {0} ({1} référence {2})", dataType, targetClass.Name, sourceClass.Name));
             }
 
-            string dmName = columnName;
-            if (string.IsNullOrEmpty(dmName))
+            string dmName = classSourceproperty.DataMember.Name;
+            if (!string.IsNullOrEmpty(role))
             {
-                dmName = classSourceproperty.DataMember.Name;
-                if (!string.IsNullOrEmpty(role))
-                {
-                    dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
-                    dmName = DeleteAccents(dmName);
-                }
+                dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
+                dmName = DeleteAccents(dmName);
             }
 
             property.DataMember = new ModelDataMember()
@@ -172,6 +168,7 @@ namespace Kinetix.ClassGenerator.XmlParser
             property.Comment = "Identifiant de l'objet " + sourceClass.Name + (string.IsNullOrEmpty(role) ? string.Empty : " " + role) + ".";
             property.DataType = classSourceproperty.DataType;
             property.IsPersistent = classSourceproperty.IsPersistent && targetClass.DataContract.IsPersistent;
+            property.DefaultValue = initialValue;
             return property;
         }
 
