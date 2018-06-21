@@ -57,6 +57,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyRoleNameB = "a:RoleBName";
         private const string PropertyNavigabilityA = "a:RoleANavigability";
         private const string PropertyNavigabilityB = "a:RoleBNavigability";
+        private const string PropertyInitialValueB = "a:RoleBInitialValue";
         private const string PropertyTargetId = "a:TargetID";
         private const string PropertyObjectId = "a:ObjectID";
         private const string PropertyDefaultValue = "a:DefaultValue";
@@ -402,6 +403,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         string roleBName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameB, _currentNsManager));
                         int navigabilityA = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityA, _currentNsManager)).GetValueOrDefault(0); // By default A is set to 0 (won't be present)
                         int navigabilityB = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityB, _currentNsManager)).GetValueOrDefault(1); // By default B is set to 1 (won't be present)
+                        string initialValueB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyInitialValueB, _currentNsManager));
+                        if (string.IsNullOrWhiteSpace(initialValueB))
+                        {
+                            initialValueB = null;
+                        }
 
                         ModelClass[] classAssociationTab;
                         try
@@ -573,7 +579,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (associateAIntoB)
                             {
                                 // On ajoute la clé primaire de la classe A dans la classe B
-                                ModelProperty property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name);
+                                ModelProperty property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name, initialValueB);
                                 if (classB.DataContract.IsPersistent && !classA.DataContract.IsPersistent)
                                 {
                                     RegisterError(Category.Error, "L'association [" + code + "] de multiplicité 0..1/1..1 entre la classe persistente [" + classB.Name + "] et la classe non persistente [" + classA.Name + "] n'est pas possible.");
