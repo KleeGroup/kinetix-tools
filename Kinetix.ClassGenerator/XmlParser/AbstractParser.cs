@@ -142,14 +142,14 @@ namespace Kinetix.ClassGenerator.XmlParser
                 string[] splittedName = mp.Name.Split('_');
                 if (splittedName.Length != 2 && splittedName.Length != 3 && splittedName.Length != 4)
                 {
-                    throw new Exception("La propriété d'alias '" + mp.Name + "' est mal formattée. Format Attendu : Table_Colonne ou Table_Colonne_Pre ou Table_Colonne__Post ou Table_Colonne_Pre_Post");
+                    throw new Exception("La propriété d'alias '" + mp.Name + "' est mal formattée. Format Attendu : Table_Colonne ou Table_Colonne_Pre ou Table_Colonne__Post ou Table_Colonne_Pre_Post. Classe : " + mp.Class.FullyQualifiedName);
                 }
 
                 string key = FormatAliasColumn(splittedName[0], splittedName[1]);
 
                 if (!modelPropertyMap.ContainsKey(key))
                 {
-                    throw new Exception("Il n'existe pas d'alias pour la propriété : " + mp.Name);
+                    throw new Exception("Il n'existe pas d'alias pour la propriété : " + mp.Name + " pour la classe : "+ mp.Class.FullyQualifiedName);
                 }
 
                 ModelProperty alias = modelPropertyMap[key];
