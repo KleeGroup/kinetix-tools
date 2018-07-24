@@ -2,36 +2,44 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
+using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {
-    using static CodeUtils;
-    using static Singletons;
+    using static CSharpUtils;
 
-    public static class DbContextGenerator
+    public class DbContextGenerator
     {
+        private readonly string _rootNamespace;
+        private readonly CSharpParameters _parameters;
+
+        public DbContextGenerator(string rootNamespace, CSharpParameters parameters)
+        {
+            _rootNamespace = rootNamespace;
+            _parameters = parameters;
+        }
+
         /// <summary>
         /// Génère l'objectcontext spécialisé pour le schéma.
         /// </summary>
         /// <remarks>Support de Linq2Sql.</remarks>
         /// <param name="modelRootList">Liste des modeles.</param>
-        public static void Generate(IEnumerable<ModelRoot> modelRootList)
+        public void Generate(IEnumerable<ModelRoot> modelRootList)
         {
             Console.WriteLine("Generating DbContext");
 
-            var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
-            var rootName = GeneratorParameters.RootNamespace;
-            var strippedProjectName = RemoveDots(rootName);
+            var projectName = _parameters.DbContextProjectPath.Split('/').Last();
+            var strippedProjectName = RemoveDots(_rootNamespace);
 
             var dbContextName = $"{strippedProjectName}DbContext";
-            var schema = GeneratorParameters.CSharp.DbSchema;
+            var schema = _parameters.DbSchema;
             if (schema != null)
             {
                 dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
             }
 
-            var destDirectory = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
+            var destDirectory = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
 
             Directory.CreateDirectory(destDirectory);
 
@@ -40,7 +48,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
 
                 var usings = new List<string>();
-                if (GeneratorParameters.Kinetix == "Core")
+                if (_parameters.Kinetix == "Core")
                 {
                     usings.Add("Microsoft.EntityFrameworkCore");
                 }
@@ -63,7 +71,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                         if (shouldImport)
                         {
-                            usings.Add($"{rootName}.{ns.Name}");
+                            usings.Add($"{_rootNamespace}.{ns.Name}");
                         }
                     }
                 }
@@ -74,7 +82,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine($"namespace {projectName}");
                 w.WriteLine("{");
 
-                if (GeneratorParameters.Kinetix == "Core")
+                if (_parameters.Kinetix == "Core")
                 {
                     w.WriteSummary(1, "DbContext généré pour Entity Framework Core.");
                     w.WriteLine(1, $"public partial class {dbContextName} : DbContext");
@@ -124,7 +132,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     }
                 }
 
-                if (GeneratorParameters.Kinetix == "Framework")
+                if (_parameters.Kinetix == "Framework")
                 {
                     w.WriteLine();
                     w.WriteSummary(2, "Hook pour l'ajout de configuration su EF (précision des champs, etc).");

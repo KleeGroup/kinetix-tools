@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.Checker
 {

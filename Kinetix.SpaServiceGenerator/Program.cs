@@ -5,11 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+#if NETCOREAPP2_1
+using Buildalyzer;
+using Buildalyzer.Workspaces;
+#endif
 using Kinetix.SpaServiceGenerator.Model;
+using Kinetix.Tools.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+#if NET471
 using Microsoft.CodeAnalysis.MSBuild;
+#endif
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -38,8 +45,21 @@ namespace Kinetix.SpaServiceGenerator
             _projectName = args[2];
             _kinetix = args[3];
 
-            var msWorkspace = MSBuildWorkspace.Create();
-            var solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
+
+            Solution solution = null;
+#if NET471
+            solution = await MSBuildWorkspace.Create().OpenSolutionAsync(_solutionPath);           
+#endif
+
+#if NETCOREAPP2_1
+            solution = new AnalyzerManager(_solutionPath).GetWorkspace().CurrentSolution;
+
+            // Weirdly, I have a lot of duplicate project references after loading a solution, so this is a quick hack to fix that.
+            foreach (var project in solution.Projects)
+            {
+                solution = solution.WithProjectReferences(project.Id, project.ProjectReferences.Distinct());
+            }
+#endif
 
             // If path is not to services add "standard" path 
             var outputPath = _serviceRoot.EndsWith("services") ? _serviceRoot : $"{_serviceRoot}/app/services";
@@ -54,9 +74,18 @@ namespace Kinetix.SpaServiceGenerator
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = GetClassDeclaration(syntaxTree);
 
+                IReadOnlyList<string> folders = null;
+#if NET471
+                folders = controller.Folders;
+#endif
+#if NETCOREAPP2_1
+                var parts = Path.GetRelativePath(controller.Project.FilePath, controller.FilePath).Split(@"\");
+                folders = parts.Skip(1).Take(parts.Length - 2).ToList();
+#endif
+
                 var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
-                var secondFolder = controller.Folders.Count > 1 ? $"/{string.Join("/", controller.Folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
-                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + controller.Folders.Count - 1;
+                var secondFolder = folders.Count > 1 ? $"/{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
+                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + folders.Count - 1;
 
                 var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
 
