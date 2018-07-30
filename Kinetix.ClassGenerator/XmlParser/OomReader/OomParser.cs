@@ -47,6 +47,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string PropertyPersistentDataType = "a:PersistentDataType";
         private const string PropertyPersistentLength = "a:PersistentLength";
         private const string PropertyPersistentPrecision = "a:PersistentPrecision";
+        private const string PropertyDerived = "a:Derived";
         private const string PropertyCreator = "a:Creator";
         private const string PropertyStereotype = "a:Stereotype";
         private const string PropertyIndicatorA = "a:RoleAIndicator";
@@ -1049,6 +1050,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Class = classe,
                         ModelFile = modelFile,
                         DefaultValue = string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue,
+                        IsDerived = ParserHelper.GetXmlInt(propertyNode.SelectSingleNode(PropertyDerived, _currentNsManager)).GetValueOrDefault() == 0 ? false : true,
                         DataDescription = new ModelDataDescription()
                         {
                             Libelle = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyName, _currentNsManager)),

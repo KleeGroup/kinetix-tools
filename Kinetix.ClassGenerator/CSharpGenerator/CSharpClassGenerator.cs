@@ -393,7 +393,9 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteAttribute(2, "NotMapped");
             }
 
-            w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
+            string @override = property.IsDerived ? "override " : "";
+
+            w.WriteLine(2, $"public {@override}{LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
         }
 
         /// <summary>
