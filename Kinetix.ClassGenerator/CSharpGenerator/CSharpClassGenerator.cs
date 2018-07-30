@@ -236,7 +236,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             w.WriteLine(3, "}");
             w.WriteLine();
 
-            foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection && (p.IsFromAssociation || p.IsFromComposition)))
+            foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
             {
                 w.WriteLine(3, property.Name + " = new " + property.DataType + "(bean." + property.Name + ");");
             }
@@ -246,7 +246,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(3, property.Name + " = new List<" + LoadInnerDataType(property.DataType) + ">(bean." + property.Name + ");");
             }
 
-            foreach (var property in item.PropertyList.Where(p => p.IsPrimitive || (!p.IsCollection && !p.IsFromAssociation && !p.IsFromComposition)))
+            foreach (var property in item.PropertyList.Where(p => p.IsPrimitive))
             {
                 w.WriteLine(3, property.Name + " = bean." + property.Name + ";");
             }
@@ -275,7 +275,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (item.NeedsInitialization)
             {
-                foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection && (p.IsFromAssociation || p.IsFromComposition)))
+                foreach (var property in item.PropertyList.Where(p => !p.IsPrimitive && !p.IsCollection))
                 {
                     w.WriteLine(3, LoadPropertyInit(property.Name, property.DataType));
                 }
