@@ -223,6 +223,11 @@ namespace Kinetix.Tools.Common.Model
         }
 
         /// <summary>
+        /// Indique si la propriété doit être "override".
+        /// </summary>
+        public bool IsDerived { get; set; }
+
+        /// <summary>
         /// Indique si la propriété est traduite.
         /// </summary>
         public bool IsTranslated =>
