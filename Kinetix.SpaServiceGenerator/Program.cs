@@ -48,11 +48,15 @@ namespace Kinetix.SpaServiceGenerator
 
             Solution solution = null;
 #if NET471
-            solution = await MSBuildWorkspace.Create().OpenSolutionAsync(_solutionPath);           
+            var msWorkspace = MSBuildWorkspace.Create(); 
+            msWorkspace.WorkspaceFailed += MsWorkspace_WorkspaceFailed;
+            solution = await msWorkspace.OpenSolutionAsync(_solutionPath);           
 #endif
 
 #if NETCOREAPP2_1
-            solution = new AnalyzerManager(_solutionPath).GetWorkspace().CurrentSolution;
+            var adhocWorkspace = new AnalyzerManager(_solutionPath).GetWorkspace();
+            adhocWorkspace.WorkspaceFailed += AdhocWorkspace_WorkspaceFailed;
+            solution = adhocWorkspace.CurrentSolution;
 
             // Weirdly, I have a lot of duplicate project references after loading a solution, so this is a quick hack to fix that.
             foreach (var project in solution.Projects)
@@ -126,6 +130,16 @@ namespace Kinetix.SpaServiceGenerator
                 var output = template.TransformText();
                 File.WriteAllText(fileName, output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
+        }
+
+        private static void AdhocWorkspace_WorkspaceFailed(object sender, WorkspaceDiagnosticEventArgs e)
+        {
+            Console.WriteLine(e.Diagnostic.Message);
+        }
+
+        private static void MsWorkspace_WorkspaceFailed(object sender, WorkspaceDiagnosticEventArgs e)
+        {
+            Console.WriteLine(e.Diagnostic.Message);
         }
 
         private static ClassDeclarationSyntax GetClassDeclaration(SyntaxTree syntaxTree) => syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
