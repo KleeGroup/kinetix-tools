@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Kinetix.Tools.Common.Model
 {
@@ -122,7 +123,9 @@ namespace Kinetix.Tools.Common.Model
         /// <summary>
         /// Retourne si le type est primitif.
         /// </summary>
-        public bool IsPrimitive => DataType.EndsWith("[]") || DataType == "Point" || DataType == "Polygon" || DataType.EndsWith("?") || DataType == "string";
+        public bool IsPrimitive => DataType.EndsWith("[]") 
+            || DataType.EndsWith("?") 
+            || new[] { "string", "int", "decimal", "bool", "datetime" }.Contains(DataType);
 
         /// <summary>
         /// Indique si la propriété est unique.
