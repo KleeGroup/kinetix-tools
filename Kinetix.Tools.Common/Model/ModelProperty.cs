@@ -125,7 +125,8 @@ namespace Kinetix.Tools.Common.Model
         /// </summary>
         public bool IsPrimitive => DataType.EndsWith("[]") 
             || DataType.EndsWith("?") 
-            || new[] { "string", "int", "decimal", "bool", "datetime" }.Contains(DataType);
+            || new[] { "string", "int", "decimal", "bool", "datetime" }.Contains(DataType)
+            || (!IsCollection && !IsFromAssociation && !IsFromComposition);
 
         /// <summary>
         /// Indique si la propriété est unique.
