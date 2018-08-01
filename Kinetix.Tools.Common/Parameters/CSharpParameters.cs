@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Kinetix.Tools.Common.Parameters
+﻿namespace Kinetix.Tools.Common.Parameters
 {
     /// <summary>
     /// Paramètres pour la génération du C#.
@@ -31,5 +29,10 @@ namespace Kinetix.Tools.Common.Parameters
         /// Version de kinetix utilisée: Core ou Framework.
         /// </summary>
         public string Kinetix { get; set; }
+
+        /// <summary>
+        /// Retire les attributs de colonnes sur les alias.
+        /// </summary>
+        public bool? NoColumnOnAlias { get; set; }
     }
 }

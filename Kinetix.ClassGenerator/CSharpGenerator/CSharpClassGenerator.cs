@@ -340,7 +340,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         {
             w.WriteSummary(2, property.Comment);
 
-            if (!property.Class.IsView && property.IsPersistent && property.DataMember != null)
+            if (!property.Class.IsView && property.IsPersistent && property.DataMember != null && (!_parameters.NoColumnOnAlias.Value || property.Class.Trigram != null))
             {
                 if (property.DataDescription.Domain.PersistentDataType.Contains("json"))
                 {
