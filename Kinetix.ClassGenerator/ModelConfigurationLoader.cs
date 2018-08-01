@@ -48,6 +48,7 @@ namespace Kinetix.ClassGenerator
                 }
 
                 cSharp.UseTypeSafeConstValues = cSharp.UseTypeSafeConstValues ?? false;
+                cSharp.NoColumnOnAlias = cSharp.NoColumnOnAlias ?? false;
                 cSharp.Kinetix = cSharp.Kinetix ?? "Core";
             }
 
