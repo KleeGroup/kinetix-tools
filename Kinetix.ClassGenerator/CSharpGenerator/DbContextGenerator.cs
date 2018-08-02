@@ -97,8 +97,10 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 }
                 else
                 {
+                    string inheritance = _parameters.LegacyIdentity.GetValueOrDefault() ? "" : " : DbContext";
+
                     w.WriteSummary(1, "DbContext généré pour Entity Framework 6.");
-                    w.WriteLine(1, $"public partial class {dbContextName} : DbContext");
+                    w.WriteLine(1, $"public partial class {dbContextName}{inheritance}");
                     w.WriteLine(1, "{");
 
                     w.WriteSummary(2, "Constructeur par défaut.");
@@ -126,7 +128,16 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                             {
                                 w.WriteLine();
                                 w.WriteSummary(2, "Accès à l'entité " + classe.Name);
-                                w.WriteLine(2, "public DbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
+
+                                if (_parameters.LegacyIdentity.GetValueOrDefault() && new[] { "User", "Role" }.Contains(classe.Name))
+                                {
+                                    w.WriteLine(2, "public override IDbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
+                                }
+                                else
+                                {
+                                    w.WriteLine(2, "public DbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
+
+                                }
                             }
                         }
                     }

@@ -31,8 +31,13 @@
         public string Kinetix { get; set; }
 
         /// <summary>
+        /// Définit un mode legacy pour Identité en .NET Framework
+        /// </summary>
+        public bool? LegacyIdentity { get; set; } = false;
+
+        /// <summary>
         /// Retire les attributs de colonnes sur les alias.
         /// </summary>
-        public bool? NoColumnOnAlias { get; set; }
+        public bool? NoColumnOnAlias { get; set; } = false;
     }
 }
