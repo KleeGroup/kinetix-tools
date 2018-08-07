@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Kinetix.Tools.Common.Model;
+using Kinetix.Tools.Common.Parameters;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {
@@ -91,7 +91,27 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 }
             }
 
-            w.WriteClassDeclaration(item.Name, item.ParentClass?.Name, new List<string>());
+            ICollection<string> interfaces = new List<string>();
+
+            if (_parameters.IsWithEntityInterface && item.DataContract.IsPersistent)
+            {
+                if (item.HasPrimaryKey && item.PrimaryKey.Count == 1)
+                {
+                    switch (item.PrimaryKey.First().DataDescription.Domain.Code)
+                    {
+                        case "DO_ID":
+                            interfaces.Add("IIdEntity");
+                            break;
+                        case "DO_CODE":
+                            interfaces.Add("ICodeEntity");
+                            break;
+                    }
+                }
+
+                interfaces.Add("IEntity");
+            }
+
+            w.WriteClassDeclaration(item.Name, item.ParentClass?.Name, interfaces);
 
             GenerateConstProperties(w, item);
             GenerateConstructors(w, item);
@@ -437,6 +457,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 {
                     usings.Add("Kinetix.ComponentModel");
                 }
+            }
+
+            if (_parameters.IsWithEntityInterface && item.DataContract.IsPersistent)
+            {
+                usings.Add("Kinetix.ComponentModel.Entity");
             }
 
             foreach (string value in item.UsingList)
