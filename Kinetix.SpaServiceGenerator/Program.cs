@@ -77,6 +77,14 @@ namespace Kinetix.SpaServiceGenerator
             {
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = GetClassDeclaration(syntaxTree);
+                var model = await solution.GetDocument(syntaxTree).GetSemanticModelAsync();
+                var modelClass = model.GetDeclaredSymbol(controllerClass);
+
+                // Skip if we extend a MVC controller
+                if (_kinetix == "framework" && modelClass.BaseType.Name == "Controller")
+                {
+                    continue;
+                }
 
                 IReadOnlyList<string> folders = null;
 #if NET471
@@ -93,13 +101,9 @@ namespace Kinetix.SpaServiceGenerator
 
                 var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
 
-                var model = await solution.GetDocument(syntaxTree).GetSemanticModelAsync();
-
                 Console.WriteLine($"Generating {controllerName}");
 
                 var methods = GetMethodDeclarations(controllerClass, model);
-
-                var modelClass = model.GetDeclaredSymbol(controllerClass);
 
                 // If controller is not a direct Controller extender, ie it extends a base class
                 string aspControllerClass = _kinetix == "Core" ? "Controller" : "ApiController";
