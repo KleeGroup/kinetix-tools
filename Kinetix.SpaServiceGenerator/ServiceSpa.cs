@@ -13,6 +13,9 @@ namespace Kinetix.SpaServiceGenerator
     /// </summary>
     public partial class ServiceSpa : TemplateBase
     {
+        public string ModelRoot { get; set; }
+        public string FetchPath { get; set; }
+
         /// <summary>
         /// Le chemin vers le répertoire de définitions.
         /// </summary>
@@ -23,7 +26,6 @@ namespace Kinetix.SpaServiceGenerator
         /// </summary>
         public string ProjectName { get; set; }
 
-        public string ServerPath => GetModulePathPrefix("server", FolderCount);
 
         /// <summary>
         /// La liste des services.
@@ -38,7 +40,7 @@ namespace Kinetix.SpaServiceGenerator
             Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera per" +
                     "due.\r\n*/\r\n\r\nimport {fetch} from \"");
 
-            Write(ServerPath);
+            Write(GetModulePathPrefix(FetchPath, FolderCount + 1));
             Write("\";\r\n");
 
             if (GetImportList().Any())
@@ -159,7 +161,7 @@ namespace Kinetix.SpaServiceGenerator
         /// <returns>La liste d'imports (type, chemin du module).</returns>
         private ICollection<(string import, string path)> GetImportList()
         {
-            var definitionPath = GetModulePathPrefix("model", FolderCount + 1);
+            var definitionPath = GetModulePathPrefix(ModelRoot, FolderCount + 1);
 
             var returnTypes = Services.SelectMany(service => GetTypes(service.ReturnType));
             var parameterTypes = Services.SelectMany(service => service.Parameters.SelectMany(parameter => GetTypes(parameter.Type)));
