@@ -85,21 +85,15 @@ namespace Kinetix.SpaServiceGenerator
 
                 IReadOnlyList<string> folders = controller.Folders;
 
-                var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
-                var secondFolder = folders.Count > 1 ? $"/{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
+                var frontEndName = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
+                var folderNames = folders.Count > 1 ? $"{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
                 var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + folders.Count - 1;
 
-                var controllerName = $"{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
+                var controllerName = $"{folderNames}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
 
-                string fileName;
-                if (Parameters.SplitIntoApps == true)
-                {
-                    fileName = $"{Parameters.OutputDirectory}/{firstFolder}/services/{controllerName}";
-                }
-                else
-                {
-                    fileName = $"{Parameters.OutputDirectory}/services/{firstFolder}/{controllerName}";
-                }
+                var fileName = Parameters.SplitIntoApps == true
+                    ? $"{Parameters.OutputDirectory}{frontEndName}/services/{controllerName}"
+                    : $"{Parameters.OutputDirectory}/services{frontEndName}/{controllerName}";
 
                 Console.WriteLine($"Generating {fileName}");
 
@@ -152,8 +146,15 @@ namespace Kinetix.SpaServiceGenerator
             Console.WriteLine(e.Diagnostic.Message);
         }
 
-        private static ClassDeclarationSyntax GetClassDeclaration(SyntaxTree syntaxTree) => syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-        private static IEnumerable<(MethodDeclarationSyntax method, SemanticModel model)> GetMethodDeclarations(ClassDeclarationSyntax controllerClass, SemanticModel model) => controllerClass.ChildNodes().OfType<MethodDeclarationSyntax>().Select(method => (method, model));
+        private static ClassDeclarationSyntax GetClassDeclaration(SyntaxTree syntaxTree)
+        {
+            return syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+        }
+
+        private static IEnumerable<(MethodDeclarationSyntax method, SemanticModel model)> GetMethodDeclarations(ClassDeclarationSyntax controllerClass, SemanticModel model)
+        {
+            return controllerClass.ChildNodes().OfType<MethodDeclarationSyntax>().Select(method => (method, model));
+        }
 
         private static ServiceDeclaration GetService((MethodDeclarationSyntax method, SemanticModel model) m)
         {
