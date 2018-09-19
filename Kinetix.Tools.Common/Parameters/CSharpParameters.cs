@@ -44,5 +44,10 @@
         /// Définit si les interfaces IEntity sont ajoutée à la génération.
         /// </summary>
         public bool IsWithEntityInterface { get; set; } = false;
+
+        /// <summary>
+        /// Utilise la structure de projet legacy.
+        /// </summary>
+        public bool LegacyProjectPaths { get; set; } = false;
     }
 }

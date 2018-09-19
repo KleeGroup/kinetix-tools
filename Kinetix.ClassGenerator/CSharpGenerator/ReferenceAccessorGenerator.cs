@@ -11,15 +11,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
     public class ReferenceAccessorGenerator
     {
-        private const string ReferenceAccessorAttribute = "[ReferenceAccessor]";
-        private const string ReferenceAccessorAttributeExt = "[OperationContract]";
-
-        private readonly IDictionary<string, (string ServiceBehaviorAttribute, string ServiceContractAttribute)> ServiceAttributes = new Dictionary<string, (string ServiceBehaviorAttribute, string ServiceContractAttribute)>
-        {
-            { "Core", (ServiceBehaviorAttribute: "[RegisterImpl]" , ServiceContractAttribute: "[RegisterContract]") },
-            { "Framework", (ServiceBehaviorAttribute: "[ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall, IncludeExceptionDetailInFaults = true)]", ServiceContractAttribute: "[ServiceContract]") }
-        };
-
         private readonly string _rootNamespace;
         private readonly CSharpParameters _parameters;
 
@@ -76,15 +67,30 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="nameSpaceName">Namespace.</param>
         private void GenerateReferenceAccessorsImplementation(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
-            var projectName = _parameters.DbContextProjectPath.Split('/').Last();
-            var implementationName = $"{nameSpaceName.Replace("DataContract", string.Empty)}AccessorsDal";
+            var isBroker = _parameters.DbContextProjectPath == null;
+            var nameSpacePrefix = nameSpaceName.Replace("DataContract", string.Empty);
+
+            string projectDir;
+            string projectName;
+            string implementationName;
+            if (!isBroker)
+            {
+                projectDir = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
+                projectName = _parameters.DbContextProjectPath.Split('/').Last();
+                implementationName = $"{nameSpacePrefix}AccessorsDal";
+            }
+            else
+            {
+                projectName = $"{_rootNamespace}.{nameSpacePrefix}Implementation";
+                projectDir = Path.Combine(GetImplementationDirectoryName(_parameters.OutputDirectory, _rootNamespace), _rootNamespace + "." + nameSpacePrefix + "Implementation\\Service.Implementation");
+                implementationName = $"Service{nameSpacePrefix}Accessors";
+            }
+
             var interfaceName = $"I{implementationName}";
 
-            var projectDir = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
-
             Console.WriteLine("Generating class " + implementationName + " implementing " + interfaceName);
+            var implementationFileName = Path.Combine(projectDir, isBroker ? "generated" : "generated\\Reference", $"{implementationName}.cs");
 
-            var implementationFileName = Path.Combine(projectDir, "generated\\Reference", implementationName + ".cs");
             using (var w = new CSharpWriter(implementationFileName))
             {
                 if (_parameters.Kinetix == "Core")
@@ -95,7 +101,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                         $"{_rootNamespace}.{nameSpaceName}",
                         "Kinetix.Services.Annotations");
                 }
-                else
+                else if (_parameters.Kinetix == "Framework")
                 {
                     w.WriteUsings(
                         "System.Collections.Generic",
@@ -103,37 +109,58 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                         "System.ServiceModel",
                         $"{_rootNamespace}.{nameSpaceName}");
                 }
+                else
+                {
+                    w.WriteUsings(
+                       "System.Collections.Generic",
+                       "System.ServiceModel",
+                       $"{_rootNamespace}.{nameSpaceName}",
+                       $"{_rootNamespace}.{nameSpacePrefix}Contract",
+                       "Fmk.Broker");
+                }
 
                 w.WriteLine();
                 w.WriteNamespace(projectName);
 
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
-                w.WriteLine(1, ServiceAttributes[_parameters.Kinetix].ServiceBehaviorAttribute);
-                w.WriteClassDeclaration(implementationName, null, new List<string> { interfaceName });
 
-                var dbContextName = $"{_rootNamespace}DbContext";
-                var schema = _parameters.DbSchema;
-                if (schema != null)
+                if (_parameters.Kinetix == "Core")
                 {
-                    dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
+                    w.WriteLine(1, "[RegisterImpl]");
+                }
+                else
+                {
+                    w.WriteLine(1, "[ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall, IncludeExceptionDetailInFaults = true)]");
                 }
 
-                w.WriteLine(2, $"private readonly {dbContextName} _dbContext;");
-                w.WriteLine();
-                w.WriteSummary(2, "Constructeur");
-                w.WriteParam("dbContext", "DbContext");
-                w.WriteLine(2, $"public {implementationName}({dbContextName} dbContext)");
-                w.WriteLine(2, "{");
-                w.WriteLine(3, "_dbContext = dbContext;");
-                w.WriteLine(2, "}");
+                w.WriteClassDeclaration(implementationName, null, new List<string> { interfaceName });
 
-                foreach (ModelClass classe in classList)
+                if (!isBroker)
                 {
-                    var serviceName = "Load" + Pluralize(classe.Name);
+                    var dbContextName = $"{_rootNamespace}DbContext";
+                    var schema = _parameters.DbSchema;
+                    if (schema != null)
+                    {
+                        dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
+                    }
+
+                    w.WriteLine(2, $"private readonly {dbContextName} _dbContext;");
+                    w.WriteLine();
+                    w.WriteSummary(2, "Constructeur");
+                    w.WriteParam("dbContext", "DbContext");
+                    w.WriteLine(2, $"public {implementationName}({dbContextName} dbContext)");
+                    w.WriteLine(2, "{");
+                    w.WriteLine(3, "_dbContext = dbContext;");
+                    w.WriteLine(2, "}");
+                }
+
+                foreach (var classe in classList)
+                {
+                    var serviceName = "Load" + (isBroker ? $"{classe.Name}List" : Pluralize(classe.Name));
                     w.WriteLine();
                     w.WriteLine(2, "/// <inheritdoc cref=\"" + interfaceName + "." + serviceName + "\" />");
-                    w.WriteLine(2, "public ICollection<" + classe.Name + "> Load" + Pluralize(classe.Name) + "()\r\n{");
-                    w.WriteLine(3, LoadReferenceAccessorBody(classe.Name, classe.DefaultOrderModelProperty));
+                    w.WriteLine(2, "public ICollection<" + classe.Name + "> " + serviceName + "()\r\n{");
+                    w.WriteLine(3, LoadReferenceAccessorBody(isBroker, classe.Name, classe.DefaultOrderModelProperty));
                     w.WriteLine(2, "}");
                 }
 
@@ -149,13 +176,27 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="nameSpaceName">Namespace.</param>
         private void GenerateReferenceAccessorsInterface(IEnumerable<ModelClass> classList, string nameSpaceName)
         {
-            var projectName = _parameters.DbContextProjectPath.Split('/').Last();
-            var interfaceName = $"I{nameSpaceName.Replace("DataContract", string.Empty)}AccessorsDal";
+            var isBroker = _parameters.DbContextProjectPath == null;
+            var nameSpacePrefix = nameSpaceName.Replace("DataContract", string.Empty);
+
+            string projectDir;
+            string projectName;
+            string interfaceName;
+            if (!isBroker)
+            {
+                projectDir = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
+                projectName = _parameters.DbContextProjectPath.Split('/').Last();
+                interfaceName = $"I{nameSpacePrefix}AccessorsDal";
+            }
+            else
+            {
+                projectName = $"{_rootNamespace}.{nameSpacePrefix}Contract";
+                projectDir = Path.Combine(GetDirectoryForProject(_parameters.LegacyProjectPaths, _parameters.OutputDirectory, false, _rootNamespace, $"{nameSpacePrefix}Contract"));
+                interfaceName = $"IService{nameSpacePrefix}Accessors";
+            }
 
             Console.WriteLine("Generating interface " + interfaceName + " containing reference accessors for namespace " + nameSpaceName);
-
-            var projectDir = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
-            var interfaceFileName = Path.Combine(projectDir, "generated\\Reference", $"{interfaceName}.cs");
+            var interfaceFileName = Path.Combine(projectDir, isBroker ? "generated" : "generated\\Reference", $"{interfaceName}.cs");
 
             using (var w = new CSharpWriter(interfaceFileName))
             {
@@ -172,13 +213,22 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                         "System.Collections.Generic",
                         "System.ServiceModel",
                         $"{_rootNamespace}.{nameSpaceName}",
-                        "Kinetix.ServiceModel");
+                        _parameters.Kinetix == "Fmk" ? "Fmk.ServiceModel" : "Kinetix.ServiceModel");
                 }
 
                 w.WriteLine();
                 w.WriteNamespace(projectName);
                 w.WriteSummary(1, "This interface was automatically generated. It contains all the operations to load the reference lists declared in namespace " + nameSpaceName + ".");
-                w.WriteLine(1, ServiceAttributes[_parameters.Kinetix].ServiceContractAttribute);
+
+                if (_parameters.Kinetix == "Core")
+                {
+                    w.WriteLine(1, "[RegisterContract]");
+                }
+                else
+                {
+                    w.WriteLine(1, "[ServiceContract]");
+                }
+
                 w.WriteLine(1, "public partial interface " + interfaceName + "\r\n{");
 
                 var count = 0;
@@ -187,12 +237,12 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     count++;
                     w.WriteSummary(2, "Reference accessor for type " + classe.Name);
                     w.WriteReturns(2, "List of " + classe.Name);
-                    w.WriteLine(2, ReferenceAccessorAttribute);
-                    if (_parameters.Kinetix == "Framework")
+                    w.WriteLine(2, "[ReferenceAccessor]");
+                    if (_parameters.Kinetix != "Core")
                     {
-                        w.WriteLine(2, ReferenceAccessorAttributeExt);
+                        w.WriteLine(2, "[OperationContract]");
                     }
-                    w.WriteLine(2, "ICollection<" + classe.Name + "> Load" + Pluralize(classe.Name) + "();");
+                    w.WriteLine(2, "ICollection<" + classe.Name + "> Load" + (isBroker ? $"{classe.Name}List" : Pluralize(classe.Name)) + "();");
 
                     if (count != classList.Count())
                     {
@@ -208,19 +258,31 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <summary>
         /// Retourne le code associé au cors de l'implémentation d'un service de type ReferenceAccessor.
         /// </summary>
+        /// <param name="isBroker">Broker.</param>
         /// <param name="className">Nom du type chargé par le ReferenceAccessor.</param>
         /// <param name="defaultProperty">Propriété par defaut de la classe.</param>
         /// <returns>Code généré.</returns>
-        private string LoadReferenceAccessorBody(string className, ModelProperty defaultProperty)
+        private string LoadReferenceAccessorBody(bool isBroker, string className, ModelProperty defaultProperty)
         {
-            string queryParameter = string.Empty;
-
-            if (defaultProperty != null)
+            var queryParameter = string.Empty;
+            if (!isBroker)
             {
-                queryParameter = $".OrderBy(row => row.{defaultProperty.Name})";
-            }
+                if (defaultProperty != null)
+                {
+                    queryParameter = $".OrderBy(row => row.{defaultProperty.Name})";
+                }
 
-            return $"return _dbContext.{Pluralize(className)}{queryParameter}.ToList();";
+                return $"return _dbContext.{Pluralize(className)}{queryParameter}.ToList();";
+            }
+            else
+            {
+                if (defaultProperty != null)
+                {
+                    queryParameter = "new Fmk.Data.SqlClient.QueryParameter(" + className + ".Cols." + defaultProperty.DataMember.Name + ", Fmk.Data.SqlClient.SortOrder.Asc)";
+                }
+
+                return "return BrokerManager.GetStandardBroker<" + className + ">().GetAll(" + queryParameter + ");";
+            }
         }
     }
 }

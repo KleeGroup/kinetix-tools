@@ -26,25 +26,28 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 throw new ArgumentNullException(nameof(modelRootList));
             }
 
-            new DbContextGenerator(rootNamespace, parameters).Generate(modelRootList);
+            if (parameters.DbContextProjectPath != null)
+            {
+                new DbContextGenerator(rootNamespace, parameters).Generate(modelRootList);
+            }
 
             var classGenerator = new CSharpClassGenerator(rootNamespace, parameters);
 
-            foreach (ModelRoot model in modelRootList)
+            foreach (var model in modelRootList)
             {
                 if (model.Namespaces != null && model.Namespaces.Values.Count > 0)
                 {
-                    foreach (ModelNamespace ns in model.Namespaces.Values)
+                    foreach (var ns in model.Namespaces.Values)
                     {
                         if (!Directory.Exists(ns.Name))
                         {
-                            var directoryForModelClass = GetDirectoryForModelClass(parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
-                            var projectDirectory = GetDirectoryForProject(parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
+                            var directoryForModelClass = GetDirectoryForModelClass(parameters.LegacyProjectPaths, parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
+                            var projectDirectory = GetDirectoryForProject(parameters.LegacyProjectPaths, parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
                             var csprojFileName = Path.Combine(projectDirectory, model.Name + "." + ns.Name + ".csproj");
 
-                            foreach (ModelClass item in ns.ClassList)
+                            foreach (var item in ns.ClassList)
                             {
-                                var currentDirectory = GetDirectoryForModelClass(parameters.OutputDirectory, item.DataContract.IsPersistent, model.Name, item.Namespace.Name);
+                                var currentDirectory = GetDirectoryForModelClass(parameters.LegacyProjectPaths, parameters.OutputDirectory, item.DataContract.IsPersistent, model.Name, item.Namespace.Name);
                                 Directory.CreateDirectory(currentDirectory);
                                 classGenerator.Generate(item, ns);
                             }

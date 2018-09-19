@@ -42,11 +42,6 @@ namespace Kinetix.ClassGenerator
                     throw new ArgumentNullException(nameof(cSharp.OutputDirectory));
                 }
 
-                if (cSharp.DbContextProjectPath == null)
-                {
-                    throw new ArgumentNullException(nameof(cSharp.DbContextProjectPath));
-                }
-
                 cSharp.UseTypeSafeConstValues = cSharp.UseTypeSafeConstValues ?? false;
                 cSharp.NoColumnOnAlias = cSharp.NoColumnOnAlias ?? false;
                 cSharp.Kinetix = cSharp.Kinetix ?? "Core";

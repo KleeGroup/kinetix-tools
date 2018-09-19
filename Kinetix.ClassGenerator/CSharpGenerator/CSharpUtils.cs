@@ -51,39 +51,90 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 InitializeRegType();
             }
 
-            regType.TryGetValue(name, out string res);
+            regType.TryGetValue(name, out var res);
             return res;
         }
 
         /// <summary>
         /// Retourne le nom du répertoire dans lequel placer la classe générée à partir du ModelClass fourni.
         /// </summary>
+        /// <param name="isLegacy">Legacy</param>
         /// <param name="outDir">Répertoire de sortie.</param>
         /// <param name="isPersistent">Trie s'il s'agit du domaine persistant.</param>
         /// <param name="projectName">Nom du projet.</param>
         /// <param name="nameSpace">Namespace de la classe.</param>
         /// <returns>Emplacement dans lequel placer la classe générée à partir du ModelClass fourni.</returns>
-        public static string GetDirectoryForModelClass(string outDir, bool isPersistent, string projectName, string nameSpace)
+        public static string GetDirectoryForModelClass(bool isLegacy, string outDir, bool isPersistent, string projectName, string nameSpace)
         {
-            var moduleMetier = ExtractModuleMetier(nameSpace);
-            var localPath = Path.Combine(moduleMetier, projectName + "." + nameSpace);
-            string path = isPersistent ? Path.Combine(outDir, localPath) : Path.Combine(outDir, localPath, "Dto");
-            return Path.Combine(path, "generated");
+            if (isLegacy)
+            {
+                var basePath = Path.Combine(isPersistent ? GetDataContractDirectoryName(outDir, projectName) : GetContractDirectoryName(outDir, projectName));
+                var localPath = nameSpace.Replace('.', Path.DirectorySeparatorChar);
+                var path = isPersistent ? Path.Combine(basePath, localPath) : Path.Combine(basePath, localPath, "Dto");
+                return Path.Combine(path, "generated");
+            }
+            else
+            {
+                var moduleMetier = ExtractModuleMetier(nameSpace);
+                var localPath = Path.Combine(moduleMetier, projectName + "." + nameSpace);
+                var path = isPersistent ? Path.Combine(outDir, localPath) : Path.Combine(outDir, localPath, "Dto");
+                return Path.Combine(path, "generated");
+            }
         }
 
         /// <summary>
         /// Retourne le nom du répertoire du projet d'une classe.
         /// </summary>
+        /// <param name="isLegacy">Legacy</param>
         /// <param name="outDir">Répertoire de sortie.</param>
         /// <param name="isPersistent">Trie s'il s'agit du domaine persistant.</param>
         /// <param name="projectName">Nom du projet.</param>
         /// <param name="nameSpace">Namespace de la classe.</param>
         /// <returns>Nom du répertoire contenant le csproj.</returns>
-        public static string GetDirectoryForProject(string outDir, bool isPersistent, string projectName, string nameSpace)
+        public static string GetDirectoryForProject(bool isLegacy, string outDir, bool isPersistent, string projectName, string nameSpace)
         {
-            var moduleMetier = ExtractModuleMetier(nameSpace);
-            var localPath = Path.Combine(moduleMetier, projectName + "." + nameSpace);
-            return Path.Combine(outDir, localPath);
+            if (isLegacy)
+            {
+                var basePath = Path.Combine(isPersistent ? GetDataContractDirectoryName(outDir, projectName) : GetContractDirectoryName(outDir, projectName));
+                var localPath = nameSpace.Replace('.', Path.DirectorySeparatorChar);
+                return Path.Combine(basePath, localPath);
+            }
+            else
+            {
+                var moduleMetier = ExtractModuleMetier(nameSpace);
+                var localPath = Path.Combine(moduleMetier, projectName + "." + nameSpace);
+                return Path.Combine(outDir, localPath);
+            }
+        }
+
+        /// <summary>
+        /// Retourne le répertoire dans lequel générer les contrats.
+        /// </summary>
+        /// <param name="projectName">Nom du projet.</param>
+        /// <returns>Répertoire dans lequel générer les contrats.</returns>
+        private static string GetContractDirectoryName(string outDir, string projectName)
+        {
+            return Path.Combine(outDir, projectName + ".Contract");
+        }
+
+        /// <summary>
+        /// Retourne le répertoire dans lequel générer les objets persistants.
+        /// </summary>
+        /// <param name="projectName">Nom du projet.</param>
+        /// <returns>Répertoire dans lequel générer les objets persistants.</returns>
+        private static string GetDataContractDirectoryName(string outDir, string projectName)
+        {
+            return Path.Combine(outDir, projectName + ".DataContract");
+        }
+
+        /// <summary>
+        /// Retourne le répertoire dans lequel générer les objets persistants.
+        /// </summary>
+        /// <param name="projectName">Nom du projet.</param>
+        /// <returns>Répertoire dans lequel générer les objets persistants.</returns>
+        public static string GetImplementationDirectoryName(string outDir, string projectName)
+        {
+            return Path.Combine(outDir, projectName + ".Implementation");
         }
 
         /// <summary>
@@ -113,8 +164,8 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <returns>Nom du type de données contenu.</returns>
         public static string LoadInnerDataType(string dataType)
         {
-            int beginIdx = dataType.LastIndexOf('<');
-            int endIdx = dataType.LastIndexOf('>');
+            var beginIdx = dataType.LastIndexOf('<');
+            var endIdx = dataType.LastIndexOf('>');
             if (beginIdx == -1 || endIdx == -1)
             {
                 throw new NotSupportedException();
@@ -145,7 +196,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <returns>Nom court.</returns>
         public static string LoadShortDataType(string dataType)
         {
-            int idx = dataType.LastIndexOf('.');
+            var idx = dataType.LastIndexOf('.');
             return idx != -1 ? dataType.Substring(idx + 1) : dataType;
         }
 

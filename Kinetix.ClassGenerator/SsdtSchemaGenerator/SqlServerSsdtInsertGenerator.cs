@@ -53,7 +53,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             Directory.CreateDirectory(insertScriptFolderPath);
 
             // Construit la liste des Reference Class ordonnée.
-            ModelClass[] orderList = OrderStaticTableList(initDictionary).Where(x => !x.IsView).ToArray();
+            var orderList = OrderStaticTableList(initDictionary).Where(x => !x.IsView).ToArray();
             var referenceClassList =
                 orderList.Select(x => new ReferenceClass
                 {
@@ -61,7 +61,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                     Values = initDictionary[x],
                     IsStatic = isStatic
                 }).ToList();
-            ReferenceClassSet referenceClassSet = new ReferenceClassSet
+            var referenceClassSet = new ReferenceClassSet
             {
                 ClassList = orderList.ToList(),
                 ScriptName = insertMainScriptName
@@ -83,32 +83,32 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
         /// <returns>ModelClass[] ordonné.</returns>
         private static ModelClass[] OrderStaticTableList(IDictionary<ModelClass, TableInit> dictionnary)
         {
-            int nbTable = dictionnary.Count;
-            ModelClass[] orderedList = new ModelClass[nbTable];
+            var nbTable = dictionnary.Count;
+            var orderedList = new ModelClass[nbTable];
             dictionnary.Keys.CopyTo(orderedList, 0);
 
-            int i = 0;
+            var i = 0;
             while (i < nbTable)
             {
-                bool canIterate = true;
-                ModelClass currentModelClass = orderedList[i];
+                var canIterate = true;
+                var currentModelClass = orderedList[i];
 
                 // On récupère les ModelClass des tables pointées par la table
                 ISet<ModelClass> pointedTableSet = new HashSet<ModelClass>();
-                foreach (ModelProperty property in currentModelClass.PropertyList)
+                foreach (var property in currentModelClass.PropertyList)
                 {
                     if (property.IsFromAssociation)
                     {
-                        ModelClass pointedTable = property.DataDescription.ReferenceClass;
+                        var pointedTable = property.DataDescription.ReferenceClass;
                         pointedTableSet.Add(pointedTable);
                     }
                 }
 
-                for (int j = i; j < nbTable; j++)
+                for (var j = i + 1; j < nbTable; j++)
                 {
                     if (pointedTableSet.Contains(orderedList[j]))
                     {
-                        ModelClass sauvegarde = orderedList[i];
+                        var sauvegarde = orderedList[i];
                         orderedList[i] = orderedList[j];
                         orderedList[j] = sauvegarde;
                         canIterate = false;
