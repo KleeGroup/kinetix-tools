@@ -439,7 +439,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         {
             var usings = new List<string> { "System" };
 
-            if (item.HasCollection || (_parameters.UseTypeSafeConstValues == true && item.ConstValues != null && item.ConstValues.Count > 0))
+            if (item.HasCollection || _parameters.UseTypeSafeConstValues == true && item.ConstValues != null && item.ConstValues.Count > 0)
             {
                 usings.Add("System.Collections.Generic");
             }

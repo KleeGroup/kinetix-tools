@@ -17,11 +17,21 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         public IEnumerable<ModelClass> References { get; set; }
 
         /// <summary>
+        /// Générer pour Focus4 v8.x.
+        /// </summary>
+        public bool Focus4v8 { get; set; }
+
+        /// <summary>
         /// Create the template output
         /// </summary>
         public string TransformText()
         {
             Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera perdue.\r\n*/\r\n");
+
+            if (Focus4v8)
+            {
+                Write("\r\n/* tslint:disable */\r\n");
+            }
 
             foreach (var reference in References)
             {
@@ -43,15 +53,20 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     Write(";\r\n");
                 }
 
-                Write("}\r\nexport const ");
-                Write(reference.Name.ToFirstLower());
-                Write(" = {type: {} as ");
-                Write(reference.Name);
-                Write(", valueKey: \"");
-                Write(reference.PrimaryKey.First().Name.ToFirstLower());
-                Write("\", labelKey: \"");
-                Write(reference.DefaultProperty?.ToFirstLower() ?? "libelle");
-                Write("\"};\r\n");
+                Write("}\r\n");
+
+                if (!Focus4v8)
+                {
+                    Write("export const ");
+                    Write(reference.Name.ToFirstLower());
+                    Write(" = {type: {} as ");
+                    Write(reference.Name);
+                    Write(", valueKey: \"");
+                    Write(reference.PrimaryKey.First().Name.ToFirstLower());
+                    Write("\", labelKey: \"");
+                    Write(reference.DefaultProperty?.ToFirstLower() ?? "libelle");
+                    Write("\"};\r\n");
+                }
             }
             return GenerationEnvironment.ToString();
         }

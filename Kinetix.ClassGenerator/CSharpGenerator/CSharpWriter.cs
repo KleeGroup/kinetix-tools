@@ -79,8 +79,8 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                 if (ifList.Count > 0)
                 {
-                    IEnumerator<string> enumerator = ifList.GetEnumerator();
-                    for (int i = 0; i < ifList.Count; ++i)
+                    var enumerator = ifList.GetEnumerator();
+                    for (var i = 0; i < ifList.Count; ++i)
                     {
                         if (!enumerator.MoveNext())
                         {
@@ -116,8 +116,8 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="value">Valeur à écrire dans le flux.</param>
         public void WriteLine(int indentationLevel, string value)
         {
-            string indentValue = string.Empty;
-            for (int i = 0; i < indentationLevel; ++i)
+            var indentValue = string.Empty;
+            for (var i = 0; i < indentationLevel; ++i)
             {
                 indentValue += IndentValue;
             }
@@ -180,11 +180,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="nsName">Nom de la classe/namespace à importer.</param>
         public void WriteUsings(params string[] nsNames)
         {
-            if (string.IsNullOrEmpty("nsName"))
-            {
-                throw new ArgumentNullException("nsNames", "nsName");
-            }
-
             var systemUsings = nsNames.Where(name => name.StartsWith("System"));
             var otherUsings = nsNames.Except(systemUsings);
 

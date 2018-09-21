@@ -93,31 +93,38 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             using (var w = new CSharpWriter(implementationFileName))
             {
+                var usings = new[]
+                {
+                    "System.Collections.Generic",
+                    "System.Linq",
+                    $"{_rootNamespace}.{nameSpaceName}"
+                }.ToList();
+
                 if (_parameters.Kinetix == "Core")
                 {
-                    w.WriteUsings(
-                        "System.Collections.Generic",
-                        "System.Linq",
-                        $"{_rootNamespace}.{nameSpaceName}",
-                        "Kinetix.Services.Annotations");
-                }
-                else if (_parameters.Kinetix == "Framework")
-                {
-                    w.WriteUsings(
-                        "System.Collections.Generic",
-                        "System.Linq",
-                        "System.ServiceModel",
-                        $"{_rootNamespace}.{nameSpaceName}");
+                    usings.Add("Kinetix.Services.Annotations");
                 }
                 else
                 {
-                    w.WriteUsings(
-                       "System.Collections.Generic",
-                       "System.ServiceModel",
-                       $"{_rootNamespace}.{nameSpaceName}",
-                       $"{_rootNamespace}.{nameSpacePrefix}Contract",
-                       "Fmk.Broker");
+                    usings.Add("System.ServiceModel");
+
+                    if (_parameters.DbContextProjectPath == null)
+                    {
+                        usings.Add($"{_rootNamespace}.{nameSpacePrefix}Contract");
+                        usings.Add(_parameters.Kinetix == "Framework"
+                            ? "Kinetix.Broker"
+                            : "Fmk.Broker");
+
+                        if (classList.Any(classe => classe.DefaultOrderModelProperty != null))
+                        {
+                            usings.Add(_parameters.Kinetix == "Framework"
+                                ? "Kinetix.Data.SqlClient"
+                                : "Fmk.Data.SqlClient");
+                        }
+                    }
                 }
+
+                w.WriteUsings(usings.ToArray());
 
                 w.WriteLine();
                 w.WriteNamespace(projectName);
@@ -278,7 +285,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 if (defaultProperty != null)
                 {
-                    queryParameter = "new Fmk.Data.SqlClient.QueryParameter(" + className + ".Cols." + defaultProperty.DataMember.Name + ", Fmk.Data.SqlClient.SortOrder.Asc)";
+                    queryParameter = "new QueryParameter(" + className + ".Cols." + defaultProperty.DataMember.Name + ", SortOrder.Asc)";
                 }
 
                 return "return BrokerManager.GetStandardBroker<" + className + ">().GetAll(" + queryParameter + ");";

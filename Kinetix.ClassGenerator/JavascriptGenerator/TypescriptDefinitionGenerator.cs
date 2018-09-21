@@ -43,10 +43,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 }
             }
 
+            var staticLists = new List<ModelClass>();
+
             foreach (var entry in nameSpaceMap)
             {
-                var staticLists = new List<ModelClass>();
-
                 foreach (var model in entry.Value)
                 {
                     if (!model.IsStatique)
@@ -70,7 +70,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                             Directory.CreateDirectory(directoryInfo.FullName);
                         }
 
-                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model };
+                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model, Focus4v8 = parameters.Focus4v8 };
                         var result = template.TransformText();
                         File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                     }
@@ -80,24 +80,42 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     }
                 }
 
-                if (staticLists.Any())
+                if (!parameters.Focus4v8)
                 {
-                    Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
-                    var fileName = $"{parameters.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/references.ts";
-                    var fileInfo = new FileInfo(fileName);
-
-                    var isNewFile = !fileInfo.Exists;
-
-                    var directoryInfo = fileInfo.Directory;
-                    if (!directoryInfo.Exists)
-                    {
-                        Directory.CreateDirectory(directoryInfo.FullName);
-                    }
-
-                    var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) };
-                    var result = template.TransformText();
-                    File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                    GenerateReferenceLists(parameters, staticLists, entry.Key);
+                    staticLists.Clear();
                 }
+            }
+
+            if (parameters.Focus4v8)
+            {
+                GenerateReferenceLists(parameters, staticLists);
+            }
+        }
+
+        private static void GenerateReferenceLists(JavascriptParameters parameters, IList<ModelClass> staticLists, string namespaceName = null)
+        {
+            if (staticLists.Any())
+            {
+                Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
+
+                var fileName = namespaceName != null
+                    ? $"{parameters.ModelOutputDirectory}/{namespaceName.ToDashCase(false)}/references.ts"
+                    : $"{parameters.ModelOutputDirectory}/references.ts";
+
+                var fileInfo = new FileInfo(fileName);
+
+                var isNewFile = !fileInfo.Exists;
+
+                var directoryInfo = fileInfo.Directory;
+                if (!directoryInfo.Exists)
+                {
+                    Directory.CreateDirectory(directoryInfo.FullName);
+                }
+
+                var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) , Focus4v8 = parameters.Focus4v8 };
+                var result = template.TransformText();
+                File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
         }
     }
