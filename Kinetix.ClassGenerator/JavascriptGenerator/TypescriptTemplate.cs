@@ -43,17 +43,25 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("/* tslint:disable */\r\n");
                 Write("import {");
 
+                var entityImports = new List<string>();
+
                 if (!Model.PropertyList.All(p => IsArray(p) || p.IsFromComposition))
                 {
-                    Write("EntityField, ");
+                    entityImports.Add("EntityField");
                 }
 
                 if (Model.PropertyList.Any(p => IsArray(p)))
                 {
-                    Write("StoreListNode, ");
+                    entityImports.Add("StoreListNode");
                 }
 
-                Write("StoreNode} from \"focus4/entity\";");
+                if (Model.ParentClass == null)
+                {
+                    entityImports.Add("StoreNode");
+                }
+
+                Write(string.Join(", ", entityImports));
+                Write("} from \"focus4/entity\";");
             }
 
             Write("\r\nimport {");
@@ -81,6 +89,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("\r\n");
             }
 
+            var properties = Model.PropertyList.Where(p => p.DataDescription?.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass);
+
             if (!Focus4v8)
             {
                 Write("\r\nexport type ");
@@ -97,9 +107,13 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             {
                 Write("\r\nexport interface ");
                 Write(Model.Name);
+                if (Model.ParentClass != null)
+                {
+                    Write($" extends {Model.ParentClass.Name}");
+                }
                 Write(" {\r\n");
 
-                foreach (var property in Model.PropertyList)
+                foreach (var property in properties)
                 {
                     Write("    ");
                     Write(property.Name.ToFirstLower());
@@ -123,11 +137,18 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
                 Write("}\r\n\r\nexport interface ");
                 Write(Model.Name);
-                Write("Node extends StoreNode<");
-                Write(Model.Name);
-                Write("> {\r\n");
+                if (Model.ParentClass == null)
+                {
+                    Write("Node extends StoreNode<");
+                    Write(Model.Name);
+                    Write("> {\r\n");
+                }
+                else
+                {
+                    Write($"Node extends {Model.ParentClass.Name}Node {{\r\n");
+                }
 
-                foreach (var property in Model.PropertyList)
+                foreach (var property in properties)
                 {
                     Write("    ");
                     Write(property.Name.ToFirstLower());
@@ -150,11 +171,15 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                         Write(TSUtils.CSharpToTSType(property));
                         Write(", typeof ");
                         Write(GetDomain(property));
-
                         Write(">");
                     }
 
                     Write(";\r\n");
+                }
+
+                if (Model.ParentClass != null)
+                {
+                    Write($"    set(config: Partial<{Model.Name}>): void;\r\n");
                 }
 
                 Write("}\r\n\r\n");
@@ -173,7 +198,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("Entity.fields,\r\n");
             }
 
-            foreach (var property in Model.PropertyList)
+            foreach (var property in properties)
             {
                 Write("        ");
                 Write(property.Name.ToFirstLower());
@@ -248,7 +273,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
                 Write("        }");
 
-                if (property != Model.PropertyList.Last())
+                if (property != properties.Last())
                 {
                     Write(",");
                 }
@@ -323,7 +348,11 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     module = $"../{module}";
                 }
 
-                return (import: Focus4v8 ? $"{name}, {name}Node" : $"{name}Entity", path: $"{module}/{name.ToDashCase()}");
+                return (
+                    import: Focus4v8 
+                        ? Model.ParentClass != null ? $"{name}, {name}Node, {name}Entity" : $"{name}, {name}Node" 
+                        : $"{name}Entity", 
+                    path: $"{module}/{name.ToDashCase()}");
             }).Distinct().ToList();
 
             var references = Model.PropertyList

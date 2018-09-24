@@ -278,7 +278,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(3, property.Name + " = new List<" + LoadInnerDataType(property.DataType) + ">(bean." + property.Name + ");");
             }
 
-            foreach (var property in item.PropertyList.Where(p => p.IsPrimitive))
+            foreach (var property in item.PropertyList.Where(p => p.IsPrimitive && (p.DataDescription.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass)))
             {
                 w.WriteLine(3, property.Name + " = bean." + property.Name + ";");
             }
@@ -349,7 +349,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         {
             if (item.PropertyList.Count > 0)
             {
-                foreach (var property in item.PersistentPropertyList.Where(prop => !prop.IsReprise))
+                foreach (var property in item.PersistentPropertyList.Where(p => !p.IsReprise && (p.DataDescription.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass)))
                 {
                     w.WriteLine();
                     GenerateProperty(w, property);
@@ -536,11 +536,13 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             w.WriteSummary(2, "Type énuméré présentant les noms des colonnes en base.");
             w.WriteLine(2, "public enum Cols");
             w.WriteLine(2, "{");
-            foreach (var property in item.PersistentPropertyList)
+
+            var cols = item.PersistentPropertyList.Where(p => p.DataDescription.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass).ToList();
+            foreach (var property in cols)
             {
                 w.WriteSummary(3, "Nom de la colonne en base associée à la propriété " + property.Name + ".");
                 w.WriteLine(3, $"{property.DataMember.Name},");
-                if (item.PersistentPropertyList.IndexOf(property) != item.PersistentPropertyList.Count - 1)
+                if (cols.IndexOf(property) != cols.Count - 1)
                 {
                     w.WriteLine();
                 }

@@ -185,6 +185,8 @@ namespace Kinetix.ClassGenerator.Checker
             Dictionary<string, ModelProperty> dictionnary = new Dictionary<string, ModelProperty>();
             var referencePropertyWithNoRoleMap = new Dictionary<string, ModelProperty>();
 
+            ModelProperty parentFk = null;
+
             foreach (ModelProperty property in classe.PropertyList)
             {
                 if (codeNameList.Contains(property.Name))
@@ -236,11 +238,44 @@ namespace Kinetix.ClassGenerator.Checker
                     }
                 }
 
-                ModelClass parent = SearchParentClassWithIdenticalPropertyName(property, classe);
+                var parent = SearchParentClassWithIdenticalPropertyName(property, classe);
                 if (parent != null)
                 {
-                    RegisterFatalError(classe, "La propriété [" + property.Name + "] est déjà définie dans la classe parente " + parent.Name + ", il faut la renommer avec un nom différent.");
+                    if (classe.Trigram == null)
+                    {
+                        RegisterFatalError(classe, "La propriété [" + property.Name + "] est déjà définie dans la classe parente " + parent.Name + ", il faut la renommer avec un nom différent.");
+                    }
+                    else
+                    {
+                        property.Name = $"{classe.Name}{property.Name}";
+                        parentFk = parent;                       
+                    }
                 }
+            }
+
+            if (parentFk != null)
+            {
+                classe.AddProperty(new ModelProperty
+                {
+                    Name = parentFk.Name,
+                    Comment = parentFk.Comment,
+                    IsPersistent = true,
+                    DataType = parentFk.DataType,
+                    Class = classe,
+                    ModelFile = classe.ModelFile,
+                    DataDescription = new ModelDataDescription
+                    {
+                        Libelle = parentFk.DataDescription.Libelle,
+                        Domain = parentFk.DataDescription.Domain,
+                        ReferenceClass = parentFk.Class,
+                        ReferenceType = parentFk.DataType
+                    },
+                    DataMember = new ModelDataMember
+                    {
+                        Name = parentFk.DataMember.Name,
+                        IsRequired = true
+                    }
+                });
             }
 
             /* On autorise une propriété avec un rôle et une propriété sans rôle. */
@@ -283,8 +318,8 @@ namespace Kinetix.ClassGenerator.Checker
         /// </summary>
         /// <param name="property">Property to check.</param>
         /// <param name="classe">Current class.</param>
-        /// <returns>The parent class with the same property, <code>null</code> if not found.</returns>
-        private static ModelClass SearchParentClassWithIdenticalPropertyName(ModelProperty property, ModelClass classe)
+        /// <returns>The property with the same name from the parent class, <code>null</code> if not found.</returns>
+        private static ModelProperty SearchParentClassWithIdenticalPropertyName(ModelProperty property, ModelClass classe)
         {
             if (classe.ParentClass == null)
             {
@@ -296,7 +331,7 @@ namespace Kinetix.ClassGenerator.Checker
             {
                 if (prop.Name == property.Name)
                 {
-                    return parent;
+                    return prop;
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Kinetix.Tools.Common;
 using Kinetix.Tools.Common.Model;
 using Kinetix.Tools.Common.Parameters;
@@ -104,9 +105,11 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         {
             writer.WriteLine("    " + FormatJsName(classe.Name) + ": {");
             int i = 1;
-            foreach (ModelProperty property in classe.PropertyList)
+
+            var properties = classe.PropertyList.Where(p => p.DataDescription?.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass).ToList();
+            foreach (ModelProperty property in properties)
             {
-                WritePropertyNode(writer, property, classe.PropertyList.Count == i++);
+                WritePropertyNode(writer, property, properties.Count == i++);
             }
 
             WriteCloseBracket(writer, 1, isLast);
