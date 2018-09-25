@@ -89,7 +89,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("\r\n");
             }
 
-            var properties = Model.PropertyList.Where(p => p.DataDescription?.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass);
+            var properties = Model.PropertyList.Where(p => !p.IsParentId);
 
             if (!Focus4v8)
             {

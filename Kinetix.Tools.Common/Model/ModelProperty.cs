@@ -126,7 +126,12 @@ namespace Kinetix.Tools.Common.Model
         public bool IsPrimitive => DataType.EndsWith("[]") 
             || DataType.EndsWith("?") 
             || new[] { "string", "int", "decimal", "bool", "datetime" }.Contains(DataType)
-            || (!IsCollection && !IsFromAssociation && !IsFromComposition);
+            || !IsCollection && !IsFromAssociation && !IsFromComposition;
+
+        /// <summary>
+        /// Précise si la propriété est l'ID de la classe parente.
+        /// </summary>
+        public bool IsParentId => DataDescription.ReferenceClass != null && DataDescription.ReferenceClass == Class.ParentClass && Name == "Id";
 
         /// <summary>
         /// Indique si la propriété est unique.
@@ -257,9 +262,9 @@ namespace Kinetix.Tools.Common.Model
         /// <returns>Boolean.</returns>
         public bool IsDomain(string domainCode)
         {
-            ModelDomain domain = DataDescription.Domain;
-            return (domainCode == null && domain == null) ||
-                (domain != null && domain.Code.Equals(domainCode));
+            var domain = DataDescription.Domain;
+            return domainCode == null && domain == null ||
+                domain != null && domain.Code.Equals(domainCode);
         }
 
         /// <summary>

@@ -106,7 +106,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             writer.WriteLine("    " + FormatJsName(classe.Name) + ": {");
             int i = 1;
 
-            var properties = classe.PropertyList.Where(p => p.DataDescription?.ReferenceClass == null || p.DataDescription.ReferenceClass != p.Class.ParentClass).ToList();
+            var properties = classe.PropertyList.Where(p => !p.IsParentId).ToList();
             foreach (ModelProperty property in properties)
             {
                 WritePropertyNode(writer, property, properties.Count == i++);
