@@ -97,12 +97,12 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 if (item.HasPrimaryKey && item.PrimaryKey.Count == 1)
                 {
-                    switch (item.PrimaryKey.First().DataDescription.Domain.Code)
+                    switch (item.PrimaryKey.First().Name)
                     {
-                        case "DO_ID":
+                        case "Id":
                             interfaces.Add("IIdEntity");
                             break;
-                        case "DO_CODE":
+                        case "Code":
                             interfaces.Add("ICodeEntity");
                             break;
                     }
