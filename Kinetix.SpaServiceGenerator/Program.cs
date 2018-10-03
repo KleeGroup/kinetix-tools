@@ -1,22 +1,17 @@
-﻿using System;
+﻿using Kinetix.SpaServiceGenerator.Model;
+using Kinetix.Tools.Common;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-#if NETCOREAPP2_1
-using Buildalyzer;
-using Buildalyzer.Workspaces;
-#endif
-using Kinetix.SpaServiceGenerator.Model;
-using Kinetix.Tools.Common;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-#if NET471
-using Microsoft.CodeAnalysis.MSBuild;
-#endif
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -45,25 +40,13 @@ namespace Kinetix.SpaServiceGenerator
             _projectName = args[2];
             _kinetix = args[3];
 
+            var instance = MSBuildLocator.QueryVisualStudioInstances().First();
+            Console.WriteLine($"Using MSBuild at '{instance.MSBuildPath}' to load projects.");
+            MSBuildLocator.RegisterInstance(instance);
+            var msWorkspace = MSBuildWorkspace.Create();
 
-            Solution solution = null;
-#if NET471
-            var msWorkspace = MSBuildWorkspace.Create(); 
             msWorkspace.WorkspaceFailed += MsWorkspace_WorkspaceFailed;
-            solution = await msWorkspace.OpenSolutionAsync(_solutionPath);           
-#endif
-
-#if NETCOREAPP2_1
-            var adhocWorkspace = new AnalyzerManager(_solutionPath).GetWorkspace();
-            adhocWorkspace.WorkspaceFailed += AdhocWorkspace_WorkspaceFailed;
-            solution = adhocWorkspace.CurrentSolution;
-
-            // Weirdly, I have a lot of duplicate project references after loading a solution, so this is a quick hack to fix that.
-            foreach (var project in solution.Projects)
-            {
-                solution = solution.WithProjectReferences(project.Id, project.ProjectReferences.Distinct());
-            }
-#endif
+            Solution solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
 
             // If path is not to services add "standard" path 
             var outputPath = _serviceRoot.EndsWith("services") ? _serviceRoot : $"{_serviceRoot}/app/services";
@@ -86,14 +69,7 @@ namespace Kinetix.SpaServiceGenerator
                     continue;
                 }
 
-                IReadOnlyList<string> folders = null;
-#if NET471
-                folders = controller.Folders;
-#endif
-#if NETCOREAPP2_1
-                var parts = Path.GetRelativePath(controller.Project.FilePath, controller.FilePath).Split(@"\");
-                folders = parts.Skip(1).Take(parts.Length - 2).ToList();
-#endif
+                IReadOnlyList<string> folders = controller.Folders;
 
                 var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
                 var secondFolder = folders.Count > 1 ? $"/{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
