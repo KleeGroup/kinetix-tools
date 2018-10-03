@@ -97,14 +97,16 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 if (item.HasPrimaryKey && item.PrimaryKey.Count == 1)
                 {
-                    switch (item.PrimaryKey.First().Name)
+                    string name = item.PrimaryKey.First().Name;
+                    string type = item.PrimaryKey.First().DataType;
+
+                    if (name == "Id" && type == "int?")
                     {
-                        case "Id":
-                            interfaces.Add("IIdEntity");
-                            break;
-                        case "Code":
-                            interfaces.Add("ICodeEntity");
-                            break;
+                        interfaces.Add("IIdEntity");
+                    }
+                    else if (name == "Code" && type == "string")
+                    {
+                        interfaces.Add("ICodeEntity");
                     }
                 }
 
