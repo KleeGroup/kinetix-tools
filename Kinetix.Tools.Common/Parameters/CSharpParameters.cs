@@ -39,5 +39,10 @@
         /// Retire les attributs de colonnes sur les alias.
         /// </summary>
         public bool? NoColumnOnAlias { get; set; } = false;
+
+        /// <summary>
+        /// Définit si les interfaces IEntity sont ajoutée à la génération.
+        /// </summary>
+        public bool IsWithEntityInterface { get; set; } = false;
     }
 }
