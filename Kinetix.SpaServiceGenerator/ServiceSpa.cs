@@ -169,35 +169,38 @@ namespace Kinetix.SpaServiceGenerator
             var types = returnTypes.Concat(parameterTypes)
                 .Where(type =>
                     !type.ContainingNamespace.ToString().Contains("Kinetix")
+                 && !type.ContainingNamespace.ToString().Contains("Fmk")
                  && !type.ContainingNamespace.ToString().Contains("System")
                  && !type.ContainingNamespace.ToString().Contains("Microsoft")
                  && type.Name != "AutocompleteResult");
 
-            var referenceTypes = types.Where(type =>
-                type.DeclaringSyntaxReferences.Any(s =>
-                {
-                    var classDecl = s.SyntaxTree
-                        .GetRoot()
-                        .DescendantNodes()
-                        .OfType<ClassDeclarationSyntax>()
-                        .First();
-
-                    var hasRefAttribute = classDecl
-                        .AttributeLists.SelectMany(l => l.Attributes)
-                        .Any(attr => attr.Name.ToString() == "Reference");
-
-                    if (!hasRefAttribute)
+            var referenceTypes = types
+                .Where(type =>
+                    type.DeclaringSyntaxReferences.Any(s =>
                     {
-                        return false;
-                    }
-                    else
-                    {
-                        return !classDecl
-                            .Members
-                            .OfType<PropertyDeclarationSyntax>()
-                            .Any(p => p.Identifier.ToString() == "Id");
-                    }
-                }));
+                        var classDecl = s.SyntaxTree
+                            .GetRoot()
+                            .DescendantNodes()
+                            .OfType<ClassDeclarationSyntax>()
+                            .First();
+
+                        var hasRefAttribute = classDecl
+                            .AttributeLists.SelectMany(l => l.Attributes)
+                            .Any(attr => attr.Name.ToString() == "Reference");
+
+                        if (!hasRefAttribute)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            return !classDecl
+                                .Members
+                                .OfType<PropertyDeclarationSyntax>()
+                                .Any(p => p.Identifier.ToString() == "Id");
+                        }
+                    }))
+                .Distinct();
 
             var imports = new List<(string import, string path)>();
 
