@@ -1,17 +1,19 @@
-﻿using Kinetix.SpaServiceGenerator.Model;
-using Kinetix.Tools.Common;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.MSBuild;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Kinetix.SpaServiceGenerator.Model;
+using Kinetix.Tools.Common;
+using Kinetix.Tools.Common.Parameters;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
+using Newtonsoft.Json;
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -63,7 +65,7 @@ namespace Kinetix.SpaServiceGenerator
             var msWorkspace = MSBuildWorkspace.Create();
 
             msWorkspace.WorkspaceFailed += MsWorkspace_WorkspaceFailed;
-            Solution solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
+            var solution = await msWorkspace.OpenSolutionAsync(Parameters.SolutionPath);
 
             var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(Parameters.RootNamespace) && projet.AssemblyName.EndsWith("FrontEnd"));
             var controllers = frontEnds.SelectMany(f => f.Documents).Where(document =>
@@ -83,13 +85,13 @@ namespace Kinetix.SpaServiceGenerator
                     continue;
                 }
 
-                IReadOnlyList<string> folders = controller.Folders;
+                var folders = controller.Folders;
 
                 var frontEndName = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
-                var folderNames = folders.Count > 1 ? $"{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
+                var folderNames = folders.Count > 1 ? $"{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}/" : string.Empty;
                 var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + folders.Count - 1;
 
-                var controllerName = $"{folderNames}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
+                var controllerName = $"{folderNames}{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts";
 
                 var fileName = Parameters.SplitIntoApps == true
                     ? $"{Parameters.OutputDirectory}{frontEndName}/services/{controllerName}"
