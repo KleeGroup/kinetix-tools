@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto;
+using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
 {
@@ -13,6 +14,13 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
     /// </summary>
     public class InitReferenceListScripter : ISqlScripter<ReferenceClass>
     {
+        private readonly SsdtParameters _parameters;
+
+        public InitReferenceListScripter(SsdtParameters parameters)
+        {
+            _parameters = parameters;
+        }
+
         /// <summary>
         /// Calcule le nom du script pour l'item.
         /// </summary>
@@ -137,9 +145,9 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
         /// </summary>
         /// <param name="writer">Flux.</param>
         /// <param name="tableName">Nom de la table.</param>
-        private static void WriteFooter(TextWriter writer, string tableName)
+        private void WriteFooter(TextWriter writer, string tableName)
         {
-            writer.WriteLine("\tINSERT INTO " + Singletons.GeneratorParameters.Ssdt.LogScriptTableName + "(" + Singletons.GeneratorParameters.Ssdt.LogScriptVersionField + ", " + Singletons.GeneratorParameters.Ssdt.LogScriptDateField + ") VALUES (@SCRIPT_NAME, GETDATE());");
+            writer.WriteLine("\tINSERT INTO " + _parameters.LogScriptTableName + "(" + _parameters.LogScriptVersionField + ", " + _parameters.LogScriptDateField + ") VALUES (@SCRIPT_NAME, GETDATE());");
             writer.WriteLine("\tCOMMIT TRANSACTION");
             writer.WriteLine("END");
             writer.WriteLine("GO");
@@ -150,7 +158,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
         /// </summary>
         /// <param name="writer">Flux.</param>
         /// <param name="tableName">Nom de la table.</param>
-        private static void WriteHeader(TextWriter writer, string tableName)
+        private void WriteHeader(TextWriter writer, string tableName)
         {
             writer.WriteLine("-- ===========================================================================================");
             writer.WriteLine("--   Description		:	Insertion des valeurs de la table " + tableName + ".");
@@ -159,7 +167,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
             writer.WriteLine("DECLARE @SCRIPT_NAME varchar(100)");
             writer.WriteLine();
             writer.WriteLine("SET @SCRIPT_NAME = '" + tableName + ".insert'");
-            writer.WriteLine("IF not exists(Select 1 From " + Singletons.GeneratorParameters.Ssdt.LogScriptTableName + " WHERE " + Singletons.GeneratorParameters.Ssdt.LogScriptVersionField + " = @SCRIPT_NAME)");
+            writer.WriteLine("IF not exists(Select 1 From " + _parameters.LogScriptTableName + " WHERE " + _parameters.LogScriptVersionField + " = @SCRIPT_NAME)");
             writer.WriteLine("BEGIN");
             writer.WriteLine("\tPRINT 'Appling script ' + @SCRIPT_NAME;");
             writer.WriteLine("\tSET XACT_ABORT ON");

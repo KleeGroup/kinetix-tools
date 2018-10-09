@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SchemaGenerator
 {
@@ -7,6 +8,11 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
     /// </summary>
     public class PostgreSchemaGenerator : AbstractSchemaGenerator
     {
+        public PostgreSchemaGenerator(string appName, ProceduralSqlParameters parameters)
+            : base(appName, parameters)
+        {
+        }
+
         protected override string BatchSeparator => ";";
 
         protected override bool SupportsClusteredKey => false;

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Kinetix.ClassGenerator.Model;
-using Kinetix.ClassGenerator.MsBuild;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter;
+using Kinetix.Tools.Common.Model;
+using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 {
@@ -13,7 +13,14 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
     /// </summary>
     public class SqlServerSsdtSchemaGenerator : ISqlServerSsdtSchemaGenerator
     {
-        private readonly ISqlScriptEngine _engine = new SqlScriptEngine();
+        private readonly ISqlScriptEngine _engine;
+        private readonly SsdtParameters _parameters;
+
+        public SqlServerSsdtSchemaGenerator(SsdtParameters parameters)
+        {
+            _parameters = parameters;
+            _engine = new SqlScriptEngine(_parameters.ProjFileName);
+        }
 
         /// <summary>
         /// Génère le script SQL.
@@ -35,10 +42,10 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             InitCollection(modelRootList, tableList);
 
             // Script de table.
-            _engine.Write(new SqlTableScripter(), tableList, tableScriptFolder, BuildActions.Build);
+            _engine.Write(new SqlTableScripter(), tableList, tableScriptFolder);
 
             // Script de type table.
-            _engine.Write(new SqlTableTypeScripter(), tableList, tableTypeScriptFolder, BuildActions.Build);
+            _engine.Write(new SqlTableTypeScripter(), tableList, tableTypeScriptFolder);
         }
 
         /// <summary>
