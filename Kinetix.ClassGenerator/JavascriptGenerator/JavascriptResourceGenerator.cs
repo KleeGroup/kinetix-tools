@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Kinetix.ClassGenerator.Model;
+using Kinetix.ClassGenerator.Writer;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Kinetix.Tools.Common;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
+    using static Singletons;
+
     /// <summary>
     /// Générateur des objets de traduction javascripts.
     /// </summary>
@@ -15,11 +16,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// <summary>
         /// Génère le code des classes.
         /// </summary>
-        /// <param name="parameters">Paramètres.</param>
         /// <param name="modelRootList">Liste des modeles.</param>
-        public static void Generate(JavascriptParameters parameters, ICollection<ModelRoot> modelRootList)
+        public static void Generate(ICollection<ModelRoot> modelRootList)
         {
-            if (parameters.ResourceOutputDirectory == null)
+            if (GeneratorParameters.Javascript.ResourceOutputDirectory == null)
             {
                 return;
             }
@@ -56,7 +56,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             foreach (KeyValuePair<string, List<ModelClass>> entry in nameSpaceMap)
             {
-                var dirInfo = Directory.CreateDirectory(parameters.ResourceOutputDirectory);
+                var dirInfo = Directory.CreateDirectory(GeneratorParameters.Javascript.ResourceOutputDirectory);
                 var fileName = FirstToLower(entry.Key);
 
                 Console.WriteLine($"Ecriture du fichier de ressource du module {entry.Key}.");

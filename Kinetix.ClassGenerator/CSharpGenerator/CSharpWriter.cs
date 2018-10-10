@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common;
+using Kinetix.ClassGenerator.Writer;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common.Model;
+using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter

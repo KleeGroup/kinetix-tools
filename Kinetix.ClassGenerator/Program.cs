@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
-using System.Text;
+using Kinetix.ClassGenerator.Configuration;
+using Kinetix.ClassGenerator.Main;
 
 namespace Kinetix.ClassGenerator
 {
@@ -15,7 +15,7 @@ namespace Kinetix.ClassGenerator
         /// <summary>
         /// Composant de parsing des arguments du programme.
         /// </summary>
-        private static readonly ModelConfigurationLoader ConfigLoader = new ModelConfigurationLoader();
+        private static readonly ArgumentParser ArgumentParser = new ArgumentParser();
 
         /// <summary>
         /// Composant contenant le générateur principal.
@@ -32,13 +32,12 @@ namespace Kinetix.ClassGenerator
         /// Génération des classes et du SQL, options -G et -S.
         /// </remarks>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Interception de toutes les exceptions pour écriture sur flux de sortie d'erreur.")]
-        [STAThread]
+        [STAThreadAttribute]
         public static void Main(string[] args)
         {
             try
             {
                 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
                 Console.WriteLine("******************************************************");
                 Console.WriteLine("*                Kinetix.ClassGenerator                  *");
@@ -46,16 +45,10 @@ namespace Kinetix.ClassGenerator
                 Console.WriteLine();
 
                 // Lecture des paramètres d'entrée.
-                var configPath = args[0];
-                if (!File.Exists(configPath))
-                {
-                    throw new FileNotFoundException("Le fichier de configuration n'existe pas");
-                }
-
-                var parameters = ConfigLoader.LoadModelConfiguration(configPath);
+                ArgumentParser.Parse(args);
 
                 // Exécution de la génération
-                MainGenerator.Generate(parameters);
+                MainGenerator.Generate();
 
                 Console.WriteLine();
                 Console.WriteLine("Fin de la génération");

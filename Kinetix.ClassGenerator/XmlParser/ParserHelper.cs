@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml;
-using Kinetix.Tools.Common.Model;
+using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.XmlParser
 {
@@ -114,9 +114,9 @@ namespace Kinetix.ClassGenerator.XmlParser
         /// <param name="multiplicity">La multiplicité de l'association.</param>
         /// <param name="role">Le rôle de l'association.</param>
         /// <param name="name">Nom de l'association.</param>
-        /// <paral name="initialValue">Valeur par défaut.</paral>
+        /// <param name="columnName">Nom de la colonne.</param>
         /// <returns>La propriété relative à l'association.</returns>
-        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, string initialValue = null)
+        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, string columnName = null)
         {
             ModelProperty classSourceproperty = GetPrimaryKeyProperty(sourceClass);
             if (classSourceproperty == null)
@@ -152,11 +152,15 @@ namespace Kinetix.ClassGenerator.XmlParser
                     throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Type de clé étrangère non-géré : {0} ({1} référence {2})", dataType, targetClass.Name, sourceClass.Name));
             }
 
-            string dmName = classSourceproperty.DataMember.Name;
-            if (!string.IsNullOrEmpty(role))
+            string dmName = columnName;
+            if (string.IsNullOrEmpty(dmName))
             {
-                dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
-                dmName = DeleteAccents(dmName);
+                dmName = classSourceproperty.DataMember.Name;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
+                    dmName = DeleteAccents(dmName);
+                }
             }
 
             property.DataMember = new ModelDataMember()
@@ -168,7 +172,6 @@ namespace Kinetix.ClassGenerator.XmlParser
             property.Comment = "Identifiant de l'objet " + sourceClass.Name + (string.IsNullOrEmpty(role) ? string.Empty : " " + role) + ".";
             property.DataType = classSourceproperty.DataType;
             property.IsPersistent = classSourceproperty.IsPersistent && targetClass.DataContract.IsPersistent;
-            property.DefaultValue = initialValue;
             return property;
         }
 

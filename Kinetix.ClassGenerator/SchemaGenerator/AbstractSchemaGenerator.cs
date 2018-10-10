@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SchemaGenerator
 {
+    using static Singletons;
+
     /// <summary>
     /// Classe abstraite de génération des sripts de création.
     /// </summary>
@@ -18,15 +19,6 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         /// Nom pour l'insert en bulk.
         /// </summary>
         protected const string InsertKeyName = "InsertKey";
-
-        private readonly string _appName;
-        private readonly ProceduralSqlParameters _parameters;
-
-        public AbstractSchemaGenerator(string appName, ProceduralSqlParameters parameters)
-        {
-            _appName = appName;
-            _parameters = parameters;
-        }
 
         /// <summary>
         /// Séparateur de lots de commandes SQL.
@@ -92,7 +84,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         /// <param name="isStatic">True if generation for static list.</param>
         public void GenerateListInitScript(Dictionary<ModelClass, TableInit> initDictionary, bool isStatic)
         {
-            var outputFileName = isStatic ? _parameters.StaticListFile : _parameters.ReferenceListFile;
+            var outputFileName = isStatic ? GeneratorParameters.ProceduralSql.StaticListFile : GeneratorParameters.ProceduralSql.ReferenceListFile;
 
             if (outputFileName == null)
             {
@@ -112,7 +104,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             using (var writerInsert = File.CreateText(outputFileName))
             {
                 writerInsert.WriteLine("-- =========================================================================================== ");
-                writerInsert.WriteLine($"--   Application Name	:	{_appName} ");
+                writerInsert.WriteLine($"--   Application Name	:	{GeneratorParameters.RootNamespace} ");
                 writerInsert.WriteLine("--   Script Name		:	" + outputFileName);
                 writerInsert.WriteLine("--   Description		:	Script d'insertion des données de références" + (!isStatic ? " non " : " ") + "statiques. ");
                 writerInsert.WriteLine("-- ===========================================================================================");
@@ -140,10 +132,10 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 throw new ArgumentNullException(nameof(modelRootList));
             }
 
-            var outputFileNameCrebas = _parameters.CrebasFile;
-            var outputFileNameIndex = _parameters.IndexFKFile;
-            var outputFileNameType = _parameters.TypeFile;
-            var outputFileNameUK = _parameters.UKFile;
+            var outputFileNameCrebas = GeneratorParameters.ProceduralSql.CrebasFile;
+            var outputFileNameIndex = GeneratorParameters.ProceduralSql.IndexFKFile;
+            var outputFileNameType = GeneratorParameters.ProceduralSql.TypeFile;
+            var outputFileNameUK = GeneratorParameters.ProceduralSql.UKFile;
 
             Console.WriteLine("Generating schema script");
 
@@ -169,19 +161,19 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 }
 
                 writerCrebas.WriteLine("-- =========================================================================================== ");
-                writerCrebas.WriteLine($"--   Application Name	:	{_appName} ");
+                writerCrebas.WriteLine($"--   Application Name	:	{GeneratorParameters.RootNamespace} ");
                 writerCrebas.WriteLine("--   Script Name		:	" + outputFileNameCrebas);
                 writerCrebas.WriteLine("--   Description		:	Script de création des tables.");
                 writerCrebas.WriteLine("-- =========================================================================================== ");
 
                 writerUk?.WriteLine("-- =========================================================================================== ");
-                writerUk?.WriteLine($"--   Application Name	:	{_appName} ");
+                writerUk?.WriteLine($"--   Application Name	:	{GeneratorParameters.RootNamespace} ");
                 writerUk?.WriteLine("--   Script Name		:	" + outputFileNameUK);
                 writerUk?.WriteLine("--   Description		:	Script de création des indexs uniques.");
                 writerUk?.WriteLine("-- =========================================================================================== ");
 
                 writerType?.WriteLine("-- =========================================================================================== ");
-                writerType?.WriteLine($"--   Application Name	:	{_appName} ");
+                writerType?.WriteLine($"--   Application Name	:	{GeneratorParameters.RootNamespace} ");
                 writerType?.WriteLine("--   Script Name		:	" + outputFileNameType);
                 writerType?.WriteLine("--   Description		:	Script de création des types. ");
                 writerType?.WriteLine("-- =========================================================================================== ");
@@ -217,7 +209,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             using (var writer = File.CreateText(outputFileNameIndex))
             {
                 writer.WriteLine("-- =========================================================================================== ");
-                writer.WriteLine($"--   Application Name	:	{_appName} ");
+                writer.WriteLine($"--   Application Name	:	{GeneratorParameters.RootNamespace} ");
                 writer.WriteLine("--   Script Name		:	" + outputFileNameIndex);
                 writer.WriteLine("--   Description		:	Script de création des indexes et des clef étrangères. ");
                 writer.WriteLine("-- =========================================================================================== ");
@@ -625,11 +617,6 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                     writerCrebas.Write(" not null");
                 }
 
-                if (!string.IsNullOrWhiteSpace(property.DefaultValue))
-                {
-                    writerCrebas.Write($" default {property.DefaultValue}");
-                }
-
                 writerCrebas.Write(",");
                 writerCrebas.WriteLine();
 
@@ -647,7 +634,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 {
                     if (writerUk == null)
                     {
-                        throw new ArgumentNullException(nameof(_parameters.UKFile));
+                        throw new ArgumentNullException(nameof(GeneratorParameters.ProceduralSql.UKFile));
                     }
 
                     writerUk.WriteLine("alter table " + Quote(classe.DataContract.Name.ToUpperInvariant()) + " add constraint " + Quote(CheckIdentifierLength("UK_" + classe.DataContract.Name.ToUpperInvariant() + '_' + property.Name.ToUpperInvariant())) + " unique (" + Quote(property.DataMember.Name) + ")");

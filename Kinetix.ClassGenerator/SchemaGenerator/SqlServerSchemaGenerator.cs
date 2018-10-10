@@ -1,6 +1,5 @@
 ﻿using System.IO;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
+using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.SchemaGenerator
 {
@@ -9,11 +8,6 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
     /// </summary>
     public class SqlServerSchemaGenerator : AbstractSchemaGenerator
     {
-        public SqlServerSchemaGenerator(string appName, ProceduralSqlParameters parameters)
-            : base(appName, parameters)
-        {
-        }
-
         protected override string BatchSeparator => "go";
 
         protected override bool SupportsClusteredKey => true;

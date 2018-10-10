@@ -1,14 +1,15 @@
+﻿using Kinetix.ClassGenerator.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.JavascriptGenerator
 {
+    using static Singletons;
+    using static Utils;
+
     /// <summary>
     /// Générateur de définitions Typescript.
     /// </summary>
@@ -17,12 +18,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// <summary>
         /// Génère les définitions Typescript.
         /// </summary>
-        /// <param name="rootNamespace">Namespace de l'application.</param>
-        /// <param name="parameters">Paramètres.</param>
         /// <param name="modelRootList">La liste des modèles.</param>
-        public static void Generate(string rootNamespace, JavascriptParameters parameters, ICollection<ModelRoot> modelRootList)
+        public static void Generate(ICollection<ModelRoot> modelRootList)
         {
-            if (parameters.ModelOutputDirectory == null)
+            if (GeneratorParameters.Javascript.ModelOutputDirectory == null)
             {
                 return;
             }
@@ -32,7 +31,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             {
                 foreach (var modelNameSpace in model.Namespaces.Values)
                 {
-                    var namespaceName = TSUtils.ToNamespace(modelNameSpace.Name);
+                    var namespaceName = ToNamespace(modelNameSpace.Name);
 
                     if (!nameSpaceMap.ContainsKey(namespaceName))
                     {
@@ -51,7 +50,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 {
                     if (!model.IsStatique)
                     {
-                        if (!parameters.IsGenerateEntities && model.DataContract.IsPersistent)
+                        if (!GeneratorParameters.Javascript.IsGenerateEntities && model.DataContract.IsPersistent)
                         {
                             continue;
                         }
@@ -59,7 +58,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                         var fileName = model.Name.ToDashCase();
                         Console.Out.WriteLine($"Generating Typescript file: {fileName}.ts ...");
 
-                        fileName = $"{parameters.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/{fileName}.ts";
+                        fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/{fileName}.ts";
                         var fileInfo = new FileInfo(fileName);
 
                         var isNewFile = !fileInfo.Exists;
@@ -70,7 +69,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                             Directory.CreateDirectory(directoryInfo.FullName);
                         }
 
-                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model };
+                        var template = new TypescriptTemplate { RootNamespace = GeneratorParameters.RootNamespace, Model = model };
                         var result = template.TransformText();
                         File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                     }
@@ -83,7 +82,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 if (staticLists.Any())
                 {
                     Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
-                    var fileName = $"{parameters.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/references.ts";
+                    var fileName = $"{GeneratorParameters.Javascript.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/references.ts";
                     var fileInfo = new FileInfo(fileName);
 
                     var isNewFile = !fileInfo.Exists;

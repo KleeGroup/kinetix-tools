@@ -1,17 +1,15 @@
-﻿using Kinetix.SpaServiceGenerator.Model;
-using Kinetix.Tools.Common;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.MSBuild;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Kinetix.SpaServiceGenerator.Model;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Kinetix.SpaServiceGenerator
 {
@@ -40,13 +38,8 @@ namespace Kinetix.SpaServiceGenerator
             _projectName = args[2];
             _kinetix = args[3];
 
-            var instance = MSBuildLocator.QueryVisualStudioInstances().First();
-            Console.WriteLine($"Using MSBuild at '{instance.MSBuildPath}' to load projects.");
-            MSBuildLocator.RegisterInstance(instance);
             var msWorkspace = MSBuildWorkspace.Create();
-
-            msWorkspace.WorkspaceFailed += MsWorkspace_WorkspaceFailed;
-            Solution solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
+            var solution = await msWorkspace.OpenSolutionAsync(_solutionPath);
 
             // If path is not to services add "standard" path 
             var outputPath = _serviceRoot.EndsWith("services") ? _serviceRoot : $"{_serviceRoot}/app/services";
@@ -60,26 +53,20 @@ namespace Kinetix.SpaServiceGenerator
             {
                 var syntaxTree = await controller.GetSyntaxTreeAsync();
                 var controllerClass = GetClassDeclaration(syntaxTree);
-                var model = await solution.GetDocument(syntaxTree).GetSemanticModelAsync();
-                var modelClass = model.GetDeclaredSymbol(controllerClass);
-
-                // Skip if we extend a MVC controller
-                if (_kinetix == "framework" && modelClass.BaseType.Name == "Controller")
-                {
-                    continue;
-                }
-
-                IReadOnlyList<string> folders = controller.Folders;
 
                 var firstFolder = frontEnds.Count() > 1 ? $"/{controller.Project.Name.Split('.')[1].ToDashCase()}" : string.Empty;
-                var secondFolder = folders.Count > 1 ? $"/{string.Join("/", folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
-                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + folders.Count - 1;
+                var secondFolder = controller.Folders.Count > 1 ? $"/{string.Join("/", controller.Folders.Skip(1).Select(f => f.ToDashCase()))}" : string.Empty;
+                var folderCount = (frontEnds.Count() > 1 ? 1 : 0) + controller.Folders.Count - 1;
 
                 var controllerName = $"{firstFolder}{secondFolder}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty).ToDashCase()}.ts".Substring(1);
+
+                var model = await solution.GetDocument(syntaxTree).GetSemanticModelAsync();
 
                 Console.WriteLine($"Generating {controllerName}");
 
                 var methods = GetMethodDeclarations(controllerClass, model);
+
+                var modelClass = model.GetDeclaredSymbol(controllerClass);
 
                 // If controller is not a direct Controller extender, ie it extends a base class
                 string aspControllerClass = _kinetix == "Core" ? "Controller" : "ApiController";
@@ -110,16 +97,6 @@ namespace Kinetix.SpaServiceGenerator
                 var output = template.TransformText();
                 File.WriteAllText(fileName, output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
-        }
-
-        private static void AdhocWorkspace_WorkspaceFailed(object sender, WorkspaceDiagnosticEventArgs e)
-        {
-            Console.WriteLine(e.Diagnostic.Message);
-        }
-
-        private static void MsWorkspace_WorkspaceFailed(object sender, WorkspaceDiagnosticEventArgs e)
-        {
-            Console.WriteLine(e.Diagnostic.Message);
         }
 
         private static ClassDeclarationSyntax GetClassDeclaration(SyntaxTree syntaxTree) => syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();

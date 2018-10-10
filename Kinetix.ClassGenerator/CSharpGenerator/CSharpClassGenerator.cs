@@ -1,40 +1,31 @@
-﻿using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {
-    using static CSharpUtils;
+    using static CodeUtils;
+    using static Singletons;
 
-    public class CSharpClassGenerator
+    public static class CSharpClassGenerator
     {
-        private readonly string _rootNamespace;
-        private readonly CSharpParameters _parameters;
-
-        public CSharpClassGenerator(string rootNamespace, CSharpParameters parameters)
-        {
-            _rootNamespace = rootNamespace;
-            _parameters = parameters;
-        }
-
         /// <summary>
         /// Méthode générant le code d'une classe.
         /// </summary>
         /// <param name="item">Classe concernée.</param>
         /// <param name="ns">Namespace.</param>
-        public void Generate(ModelClass item, ModelNamespace ns)
+        public static void Generate(ModelClass item, ModelNamespace ns)
         {
-            var fileName = Path.Combine(GetDirectoryForModelClass(_parameters.OutputDirectory, item.DataContract.IsPersistent, _rootNamespace, item.Namespace.Name), item.Name + ".cs");
+            var fileName = Path.Combine(GetDirectoryForModelClass(item.DataContract.IsPersistent, GeneratorParameters.RootNamespace, item.Namespace.Name), item.Name + ".cs");
             using (var w = new CSharpWriter(fileName))
             {
                 Console.WriteLine("Generating class " + ns.Name + "." + item.Name);
 
                 GenerateUsings(w, item);
                 w.WriteLine();
-                w.WriteNamespace($"{_rootNamespace}.{ns.Name}");
+                w.WriteNamespace($"{GeneratorParameters.RootNamespace}.{ns.Name}");
                 w.WriteSummary(1, item.Comment);
                 GenerateClassDeclaration(w, item);
                 w.WriteLine("}");
@@ -46,7 +37,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">Classe générée.</param>
-        private void GenerateBaseCopyConstructor(CSharpWriter w, ModelClass item)
+        private static void GenerateBaseCopyConstructor(CSharpWriter w, ModelClass item)
         {
             w.WriteLine();
             w.WriteSummary(2, "Constructeur par base class.");
@@ -63,7 +54,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer</param>
         /// <param name="item">Classe à générer.</param>
-        private void GenerateClassDeclaration(CSharpWriter w, ModelClass item)
+        private static void GenerateClassDeclaration(CSharpWriter w, ModelClass item)
         {
             if (item.Stereotype == Stereotype.Reference)
             {
@@ -81,9 +72,9 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (item.DataContract.IsPersistent && !item.IsView)
             {
-                if (_parameters.DbSchema != null)
+                if (GeneratorParameters.CSharp.DbSchema != null)
                 {
-                    w.WriteAttribute(1, "Table", $@"""{item.DataContract.Name}""", $@"Schema = ""{_parameters.DbSchema}""");
+                    w.WriteAttribute(1, "Table", $@"""{item.DataContract.Name}""", $@"Schema = ""{GeneratorParameters.CSharp.DbSchema}""");
                 }
                 else
                 {
@@ -91,29 +82,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 }
             }
 
-            ICollection<string> interfaces = new List<string>();
-
-            if (_parameters.IsWithEntityInterface && item.DataContract.IsPersistent)
-            {
-                if (item.HasPrimaryKey && item.PrimaryKey.Count == 1)
-                {
-                    string name = item.PrimaryKey.First().Name;
-                    string type = item.PrimaryKey.First().DataType;
-
-                    if (name == "Id" && type == "int?")
-                    {
-                        interfaces.Add("IIdEntity");
-                    }
-                    else if (name == "Code" && type == "string")
-                    {
-                        interfaces.Add("ICodeEntity");
-                    }
-                }
-
-                interfaces.Add("IEntity");
-            }
-
-            w.WriteClassDeclaration(item.Name, item.ParentClass?.Name, interfaces);
+            w.WriteClassDeclaration(item.Name, item.ParentClass?.Name, new List<string>());
 
             GenerateConstProperties(w, item);
             GenerateConstructors(w, item);
@@ -121,7 +90,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             GenerateExtensibilityMethods(w, item);
             w.WriteLine(1, "}");
 
-            if (_parameters.UseTypeSafeConstValues.Value)
+            if (GeneratorParameters.CSharp.UseTypeSafeConstValues.Value)
             {
                 GenerateConstPropertiesClass(w, item);
             }
@@ -132,7 +101,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">La classe générée.</param>
-        private void GenerateConstProperties(CSharpWriter w, ModelClass item)
+        private static void GenerateConstProperties(CSharpWriter w, ModelClass item)
         {
             int nbConstValues = item.ConstValues.Count;
             if (nbConstValues != 0)
@@ -161,9 +130,9 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                     w.WriteSummary(2, valueLibelle.Libelle);
 
-                    if (_parameters.UseTypeSafeConstValues.Value)
+                    if (GeneratorParameters.CSharp.UseTypeSafeConstValues.Value)
                     {
-                        w.WriteLine(2, string.Format("public readonly {2}Code {0} = new {2}Code({1});", constFieldName, valueLibelle.Code, item.Name));
+                        w.WriteLine(2, string.Format("public static readonly {2}Code {0} = new {2}Code({1});", constFieldName, valueLibelle.Code, item.Name));
                     }
                     else
                     {
@@ -180,7 +149,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">La classe générée.</param>
-        private void GenerateConstPropertiesClass(CSharpWriter w, ModelClass item)
+        private static void GenerateConstPropertiesClass(CSharpWriter w, ModelClass item)
         {
             int nbConstValues = item.ConstValues.Count;
             if (nbConstValues != 0)
@@ -192,7 +161,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(1, $"public sealed class {item.Name}Code : TypeSafeEnum {{");
                 w.WriteLine();
 
-                w.WriteLine(2, $"private readonly Dictionary<string, {item.Name}Code> Instance = new Dictionary<string, {item.Name}Code>();");
+                w.WriteLine(2, $"private static readonly Dictionary<string, {item.Name}Code> Instance = new Dictionary<string, {item.Name}Code>();");
                 w.WriteLine();
 
                 w.WriteSummary(2, "Constructeur");
@@ -203,7 +172,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine(2, "}");
                 w.WriteLine();
 
-                w.WriteLine(2, $"public explicit operator {item.Name}Code(string value) {{");
+                w.WriteLine(2, $"public static explicit operator {item.Name}Code(string value) {{");
                 w.WriteLine(3, $"System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof({item.Name}).TypeHandle);");
                 w.WriteLine(3, "if (Instance.TryGetValue(value, out var result)) {");
                 w.WriteLine(4, "return result;");
@@ -220,7 +189,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">La classe générée.</param>
-        private void GenerateConstructors(CSharpWriter w, ModelClass item)
+        private static void GenerateConstructors(CSharpWriter w, ModelClass item)
         {
             GenerateDefaultConstructor(w, item);
             GenerateCopyConstructor(w, item);
@@ -235,7 +204,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">Classe générée.</param>
-        private void GenerateCopyConstructor(CSharpWriter w, ModelClass item)
+        private static void GenerateCopyConstructor(CSharpWriter w, ModelClass item)
         {
             w.WriteLine();
             w.WriteSummary(2, "Constructeur par recopie.");
@@ -283,7 +252,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">Classe générée.</param>
-        private void GenerateDefaultConstructor(CSharpWriter w, ModelClass item)
+        private static void GenerateDefaultConstructor(CSharpWriter w, ModelClass item)
         {
             w.WriteSummary(2, "Constructeur.");
             w.WriteLine(2, $@"public {item.Name}()");
@@ -319,7 +288,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">Classe générée.</param>
-        private void GenerateExtensibilityMethods(CSharpWriter w, ModelClass item)
+        private static void GenerateExtensibilityMethods(CSharpWriter w, ModelClass item)
         {
             w.WriteLine();
             w.WriteSummary(2, "Methode d'extensibilité possible pour les constructeurs.");
@@ -335,7 +304,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">La classe générée.</param>
-        private void GenerateProperties(CSharpWriter w, ModelClass item)
+        private static void GenerateProperties(CSharpWriter w, ModelClass item)
         {
             if (item.PropertyList.Count > 0)
             {
@@ -358,11 +327,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="property">La propriété générée.</param>
-        private void GenerateProperty(CSharpWriter w, ModelProperty property)
+        private static void GenerateProperty(CSharpWriter w, ModelProperty property)
         {
             w.WriteSummary(2, property.Comment);
 
-            if (!property.Class.IsView && property.IsPersistent && property.DataMember != null && (!_parameters.NoColumnOnAlias.Value || property.Class.Trigram != null))
+            if (!property.Class.IsView && property.IsPersistent && property.DataMember != null)
             {
                 if (property.DataDescription.Domain.PersistentDataType.Contains("json"))
                 {
@@ -405,19 +374,13 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     w.WriteAttribute(2, "DatabaseGenerated", "DatabaseGeneratedOption.None");
                 }
             }
-            else if (property.DefaultValue != null)
-            {
-                w.WriteAttribute(2, "DatabaseGenerated", "DatabaseGeneratedOption.Identity");
-            }
 
             if (!property.IsPrimitive)
             {
                 w.WriteAttribute(2, "NotMapped");
             }
 
-            string @override = property.IsDerived ? "override " : "";
-
-            w.WriteLine(2, $"public {@override}{LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
+            w.WriteLine(2, $"public {LoadShortDataType(property.DataType)} {property.Name} {{ get; set; }}");
         }
 
         /// <summary>
@@ -425,11 +388,11 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="w">Writer.</param>
         /// <param name="item">Classe concernée.</param>
-        private void GenerateUsings(CSharpWriter w, ModelClass item)
+        private static void GenerateUsings(CSharpWriter w, ModelClass item)
         {
             var usings = new List<string> { "System" };
 
-            if (item.HasCollection || (_parameters.UseTypeSafeConstValues == true && item.ConstValues != null && item.ConstValues.Count > 0))
+            if (item.HasCollection || (GeneratorParameters.CSharp.UseTypeSafeConstValues == true && item.ConstValues != null && item.ConstValues.Count > 0))
             {
                 usings.Add("System.Collections.Generic");
             }
@@ -451,7 +414,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (item.HasDomainAttribute || item.ParentClass == null)
             {
-                if (_parameters.Kinetix == "Core")
+                if (GeneratorParameters.Kinetix == "Core")
                 {
                     usings.Add("Kinetix.ComponentModel.Annotations");
                 }
@@ -459,11 +422,6 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 {
                     usings.Add("Kinetix.ComponentModel");
                 }
-            }
-
-            if (_parameters.IsWithEntityInterface && item.DataContract.IsPersistent)
-            {
-                usings.Add("Kinetix.ComponentModel.Entity");
             }
 
             foreach (string value in item.UsingList)
@@ -480,12 +438,12 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                 if (!string.IsNullOrEmpty(property.DataDescription.ReferenceClass?.Namespace?.Name))
                 {
-                    usings.Add($"{_rootNamespace}.{property.DataDescription.ReferenceClass.Namespace.Name}");
+                    usings.Add($"{GeneratorParameters.RootNamespace}.{property.DataDescription.ReferenceClass.Namespace.Name}");
                 }
             }
 
             w.WriteUsings(usings
-                .Where(u => u != $"{_rootNamespace}.{item.Namespace.Name}")
+                .Where(u => u != $"{GeneratorParameters.RootNamespace}.{item.Namespace.Name}")
                 .Distinct()
                 .ToArray());
         }
@@ -496,7 +454,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <param name="fieldName">Nom de la variable membre privée.</param>
         /// <param name="dataType">Type de données.</param>
         /// <returns>Code généré.</returns>
-        private string LoadPropertyInit(string fieldName, string dataType)
+        private static string LoadPropertyInit(string fieldName, string dataType)
         {
             var res = $"{fieldName} = ";
             if (IsCSharpBaseType(dataType))
