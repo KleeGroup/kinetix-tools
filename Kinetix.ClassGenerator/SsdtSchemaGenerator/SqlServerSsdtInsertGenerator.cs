@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Kinetix.ClassGenerator.Model;
+using Kinetix.ClassGenerator.MsBuild;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Dto;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 {
@@ -15,14 +15,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
     /// </summary>
     public class SqlServerSsdtInsertGenerator : ISqlServerSsdtInsertGenerator
     {
-        private readonly ISqlScriptEngine _engine;
-        private readonly SsdtParameters _parameters;
-
-        public SqlServerSsdtInsertGenerator(SsdtParameters parameters)
-        {
-            _parameters = parameters;
-            _engine = new SqlScriptEngine(_parameters.ProjFileName);
-        }
+        private readonly ISqlScriptEngine _engine = new SqlScriptEngine();
 
         /// <summary>
         /// Génère le script SQL d'initialisation des listes reference.
@@ -68,10 +61,10 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             };
 
             // Script un fichier par classe.            
-            _engine.Write(new InitReferenceListScripter(_parameters), referenceClassList, insertScriptFolderPath);
+            _engine.Write(new InitReferenceListScripter(), referenceClassList, insertScriptFolderPath, BuildActions.None);
 
             // Script le fichier appelant les fichiers dans le bon ordre.
-            _engine.Write(new InitReferenceListMainScripter(), referenceClassSet, insertScriptFolderPath);
+            _engine.Write(new InitReferenceListMainScripter(), referenceClassSet, insertScriptFolderPath, BuildActions.None);
 
             // TODO : delta ?
         }

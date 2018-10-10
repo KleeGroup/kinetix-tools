@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
+using Kinetix.ClassGenerator.Writer;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 {
@@ -10,13 +11,6 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
     /// </summary>
     public class SqlScriptEngine : ISqlScriptEngine
     {
-        private readonly string _projFileName;
-
-        public SqlScriptEngine(string projFileName)
-        {
-            _projFileName = projFileName;
-        }
-
         /// <summary>
         /// Ecrit les fichiers pour une liste d'items dans un dossier donné à l'aide du scripter.
         /// </summary>
@@ -25,7 +19,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
         /// <param name="folderPath">Dossier cible pour les scripts.</param>
         /// <param name="buildAction">Action de build dans le sqlproj.</param>
         /// <typeparam name="T">Type de l'item à scripter.</typeparam>
-        public void Write<T>(ISqlScripter<T> scripter, IList<T> itemList, string folderPath)
+        public void Write<T>(ISqlScripter<T> scripter, IList<T> itemList, string folderPath, string buildAction)
         {
             if (scripter == null)
             {
@@ -44,7 +38,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 
             foreach (var item in itemList)
             {
-                WriteCore(scripter, item, folderPath);
+                WriteCore<T>(scripter, item, folderPath, buildAction);
             }
         }
 
@@ -54,8 +48,9 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
         /// <param name="scripter">Scripter indiquant l'implémentation de script.</param>
         /// <param name="item">Item.</param>
         /// <param name="folderPath">Dossier cible pour le script.</param>
+        /// <param name="buildAction">Action de build dans le sqlproj.</param>
         /// <typeparam name="T">Type de l'item à scripter.</typeparam>
-        public void Write<T>(ISqlScripter<T> scripter, T item, string folderPath)
+        public void Write<T>(ISqlScripter<T> scripter, T item, string folderPath, string buildAction)
         {
             if (scripter == null)
             {
@@ -72,7 +67,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
                 throw new ArgumentNullException("folderPath");
             }
 
-            WriteCore(scripter, item, folderPath);
+            WriteCore<T>(scripter, item, folderPath, buildAction);
         }
 
         /// <summary>
@@ -81,8 +76,9 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
         /// <param name="scripter">Scripter indiquant l'implémentation de script.</param>
         /// <param name="item">Item.</param>
         /// <param name="folderPath">Dossier cible pour le script.</param>
+        /// <param name="buildAction">Action de build dans le sqlproj.</param>
         /// <typeparam name="T">Type de l'item à scripter.</typeparam>
-        private void WriteCore<T>(ISqlScripter<T> scripter, T item, string folderPath)
+        private static void WriteCore<T>(ISqlScripter<T> scripter, T item, string folderPath, string buildAction)
         {
             // Filtrage des items à scripter.
             if (!scripter.IsScriptGenerated(item))
@@ -97,7 +93,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
             var scriptPath = Path.Combine(folderPath, scriptName);
 
             // Utilisation du flux spécial qui ne checkout le fichier que s'il est modifié.
-            using (var tw = new SqlFileWriter(scriptPath))
+            using (TextWriter tw = new SqlFileWriter(scriptPath, Singletons.GeneratorParameters.Ssdt.ProjFileName, buildAction))
             {
                 /*  Génére le script de l'item */
                 scripter.WriteItemScript(tw, item);

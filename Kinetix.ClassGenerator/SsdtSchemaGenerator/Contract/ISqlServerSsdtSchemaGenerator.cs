@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Kinetix.Tools.Common.Model;
+using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract
 {

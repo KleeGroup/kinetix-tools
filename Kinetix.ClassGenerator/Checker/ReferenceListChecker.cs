@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Kinetix.Tools.Common.Model;
+using Kinetix.ClassGenerator.Model;
 using Kinetix.ClassGenerator.NVortex;
 
 namespace Kinetix.ClassGenerator.Checker

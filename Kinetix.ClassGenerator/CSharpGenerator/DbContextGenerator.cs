@@ -2,44 +2,36 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Kinetix.Tools.Common.Model;
-using Kinetix.Tools.Common.Parameters;
+using Kinetix.ClassGenerator.Model;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {
-    using static CSharpUtils;
+    using static CodeUtils;
+    using static Singletons;
 
-    public class DbContextGenerator
+    public static class DbContextGenerator
     {
-        private readonly string _rootNamespace;
-        private readonly CSharpParameters _parameters;
-
-        public DbContextGenerator(string rootNamespace, CSharpParameters parameters)
-        {
-            _rootNamespace = rootNamespace;
-            _parameters = parameters;
-        }
-
         /// <summary>
         /// Génère l'objectcontext spécialisé pour le schéma.
         /// </summary>
         /// <remarks>Support de Linq2Sql.</remarks>
         /// <param name="modelRootList">Liste des modeles.</param>
-        public void Generate(IEnumerable<ModelRoot> modelRootList)
+        public static void Generate(IEnumerable<ModelRoot> modelRootList)
         {
             Console.WriteLine("Generating DbContext");
 
-            var projectName = _parameters.DbContextProjectPath.Split('/').Last();
-            var strippedProjectName = RemoveDots(_rootNamespace);
+            var projectName = GeneratorParameters.CSharp.DbContextProjectPath.Split('/').Last();
+            var rootName = GeneratorParameters.RootNamespace;
+            var strippedProjectName = RemoveDots(rootName);
 
             var dbContextName = $"{strippedProjectName}DbContext";
-            var schema = _parameters.DbSchema;
+            var schema = GeneratorParameters.CSharp.DbSchema;
             if (schema != null)
             {
                 dbContextName = $"{schema.First().ToString().ToUpper() + schema.Substring(1)}DbContext";
             }
 
-            var destDirectory = $"{_parameters.OutputDirectory}\\{_parameters.DbContextProjectPath}";
+            var destDirectory = $"{GeneratorParameters.CSharp.OutputDirectory}\\{GeneratorParameters.CSharp.DbContextProjectPath}";
 
             Directory.CreateDirectory(destDirectory);
 
@@ -48,7 +40,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
 
                 var usings = new List<string>();
-                if (_parameters.Kinetix == "Core")
+                if (GeneratorParameters.Kinetix == "Core")
                 {
                     usings.Add("Microsoft.EntityFrameworkCore");
                 }
@@ -71,7 +63,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
                         if (shouldImport)
                         {
-                            usings.Add($"{_rootNamespace}.{ns.Name}");
+                            usings.Add($"{rootName}.{ns.Name}");
                         }
                     }
                 }
@@ -82,7 +74,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 w.WriteLine($"namespace {projectName}");
                 w.WriteLine("{");
 
-                if (_parameters.Kinetix == "Core")
+                if (GeneratorParameters.Kinetix == "Core")
                 {
                     w.WriteSummary(1, "DbContext généré pour Entity Framework Core.");
                     w.WriteLine(1, $"public partial class {dbContextName} : DbContext");
@@ -97,10 +89,8 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                 }
                 else
                 {
-                    string inheritance = _parameters.LegacyIdentity.GetValueOrDefault() ? "" : " : DbContext";
-
                     w.WriteSummary(1, "DbContext généré pour Entity Framework 6.");
-                    w.WriteLine(1, $"public partial class {dbContextName}{inheritance}");
+                    w.WriteLine(1, $"public partial class {dbContextName} : DbContext");
                     w.WriteLine(1, "{");
 
                     w.WriteSummary(2, "Constructeur par défaut.");
@@ -128,22 +118,13 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                             {
                                 w.WriteLine();
                                 w.WriteSummary(2, "Accès à l'entité " + classe.Name);
-
-                                if (_parameters.LegacyIdentity.GetValueOrDefault() && new[] { "User", "Role" }.Contains(classe.Name))
-                                {
-                                    w.WriteLine(2, "public override IDbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
-                                }
-                                else
-                                {
-                                    w.WriteLine(2, "public DbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
-
-                                }
+                                w.WriteLine(2, "public DbSet<" + classe.Name + "> " + Pluralize(classe.Name) + " { get; set; }");
                             }
                         }
                     }
                 }
 
-                if (_parameters.Kinetix == "Framework")
+                if (GeneratorParameters.Kinetix == "Framework")
                 {
                     w.WriteLine();
                     w.WriteSummary(2, "Hook pour l'ajout de configuration su EF (précision des champs, etc).");
