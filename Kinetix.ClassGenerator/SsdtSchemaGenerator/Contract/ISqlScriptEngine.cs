@@ -13,9 +13,8 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract
         /// <param name="scripter">Scripter indiquant l'implémentation de script.</param>
         /// <param name="itemList">Liste des items.</param>
         /// <param name="folderPath">Dossier cible pour les scripts.</param>
-        /// <param name="buildAction">Action de build dans le sqlproj.</param>
         /// <typeparam name="T">Type de l'item à scripter.</typeparam>
-        void Write<T>(ISqlScripter<T> scripter, IList<T> itemList, string folderPath, string buildAction);
+        void Write<T>(ISqlScripter<T> scripter, IList<T> itemList, string folderPath);
 
         /// <summary>
         /// Ecrit un fichier pour un item dans un dossier.
@@ -23,8 +22,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract
         /// <param name="scripter">Scripter indiquant l'implémentation de script.</param>
         /// <param name="item">Item.</param>
         /// <param name="folderPath">Dossier cible pour le script.</param>
-        /// <param name="buildAction">Action de build dans le sqlproj.</param>
         /// <typeparam name="T">Type de l'item à scripter.</typeparam>
-        void Write<T>(ISqlScripter<T> scripter, T item, string folderPath, string buildAction);
+        void Write<T>(ISqlScripter<T> scripter, T item, string folderPath);
     }
 }
