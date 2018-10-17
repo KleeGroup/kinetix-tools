@@ -339,18 +339,13 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 var module = GetModuleName(type);
                 var name = type.Split('.').Last();
 
-                if (module == currentModule)
-                {
-                    module = $".";
-                }
-                else
-                {
-                    module = $"../{module}";
-                }
+                module = module == currentModule 
+                    ? $"." 
+                    : $"../{module}";
 
                 return (
                     import: Focus4v8 
-                        ? Model.ParentClass != null ? $"{name}, {name}Node, {name}Entity" : $"{name}, {name}Node" 
+                        ? Model.ParentClass != null && Model.ParentClass.Name == name ? $"{name}, {name}Node, {name}Entity" : $"{name}, {name}Node" 
                         : $"{name}Entity", 
                     path: $"{module}/{name.ToDashCase()}");
             }).Distinct().ToList();
@@ -377,19 +372,16 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         private string GetModuleName(string fullyQualifiedName)
         {
             return fullyQualifiedName.Split('.')[1]
-.Replace("DataContract", string.Empty)
-.Replace("Contract", string.Empty)
-.ToLower();
+                .Replace("DataContract", string.Empty)
+                .Replace("Contract", string.Empty)
+                .ToLower();
         }
 
         private string GetReferencedType(ModelProperty property)
         {
-            if (GetDomain(property) != null)
-            {
-                return null;
-            }
-
-            return property?.DataDescription?.ReferenceClass?.Name;
+            return GetDomain(property) != null 
+                ? null 
+                : property?.DataDescription?.ReferenceClass?.Name;
         }
 
         private bool IsArray(ModelProperty property)
