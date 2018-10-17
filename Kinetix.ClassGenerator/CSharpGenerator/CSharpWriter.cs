@@ -259,7 +259,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             var sb = new StringBuilder();
             sb.Append("/// <summary>\r\n");
-            sb.Append("/// " + summary.Replace("\r\n", "\r\n/// "));
+            sb.Append("/// " + summary.Replace("\r\n", "\r\n/// ").Replace("<", "&lt;").Replace(">", "&gt;"));
             if (!summary.EndsWith(".", StringComparison.OrdinalIgnoreCase))
             {
                 sb.Append('.');
