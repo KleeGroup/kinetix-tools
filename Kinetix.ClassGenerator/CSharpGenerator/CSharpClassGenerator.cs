@@ -97,8 +97,8 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             {
                 if (item.HasPrimaryKey && item.PrimaryKey.Count == 1)
                 {
-                    string name = item.PrimaryKey.First().Name;
-                    string type = item.PrimaryKey.First().DataType;
+                    var name = item.PrimaryKey.First().Name;
+                    var type = item.PrimaryKey.First().DataType;
 
                     if (name == "Id" && type == "int?")
                     {
@@ -374,7 +374,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
 
             if (!property.Class.IsView && property.IsPersistent && property.DataMember != null && (!_parameters.NoColumnOnAlias.Value || property.Class.Trigram != null))
             {
-                if (property.DataDescription.Domain.PersistentDataType.Contains("json"))
+                if (property.DataDescription.Domain.Stereotype == "TypeName")
                 {
                     w.WriteAttribute(2, "Column", $@"""{property.DataMember.Name}""", $@"TypeName = ""{property.DataDescription.Domain.PersistentDataType}""");
                 }

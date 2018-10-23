@@ -89,7 +89,7 @@ namespace Kinetix.Tools.Common.Model
         /// <summary>
         /// Indique si les champs portant ce domaine sont traduisible.
         /// </summary>
-        public bool IsTranslatable => _translatableDomainCodeList.Contains(this.Code);
+        public bool IsTranslatable => _translatableDomainCodeList.Contains(Code);
 
         /// <summary>
         /// Retourne la chaine de Debug.
@@ -98,7 +98,7 @@ namespace Kinetix.Tools.Common.Model
         {
             get
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 sb.Append("------------------------ Domaine ");
                 sb.Append(Name);
                 sb.AppendLine(" ------------------------");
@@ -115,5 +115,7 @@ namespace Kinetix.Tools.Common.Model
         public string CustomAnnotation { get; set; }
 
         public string CustomUsings { get; set; }
+
+        public string Stereotype { get; set; }
     }
 }

@@ -19,6 +19,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
     {
         private const string DomainCustomAnnotation = "a:ClientCheckExpression";
         private const string DomainCustomUsings = "a:ServerCheckExpression";
+        private const string DomainStereotype = "a:Stereotype";
 
         private const string NodeModel = "/Model/o:RootObject/c:Children/o:Model";
         private const string NodeNamespace = "/Model/o:RootObject/c:Children/o:Model/c:Packages";
@@ -93,8 +94,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         public OomParser(ICollection<string> modelFiles, string domainModelFile, ICollection<string> extModelFiles)
             : base(modelFiles)
         {
-            this._domainModelFile = domainModelFile;
-            this._extModelFiles = extModelFiles;
+            _domainModelFile = domainModelFile;
+            _extModelFiles = extModelFiles;
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private void ParseModelFile(string modelFile, bool domainsOnly = false, bool addToList = true)
         {
             DisplayMessage("Analyse du fichier " + modelFile);
-            using (FileStream stream = new FileStream(modelFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var stream = new FileStream(modelFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 _currentOom = new XmlDocument();
                 _currentOom.Load(stream);
@@ -166,8 +167,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             _currentNsManager.AddNamespace("c", "collection");
             _currentNsManager.AddNamespace("o", "object");
 
-            XmlNode modelNode = _currentOom.SelectSingleNode(NodeModel, _currentNsManager);
-            ModelRoot root = new ModelRoot()
+            var modelNode = _currentOom.SelectSingleNode(NodeModel, _currentNsManager);
+            var root = new ModelRoot()
             {
                 ModelFile = modelFile,
                 Label = ParserHelper.GetXmlValue(modelNode.SelectSingleNode(PropertyName, _currentNsManager)),
@@ -182,7 +183,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             if (!domainsOnly)
             {
                 DisplayMessage("--> Lecture des namespaces.");
-                XmlNode nmspacesNode = _currentOom.SelectSingleNode(NodeNamespace, _currentNsManager);
+                var nmspacesNode = _currentOom.SelectSingleNode(NodeNamespace, _currentNsManager);
                 BuildModelNamespaces(nmspacesNode, modelFile);
                 DisplayMessage("--> Lecture des héritages.");
                 BuildModelNamespaceGeneralizations(nmspacesNode, modelFile);
@@ -194,7 +195,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 _domainModelRoot = root;
                 // Hack relativement sale, pour ne pas avoir les warnings (Le domaine de la propriété [] n'existe pas) sans raison
                 // FIXME
-                foreach (ModelDomain domain in root.CreatedDomains)
+                foreach (var domain in root.CreatedDomains)
                 {
                     ModelDomainChecker.Instance.Check(domain);
                 }
@@ -223,13 +224,13 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             }
 
             // Chargement des tables d'autres bases (dépendances)
-            foreach (string modelFile in _extModelFiles)
+            foreach (var modelFile in _extModelFiles)
             {
                 ParseModelFile(modelFile, false, false);
             }
 
             // Chargement des tables et autres fichiers
-            foreach (string modelFile in ModelFiles)
+            foreach (var modelFile in ModelFiles)
             {
                 ParseModelFile(modelFile);
             }
@@ -264,13 +265,13 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             {
                 if (domainNode.Name == NodeShortcut)
                 {
-                    string domainCode = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyCode, _currentNsManager));
-                    ModelDomain domain = GetDomainByCode(domainCode);
+                    var domainCode = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyCode, _currentNsManager));
+                    var domain = GetDomainByCode(domainCode);
                     _currentModelRoot.AddDomainShortcut(domainNode.Attributes["Id"].Value, domain);
                 }
                 else
                 {
-                    ModelDomain domaine = new ModelDomain()
+                    var domaine = new ModelDomain()
                     {
                         Name = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(PropertyName, _currentNsManager)),
                         ModelFile = modelFile,
@@ -281,6 +282,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         PersistentPrecision = ParserHelper.GetXmlInt(domainNode.SelectSingleNode(PropertyPersistentPrecision, _currentNsManager)),
                         CustomAnnotation = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomAnnotation, _currentNsManager)),
                         CustomUsings = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainCustomUsings, _currentNsManager)),
+                        Stereotype = ParserHelper.GetXmlValue(domainNode.SelectSingleNode(DomainStereotype, _currentNsManager)),
 
                         Model = _currentModelRoot
                     };
@@ -302,7 +304,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 return _domainModelRoot.GetDomainByCode(domainCode);
             }
 
-            foreach (ModelRoot modelRoot in _modelRootList)
+            foreach (var modelRoot in _modelRootList)
             {
                 if (modelRoot.HasDomainByCode(domainCode))
                 {
@@ -323,7 +325,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         {
             foreach (XmlNode nmspaceNode in nmspacesNode.ChildNodes)
             {
-                ModelNamespace nmspace = new ModelNamespace()
+                var nmspace = new ModelNamespace()
                 {
                     Label = ParserHelper.GetXmlValue(nmspaceNode.SelectSingleNode(PropertyName, _currentNsManager)),
                     Name = ParserHelper.GetXmlValue(nmspaceNode.SelectSingleNode(PropertyCode, _currentNsManager)),
@@ -341,22 +343,22 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 _currentModelRoot.AddNamespace(nmspace);
             }
 
-            foreach (string nsName in _currentModelRoot.Namespaces.Keys)
+            foreach (var nsName in _currentModelRoot.Namespaces.Keys)
             {
-                ModelNamespace nmsp = _currentModelRoot.Namespaces[nsName];
-                foreach (ModelClass classe in nmsp.ClassList)
+                var nmsp = _currentModelRoot.Namespaces[nsName];
+                foreach (var classe in nmsp.ClassList)
                 {
-                    foreach (ModelProperty property in classe.PropertyList)
+                    foreach (var property in classe.PropertyList)
                     {
                         if (property.DataType != null && _regexICollection.IsMatch(property.DataType))
                         {
-                            Match match = _regexICollectionGenericClasse.Match(property.DataType);
+                            var match = _regexICollectionGenericClasse.Match(property.DataType);
                             if (match.Success)
                             {
-                                string innerType = match.Value.Substring(1, match.Value.Length - 2);
+                                var innerType = match.Value.Substring(1, match.Value.Length - 2);
                                 if (_classByNameMap.ContainsKey(innerType))
                                 {
-                                    ModelClass usingClasse = _classByNameMap[innerType];
+                                    var usingClasse = _classByNameMap[innerType];
                                     classe.AddUsing(usingClasse.Namespace);
                                 }
                             }
@@ -385,7 +387,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         {
             foreach (XmlNode nmspaceNode in nmspacesNode.ChildNodes)
             {
-                XmlNode associationsNodeList = nmspaceNode.SelectSingleNode(NodeAssociations, _currentNsManager);
+                var associationsNodeList = nmspaceNode.SelectSingleNode(NodeAssociations, _currentNsManager);
                 if (associationsNodeList != null)
                 {
                     foreach (XmlNode associationNode in associationsNodeList.ChildNodes)
@@ -395,16 +397,16 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             continue;
                         }
 
-                        string name = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyName, _currentNsManager));
-                        string code = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyCode, _currentNsManager));
-                        string comment = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyComment, _currentNsManager));
-                        string multiplicityA = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleMultiplicityA, _currentNsManager));
-                        string multiplicityB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleMultiplicityB, _currentNsManager));
-                        string roleAName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameA, _currentNsManager));
-                        string roleBName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameB, _currentNsManager));
-                        int navigabilityA = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityA, _currentNsManager)).GetValueOrDefault(0); // By default A is set to 0 (won't be present)
-                        int navigabilityB = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityB, _currentNsManager)).GetValueOrDefault(1); // By default B is set to 1 (won't be present)
-                        string initialValueB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyInitialValueB, _currentNsManager));
+                        var name = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyName, _currentNsManager));
+                        var code = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyCode, _currentNsManager));
+                        var comment = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyComment, _currentNsManager));
+                        var multiplicityA = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleMultiplicityA, _currentNsManager));
+                        var multiplicityB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleMultiplicityB, _currentNsManager));
+                        var roleAName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameA, _currentNsManager));
+                        var roleBName = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyRoleNameB, _currentNsManager));
+                        var navigabilityA = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityA, _currentNsManager)).GetValueOrDefault(0); // By default A is set to 0 (won't be present)
+                        var navigabilityB = ParserHelper.GetXmlInt(associationNode.SelectSingleNode(PropertyNavigabilityB, _currentNsManager)).GetValueOrDefault(1); // By default B is set to 1 (won't be present)
+                        var initialValueB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyInitialValueB, _currentNsManager));
                         if (string.IsNullOrWhiteSpace(initialValueB))
                         {
                             initialValueB = null;
@@ -428,14 +430,14 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                                 ex);
                         }
 
-                        ModelClass classA = classAssociationTab[0];
-                        ModelClass classB = classAssociationTab[1];
+                        var classA = classAssociationTab[0];
+                        var classB = classAssociationTab[1];
 
-                        string propertyIndicatorA = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyIndicatorA, _currentNsManager));
-                        string propertyIndicatorB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyIndicatorB, _currentNsManager));
-                        bool siAcomposeB = propertyIndicatorA != null && propertyIndicatorA == "C";
-                        bool siBcomposeA = propertyIndicatorA != null && propertyIndicatorB == "C";
-                        string typeAssociation = propertyIndicatorA ?? propertyIndicatorB;
+                        var propertyIndicatorA = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyIndicatorA, _currentNsManager));
+                        var propertyIndicatorB = ParserHelper.GetXmlValue(associationNode.SelectSingleNode(PropertyIndicatorB, _currentNsManager));
+                        var siAcomposeB = propertyIndicatorA != null && propertyIndicatorA == "C";
+                        var siBcomposeA = propertyIndicatorA != null && propertyIndicatorB == "C";
+                        var typeAssociation = propertyIndicatorA ?? propertyIndicatorB;
 
                         if (multiplicityA != Multiplicity01 && multiplicityA != Multiplicity11 && multiplicityA != Multiplicty0N && multiplicityA != Multiplicty1N)
                         {
@@ -449,7 +451,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             continue;
                         }
 
-                        bool multiplicityOk = false;
+                        var multiplicityOk = false;
                         if (multiplicityA == Multiplicty0N && (multiplicityB == Multiplicity01 || multiplicityB == Multiplicity11))
                         {
                             multiplicityOk = true;
@@ -529,11 +531,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             continue;
                         }
 
-                        bool isComposition = !string.IsNullOrEmpty(typeAssociation) && "C".Equals(typeAssociation);
+                        var isComposition = !string.IsNullOrEmpty(typeAssociation) && "C".Equals(typeAssociation);
                         if (isComposition)
                         {
                             // Si composition il faut traiter uniquement la cardinalité B et l'ajouter dans la classe A.
-                            ModelProperty property = ParserHelper.BuildClassCompositionProperty(classA, multiplicityB, roleAName, code, name);
+                            var property = ParserHelper.BuildClassCompositionProperty(classA, multiplicityB, roleAName, code, name);
                             property.Class = classB;
                             classB.AddProperty(property);
                             classB.AddUsing(classA.Namespace);
@@ -541,9 +543,9 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         }
                         else
                         {
-                            bool isTreated = false;
-                            bool associateBIntoA = false;
-                            bool associateAIntoB = false;
+                            var isTreated = false;
+                            var associateBIntoA = false;
+                            var associateAIntoB = false;
 
                             // For 0..1/1..1 & 1..1/1..0 the FK will only be on the 1..1 side
                             // For 0..1 / 0..1 the FK will only be on the side with the navigability property set
@@ -564,7 +566,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (associateBIntoA)
                             {
                                 // On ajoute la clé primaire de la classe B dans la classe A
-                                ModelProperty property = ParserHelper.BuildClassAssociationProperty(classB, classA, multiplicityA, roleAName, name);
+                                var property = ParserHelper.BuildClassAssociationProperty(classB, classA, multiplicityA, roleAName, name);
                                 if (classA.DataContract.IsPersistent && !classB.DataContract.IsPersistent)
                                 {
                                     RegisterError(Category.Error, "L'association [" + code + "] de multiplicité 0..1/1..1 entre la classe persistente [" + classA.Name + "] et la classe non persistente [" + classB.Name + "] n'est pas possible.");
@@ -580,7 +582,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (associateAIntoB)
                             {
                                 // On ajoute la clé primaire de la classe A dans la classe B
-                                ModelProperty property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name, initialValueB);
+                                var property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name, initialValueB);
                                 if (classB.DataContract.IsPersistent && !classA.DataContract.IsPersistent)
                                 {
                                     RegisterError(Category.Error, "L'association [" + code + "] de multiplicité 0..1/1..1 entre la classe persistente [" + classB.Name + "] et la classe non persistente [" + classA.Name + "] n'est pas possible.");
@@ -617,12 +619,12 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
 
             foreach (XmlNode nmspaceNode in nmspacesNode.ChildNodes)
             {
-                XmlNode generalizationsNode = nmspaceNode.SelectSingleNode(NodeGeneralizations, _currentNsManager);
+                var generalizationsNode = nmspaceNode.SelectSingleNode(NodeGeneralizations, _currentNsManager);
                 if (generalizationsNode != null)
                 {
                     foreach (XmlNode generalizationNode in generalizationsNode.ChildNodes)
                     {
-                        ModelClass[] classAssociationTab = GetModelClassAssociation(generalizationNode, modelFile);
+                        var classAssociationTab = GetModelClassAssociation(generalizationNode, modelFile);
                         classAssociationTab[1].ParentClass = classAssociationTab[0];
                         classAssociationTab[1].AddUsing(classAssociationTab[0].Namespace);
                     }
@@ -638,15 +640,15 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <returns>Les 2 classes concernées par l'association.</returns>
         private ModelClass[] GetModelClassAssociation(XmlNode associationNode, string modelFile)
         {
-            XmlNodeList object1NodeList = associationNode.SelectSingleNode(NodeObject1, _currentNsManager).ChildNodes;
-            XmlNode object1Node = object1NodeList[0]; // 1 seul noeud normalement
-            XmlNodeList object2NodeList = associationNode.SelectSingleNode(NodeObject2, _currentNsManager).ChildNodes;
-            XmlNode object2Node = object2NodeList[0]; // 1 seul noeud normalement
+            var object1NodeList = associationNode.SelectSingleNode(NodeObject1, _currentNsManager).ChildNodes;
+            var object1Node = object1NodeList[0]; // 1 seul noeud normalement
+            var object2NodeList = associationNode.SelectSingleNode(NodeObject2, _currentNsManager).ChildNodes;
+            var object2Node = object2NodeList[0]; // 1 seul noeud normalement
 
             if (object1Node != null && object2Node != null)
             {
-                ModelClass class1 = NodeShortcut.Equals(object1Node.Name) ? GetModelClassByShortcutId(object1Node.Attributes["Ref"].Value, modelFile) : _classByIdMap[modelFile + ":" + object1Node.Attributes["Ref"].Value];
-                ModelClass class2 = NodeShortcut.Equals(object2Node.Name) ? GetModelClassByShortcutId(object2Node.Attributes["Ref"].Value, modelFile) : _classByIdMap[modelFile + ":" + object2Node.Attributes["Ref"].Value];
+                var class1 = NodeShortcut.Equals(object1Node.Name) ? GetModelClassByShortcutId(object1Node.Attributes["Ref"].Value, modelFile) : _classByIdMap[modelFile + ":" + object1Node.Attributes["Ref"].Value];
+                var class2 = NodeShortcut.Equals(object2Node.Name) ? GetModelClassByShortcutId(object2Node.Attributes["Ref"].Value, modelFile) : _classByIdMap[modelFile + ":" + object2Node.Attributes["Ref"].Value];
                 return new ModelClass[] { class1, class2 };
             }
 
@@ -664,7 +666,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         {
             foreach (XmlNode classNode in nmspaceNode.SelectSingleNode(NodeClasses, _currentNsManager).SelectNodes(NodeClass, _currentNsManager))
             {
-                ModelClass classe = new ModelClass()
+                var classe = new ModelClass()
                 {
                     Label = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyName, _currentNsManager)),
                     Name = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyCode, _currentNsManager)),
@@ -680,13 +682,13 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     RegisterError(Category.Error, "Classe " + classe.Name + " : seuls les stéréotypes 'Reference' et 'Statique' sont acceptés.");
                 }
 
-                string persistence = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyClassPersitence, _currentNsManager));
-                bool isPersistent = string.IsNullOrEmpty(persistence) ? true : "T".Equals(persistence) ? false : true;
-                string persistentCode = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
+                var persistence = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyClassPersitence, _currentNsManager));
+                var isPersistent = string.IsNullOrEmpty(persistence) ? true : "T".Equals(persistence) ? false : true;
+                var persistentCode = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
 
                 if (isPersistent)
                 {
-                    string tableName = ParserHelper.ConvertCsharp2Bdd(classe.Name);
+                    var tableName = ParserHelper.ConvertCsharp2Bdd(classe.Name);
                     if (string.IsNullOrEmpty(persistentCode))
                     {
                         persistentCode = tableName;
@@ -709,7 +711,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 BuildClassProperties(classe, classNode, modelFile);
 
                 // Détermine la DefaultProperty de la classe
-                foreach (ModelProperty property in classe.PropertyList)
+                foreach (var property in classe.PropertyList)
                 {
                     if (!string.IsNullOrEmpty(property.Stereotype))
                     {
@@ -769,8 +771,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             // Mapping des racourcis vers les objets déclarés dans d'autres packages
             foreach (XmlNode shortcutNode in nmspaceNode.SelectSingleNode(NodeClasses, _currentNsManager).SelectNodes(NodeShortcut, _currentNsManager))
             {
-                string shortCutId = string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", modelFile, shortcutNode.Attributes["Id"].Value);
-                string propertyValue = ParserHelper.GetXmlValue(shortcutNode.SelectSingleNode(PropertyTargetId, _currentNsManager));
+                var shortCutId = string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", modelFile, shortcutNode.Attributes["Id"].Value);
+                var propertyValue = ParserHelper.GetXmlValue(shortcutNode.SelectSingleNode(PropertyTargetId, _currentNsManager));
                 if (_shortcutClassIdMap.ContainsKey(shortCutId))
                 {
                     Console.Error.WriteLine("Shortcut déja existant pour " + shortCutId + "/" + propertyValue);
@@ -988,26 +990,26 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
 
             // Identifiant de l'objet reférencant les clés primaires
             ICollection<string> pkIdList = new Collection<string>();
-            XmlNode pkNodes = classNode.SelectSingleNode(NodePrimaryKeys, _currentNsManager);
+            var pkNodes = classNode.SelectSingleNode(NodePrimaryKeys, _currentNsManager);
             if (pkNodes != null)
             {
-                XmlNodeList pkNodeList = pkNodes.ChildNodes;
+                var pkNodeList = pkNodes.ChildNodes;
                 foreach (XmlNode pkNode in pkNodeList)
                 {
                     pkIdList.Add(pkNode.Attributes["Ref"].Value);
                 }
 
                 // Récupération des identifiants des objets oom clés primaires
-                XmlNode identifiersNode = classNode.SelectSingleNode(NodeIdentifiers, _currentNsManager);
-                XmlNodeList identifierNodeList = identifiersNode.ChildNodes;
+                var identifiersNode = classNode.SelectSingleNode(NodeIdentifiers, _currentNsManager);
+                var identifierNodeList = identifiersNode.ChildNodes;
                 foreach (XmlNode identifierNode in identifierNodeList)
                 {
                     if (pkIdList.Contains(identifierNode.Attributes["Id"].Value))
                     {
-                        XmlNode identifierAttrbutesNode = identifierNode.SelectSingleNode(NodeIdentifiersAttributes, _currentNsManager);
+                        var identifierAttrbutesNode = identifierNode.SelectSingleNode(NodeIdentifiersAttributes, _currentNsManager);
                         if (identifierAttrbutesNode != null && identifierAttrbutesNode.HasChildNodes)
                         {
-                            XmlNodeList identifierAttrbutesNodeList = identifierAttrbutesNode.ChildNodes;
+                            var identifierAttrbutesNodeList = identifierAttrbutesNode.ChildNodes;
                             foreach (XmlNode pkIdentifierNode in identifierAttrbutesNodeList)
                             {
                                 ret.Add(pkIdentifierNode.Attributes["Ref"].Value);
@@ -1029,18 +1031,18 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         [SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", Justification = "Non internationalisé")]
         private void BuildClassProperties(ModelClass classe, XmlNode classNode, string modelFile)
         {
-            ICollection<string> pkRefList = GetClassPrimaryKeysReferenceList(classNode);
-            XmlNode attributesNode = classNode.SelectSingleNode(NodeAttributes, _currentNsManager);
+            var pkRefList = GetClassPrimaryKeysReferenceList(classNode);
+            var attributesNode = classNode.SelectSingleNode(NodeAttributes, _currentNsManager);
             if (attributesNode != null)
             {
                 foreach (XmlNode propertyNode in attributesNode.ChildNodes)
                 {
-                    string propertyId = propertyNode.Attributes["Id"].Value;
-                    string persistent = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistent, _currentNsManager));
-                    string multiplicity = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyMultiplicity, _currentNsManager));
-                    string defaultValue = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyDefaultValue, _currentNsManager));
+                    var propertyId = propertyNode.Attributes["Id"].Value;
+                    var persistent = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistent, _currentNsManager));
+                    var multiplicity = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyMultiplicity, _currentNsManager));
+                    var defaultValue = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyDefaultValue, _currentNsManager));
 
-                    ModelProperty property = new ModelProperty()
+                    var property = new ModelProperty()
                     {
                         Name = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyCode, _currentNsManager)),
                         Comment = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyComment, _currentNsManager)),
@@ -1059,7 +1061,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         }
                     };
 
-                    foreach (ModelAnnotation annotation in this.ReadAnnotations(propertyNode))
+                    foreach (var annotation in ReadAnnotations(propertyNode))
                     {
                         if (annotation.Name == "Metadata")
                         {
@@ -1099,10 +1101,10 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         continue;
                     }
 
-                    string dataMemberName = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
+                    var dataMemberName = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
                     if (property.IsPersistent)
                     {
-                        string columnName = ParserHelper.ConvertCsharp2Bdd(property.Name);
+                        var columnName = ParserHelper.ConvertCsharp2Bdd(property.Name);
                         if (string.IsNullOrEmpty(dataMemberName))
                         {
                             if (property.DataDescription.IsPrimaryKey)
@@ -1145,13 +1147,13 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <returns>Métadonnées.</returns>
         private IEnumerable<ModelAnnotation> ReadAnnotations(XmlNode node)
         {
-            List<ModelAnnotation> annotations = new List<ModelAnnotation>();
-            XmlNode annotationsNode = node.SelectSingleNode("c:Annotations", _currentNsManager);
+            var annotations = new List<ModelAnnotation>();
+            var annotationsNode = node.SelectSingleNode("c:Annotations", _currentNsManager);
             if (annotationsNode != null)
             {
                 foreach (XmlNode annotationNode in annotationsNode.SelectNodes("o:Annotation", _currentNsManager))
                 {
-                    string name = ParserHelper.GetXmlValue(annotationNode.SelectSingleNode("a:Annotation.Name", _currentNsManager));
+                    var name = ParserHelper.GetXmlValue(annotationNode.SelectSingleNode("a:Annotation.Name", _currentNsManager));
                     annotations.Add(new ModelAnnotation()
                     {
                         Name = name,
@@ -1170,7 +1172,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <param name="node">Noeud XML.</param>
         private void ReadAnnotations(ModelClass classe, XmlNode node)
         {
-            foreach (ModelAnnotation annotation in this.ReadAnnotations(node))
+            foreach (var annotation in ReadAnnotations(node))
             {
                 if (annotation.Name == "Metadata")
                 {
@@ -1223,10 +1225,10 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 throw new ArgumentNullException("propertyNode");
             }
 
-            XmlNode attributeDomainsNode = propertyNode.SelectSingleNode(NodeAttributeDomain, _currentNsManager);
+            var attributeDomainsNode = propertyNode.SelectSingleNode(NodeAttributeDomain, _currentNsManager);
             if (attributeDomainsNode != null)
             {
-                XmlNodeList attributeDomainNodeList = attributeDomainsNode.ChildNodes;
+                var attributeDomainNodeList = attributeDomainsNode.ChildNodes;
                 if (attributeDomainNodeList.Count == 1)
                 {
                     return _currentModelRoot.UsableDomains[attributeDomainNodeList.Item(0).Attributes["Ref"].Value];
@@ -1244,7 +1246,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <returns>La classe correspondante.</returns>
         private ModelClass GetModelClassByShortcutId(string shortcutId, string modelFile)
         {
-            string classTargetId = _shortcutClassIdMap[modelFile + "\\" + shortcutId];
+            var classTargetId = _shortcutClassIdMap[modelFile + "\\" + shortcutId];
             return classTargetId == null ? null : _classByObjectIdMap[classTargetId];
         }
     }
