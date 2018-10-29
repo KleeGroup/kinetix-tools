@@ -56,7 +56,12 @@ namespace Kinetix.Tools.Common
         {
             if (type.IsGenericType)
             {
-                if (type.Name == "ICollection" || type.Name == "IEnumerable")
+                if (type.Name == "IDictionary")
+                {
+                    return $"{{[key: string]: {CSharpToTSType(type.TypeArguments.Last() as INamedTypeSymbol)}}}";
+                }
+
+                if (type.AllInterfaces.Any(i => i.Name == "IEnumerable"))
                 {
                     return $"{CSharpToTSType(type.TypeArguments.First() as INamedTypeSymbol)}[]";
                 }
@@ -64,11 +69,6 @@ namespace Kinetix.Tools.Common
                 if (type.Name == "Nullable" || type.Name == "ActionResult")
                 {
                     return CSharpToTSType(type.TypeArguments.First() as INamedTypeSymbol);
-                }
-
-                if (type.Name == "IDictionary")
-                {
-                    return $"{{[key: string]: {CSharpToTSType(type.TypeArguments.Last() as INamedTypeSymbol)}}}";
                 }
 
                 if (type.Name == "QueryInput")
@@ -156,27 +156,33 @@ namespace Kinetix.Tools.Common
         /// <param name="text">Le texte en entrée.</param>
         /// <param name="upperStart">Texte commençant par une majuscule.</param>
         /// <returns>Le texte en sortie.</returns>
-        public static string ToDashCase(this string text, bool upperStart = true) =>
-            Regex.Replace(text, @"\p{Lu}", m => "-" + m.Value)
+        public static string ToDashCase(this string text, bool upperStart = true)
+        {
+            return Regex.Replace(text, @"\p{Lu}", m => "-" + m.Value)
                 .ToLowerInvariant()
                 .Substring(upperStart ? 1 : 0)
                 .Replace("/-", "/");
+        }
 
         /// <summary>
         /// Met la première lettre d'un string en minuscule.
         /// </summary>
         /// <param name="text">Le texte en entrée.</param>
         /// <returns>Le texte en sortie.</returns>
-        public static string ToFirstLower(this string text) =>
-           char.ToLower(text[0]) + text.Substring(1);
+        public static string ToFirstLower(this string text)
+        {
+            return char.ToLower(text[0]) + text.Substring(1);
+        }
 
         /// <summary>
         /// Met la première lettre d'un string en majuscule.
         /// </summary>
         /// <param name="text">Le texte en entrée.</param>
         /// <returns>Le texte en sortie.</returns>
-        public static string ToFirstUpper(this string text) =>
-           char.ToUpper(text[0]) + text.Substring(1);
+        public static string ToFirstUpper(this string text)
+        {
+            return char.ToUpper(text[0]) + text.Substring(1);
+        }
 
         /// <summary>
         /// Passe le texte donnée en camelCase.
@@ -185,17 +191,11 @@ namespace Kinetix.Tools.Common
         /// <returns>Le texte en camelCase.</returns>
         public static string ToNamespace(string namespaceName)
         {
-            if (namespaceName.EndsWith("DataContract", StringComparison.Ordinal))
-            {
-                return namespaceName.Substring(0, namespaceName.Length - 12).ToFirstLower();
-            }
-
-            if (namespaceName.EndsWith("Contract", StringComparison.Ordinal))
-            {
-                return namespaceName.Substring(0, namespaceName.Length - 8).ToFirstLower();
-            }
-
-            return namespaceName.ToFirstLower();
+            return namespaceName.EndsWith("DataContract", StringComparison.Ordinal)
+                ? namespaceName.Substring(0, namespaceName.Length - 12).ToFirstLower()
+                : namespaceName.EndsWith("Contract", StringComparison.Ordinal)
+                    ? namespaceName.Substring(0, namespaceName.Length - 8).ToFirstLower()
+                    : namespaceName.ToFirstLower();
         }
     }
 }
