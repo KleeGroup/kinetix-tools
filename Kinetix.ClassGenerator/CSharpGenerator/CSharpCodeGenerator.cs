@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
+using Kinetix.Tools.Common.Parameters;
 
 namespace Kinetix.ClassGenerator.CSharpGenerator
 {
-    using static CodeUtils;
+    using static CSharpUtils;
 
     /// <summary>
     /// Générateur de code C#.
@@ -15,15 +16,19 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// <summary>
         /// Génère le code des classes.
         /// </summary>
+        /// <param name="rootNamespace">Namespace de l'application.</param>
+        /// <param name="parameters">Paramètres génération C#</param>
         /// <param name="modelRootList">Liste des modeles.</param>
-        public static void Generate(ICollection<ModelRoot> modelRootList)
+        public static void Generate(string rootNamespace, CSharpParameters parameters, ICollection<ModelRoot> modelRootList)
         {
             if (modelRootList == null)
             {
                 throw new ArgumentNullException(nameof(modelRootList));
             }
 
-            DbContextGenerator.Generate(modelRootList);
+            new DbContextGenerator(rootNamespace, parameters).Generate(modelRootList);
+
+            var classGenerator = new CSharpClassGenerator(rootNamespace, parameters);
 
             foreach (ModelRoot model in modelRootList)
             {
@@ -33,22 +38,22 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     {
                         if (!Directory.Exists(ns.Name))
                         {
-                            var directoryForModelClass = GetDirectoryForModelClass(ns.HasPersistentClasses, model.Name, ns.Name);
-                            var projectDirectory = GetDirectoryForProject(ns.HasPersistentClasses, model.Name, ns.Name);
+                            var directoryForModelClass = GetDirectoryForModelClass(parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
+                            var projectDirectory = GetDirectoryForProject(parameters.OutputDirectory, ns.HasPersistentClasses, model.Name, ns.Name);
                             var csprojFileName = Path.Combine(projectDirectory, model.Name + "." + ns.Name + ".csproj");
 
                             foreach (ModelClass item in ns.ClassList)
                             {
-                                var currentDirectory = GetDirectoryForModelClass(item.DataContract.IsPersistent, model.Name, item.Namespace.Name);
+                                var currentDirectory = GetDirectoryForModelClass(parameters.OutputDirectory, item.DataContract.IsPersistent, model.Name, item.Namespace.Name);
                                 Directory.CreateDirectory(currentDirectory);
-                                CSharpClassGenerator.Generate(item, ns);
+                                classGenerator.Generate(item, ns);
                             }
                         }
                     }
                 }
             }
 
-            ReferenceAccessorGenerator.Generate(modelRootList);
+            new ReferenceAccessorGenerator(rootNamespace, parameters).Generate(modelRootList);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Kinetix.ClassGenerator.Model;
+using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.Checker
 {
