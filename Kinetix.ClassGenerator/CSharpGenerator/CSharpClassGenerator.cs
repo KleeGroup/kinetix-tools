@@ -534,7 +534,16 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         {
             w.WriteLine();
             w.WriteSummary(2, "Type énuméré présentant les noms des colonnes en base.");
-            w.WriteLine(2, "public enum Cols");
+
+            if (item.ParentClass == null)
+            {
+                w.WriteLine(2, "public enum Cols");
+            }
+            else
+            {
+                w.WriteLine(2, "public new enum Cols");
+            }
+
             w.WriteLine(2, "{");
 
             var cols = item.PersistentPropertyList.Where(p => !p.IsParentId).ToList();

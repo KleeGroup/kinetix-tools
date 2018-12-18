@@ -57,7 +57,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
             }
 
             GenerateReferenceAccessorsInterface(classList, nameSpace.Name);
-            GenerateReferenceAccessorsImplementation(classList.Where(x => x.DisableAccessorImplementation == false), nameSpace.Name);
+            GenerateReferenceAccessorsImplementation(classList.Where(x => x.DisableAccessorImplementation == false).ToList(), nameSpace.Name);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
         /// </summary>
         /// <param name="classList">Liste de ModelClass.</param>
         /// <param name="nameSpaceName">Namespace.</param>
-        private void GenerateReferenceAccessorsImplementation(IEnumerable<ModelClass> classList, string nameSpaceName)
+        private void GenerateReferenceAccessorsImplementation(List<ModelClass> classList, string nameSpaceName)
         {
             var isBroker = _parameters.DbContextProjectPath == null;
             var nameSpacePrefix = nameSpaceName.Replace("DataContract", string.Empty);
@@ -159,16 +159,21 @@ namespace Kinetix.ClassGenerator.CSharpGenerator
                     w.WriteLine(2, "{");
                     w.WriteLine(3, "_dbContext = dbContext;");
                     w.WriteLine(2, "}");
+                    w.WriteLine();
                 }
 
                 foreach (var classe in classList)
                 {
                     var serviceName = "Load" + (isBroker ? $"{classe.Name}List" : Pluralize(classe.Name));
-                    w.WriteLine();
                     w.WriteLine(2, "/// <inheritdoc cref=\"" + interfaceName + "." + serviceName + "\" />");
                     w.WriteLine(2, "public ICollection<" + classe.Name + "> " + serviceName + "()\r\n{");
                     w.WriteLine(3, LoadReferenceAccessorBody(isBroker, classe.Name, classe.DefaultOrderModelProperty));
                     w.WriteLine(2, "}");
+
+                    if (classList.IndexOf(classe) != classList.Count - 1)
+                    {
+                        w.WriteLine();
+                    }
                 }
 
                 w.WriteLine(1, "}");
