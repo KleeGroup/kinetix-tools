@@ -215,7 +215,7 @@ namespace Kinetix.SpaServiceGenerator
 
             if (returnTypes.Any(type => type?.Name == "AutocompleteResult"))
             {
-                imports.Add(("AutocompleteResult", "focus4/components/autocomplete"));
+                imports.Add(("AutocompleteResult", "focus4/components"));
             }
 
             var localImports = types.Except(referenceTypes).Select(type =>
