@@ -81,15 +81,15 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("            type: ");
                 if (IsArray(property))
                 {
-                    Write("\"list\" as \"list\"");
+                    Write("\"list\"");
                 }
                 else if (property.IsFromComposition)
                 {
-                    Write("\"object\" as \"object\"");
+                    Write("\"object\"");
                 }
                 else
                 {
-                    Write("\"field\" as \"field\"");
+                    Write("\"field\"");
                 }
 
                 Write(",\r\n");
@@ -131,7 +131,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("\r\n");
             }
 
-            Write("    }\r\n};\r\n");
+            Write("    }\r\n} as const;\r\n");
 
             if (Model.IsReference)
             {
@@ -143,7 +143,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write(Model.PrimaryKey.First().Name.ToFirstLower());
                 Write("\", labelKey: \"");
                 Write(Model.DefaultProperty?.ToFirstLower() ?? "libelle");
-                Write("\"};\r\n");
+                Write("\"} as const;\r\n");
             }
 
             return GenerationEnvironment.ToString();

@@ -53,7 +53,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write(reference.PrimaryKey.First().Name.ToFirstLower());
                 Write("\", labelKey: \"");
                 Write(reference.DefaultProperty?.ToFirstLower() ?? "libelle");
-                Write("\"};\r\n");
+                Write("\"} as const;\r\n");
             }
             return GenerationEnvironment.ToString();
         }
