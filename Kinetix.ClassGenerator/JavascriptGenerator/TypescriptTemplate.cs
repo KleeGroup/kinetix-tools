@@ -81,7 +81,14 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("            type: ");
                 if (IsArray(property))
                 {
-                    Write("\"list\"");
+                    if (GetReferencedType(property) != Model.Name)
+                    {
+                        Write("\"list\"");
+                    }
+                    else
+                    {
+                        Write("\"recursive-list\"");
+                    }
                 }
                 else if (property.IsFromComposition)
                 {
@@ -113,7 +120,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     Write(property.Name.ToFirstLower());
                     Write("\"\r\n");
                 }
-                else
+                else if (GetReferencedType(property) != Model.Name)
                 {
                     Write("            entity: ");
                     Write(GetReferencedType(property));
@@ -157,7 +164,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         private IEnumerable<string> GetDomainList()
         {
             return Model.PropertyList
-                .Select(property => property?.DataDescription?.Domain?.Code)
+                .Select(property => GetDomain(property))
                 .Where(domain => domain != null)
                 .Distinct()
                 .OrderBy(x => x);
@@ -172,7 +179,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             var types = Model.PropertyList
                 .Where(property =>
                     (property.DataDescription?.ReferenceClass?.FullyQualifiedName.StartsWith(RootNamespace, StringComparison.Ordinal) ?? false)
-                 && property.DataType != "string" && property.DataType != "int?")
+                    && property.DataType != "string" && property.DataType != "int?"
+                    && GetReferencedType(property) != Model.Name)
                 .Select(property => property.DataDescription?.ReferenceClass?.FullyQualifiedName);
 
             string parentClassName = null;
