@@ -105,8 +105,29 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 {
                     Write("            name: \"");
                     Write(property.Name.ToFirstLower());
-                    Write("\",\r\n            fieldType: {} as ");
-                    Write(TSUtils.CSharpToTSType(property));
+                    Write("\",\r\n            fieldType: ");
+                    var propType = TSUtils.CSharpToTSType(property);
+                    if (propType == "string")
+                    {
+                        Write("\"string\"");
+                    }
+                    else if (propType == "boolean")
+                    {
+                        Write("\"boolean\"");
+                    }
+                    else if (propType == "number")
+                    {
+                        Write("\"number\"");
+                    }
+                    else if (propType.EndsWith("Code"))
+                    {
+                        Write($"\"string\" as {propType}");
+                    }
+                    else
+                    {
+                        Write($"{{}} as {propType}");
+                    }
+
                     Write(",\r\n");
                     Write("            domain: ");
                     Write(GetDomain(property));
