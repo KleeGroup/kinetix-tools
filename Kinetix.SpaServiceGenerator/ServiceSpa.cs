@@ -136,26 +136,6 @@ namespace Kinetix.SpaServiceGenerator
         }
 
         /// <summary>
-        /// Vérifie que le type est un array.
-        /// </summary>
-        /// <param name="type">Type.</param>
-        /// <returns>Oui / Non.</returns>
-        private static bool IsArray(INamedTypeSymbol type)
-        {
-            return type.IsGenericType && (type.Name == "ICollection" || type.Name == "IEnumerable");
-        }
-
-        /// <summary>
-        /// Vérifie que le type est une primitive.
-        /// </summary>
-        /// <param name="type">Type.</param>
-        /// <returns>Oui / Non.</returns>
-        private static bool IsPrimitive(INamedTypeSymbol type)
-        {
-            return type.SpecialType != SpecialType.None;
-        }
-
-        /// <summary>
         /// Récupère la liste d'imports de types pour les services.
         /// </summary>
         /// <returns>La liste d'imports (type, chemin du module).</returns>
@@ -188,17 +168,12 @@ namespace Kinetix.SpaServiceGenerator
                             .AttributeLists.SelectMany(l => l.Attributes)
                             .Any(attr => attr.Name.ToString() == "Reference");
 
-                        if (!hasRefAttribute)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            return !classDecl
+                        return !hasRefAttribute
+                            ? false
+                            : !classDecl
                                 .Members
                                 .OfType<PropertyDeclarationSyntax>()
                                 .Any(p => p.Identifier.ToString() == "Id");
-                        }
                     }))
                 .Distinct();
 
@@ -219,26 +194,33 @@ namespace Kinetix.SpaServiceGenerator
             }
 
             var localImports = types.Except(referenceTypes).Select(type =>
-            {
-                var fixedProjectName = $"{ProjectName.Substring(0, 1).ToUpper()}{ProjectName.Substring(1).ToLowerInvariant()}";
-
-                var module = type.ContainingNamespace.ToString()
-                    .Replace($"{fixedProjectName}.", string.Empty)
-                    .Replace("DataContract", string.Empty)
-                    .Replace("Contract", string.Empty)
-                    .Replace(".", "/")
-                    .ToDashCase();
-
-                return (type.Name, Path: $"{definitionPath}/{module}/{type.Name.ToDashCase()}");
-            }).Distinct();
+                 (type.Name, Path: $"{definitionPath}/{GetModuleName(type)}/{type.Name.ToDashCase()}"))
+            .Distinct();
 
             if (referenceTypes.Any())
             {
-                localImports = localImports.Concat(new[] { (string.Join(", ", referenceTypes.Select(t => t.Name).OrderBy(x => x)), $"{definitionPath}/references") });
+                var referenceTypeMap = referenceTypes.GroupBy(t => GetModuleName(t));
+                foreach (var refModule in referenceTypeMap)
+                {
+                    localImports = localImports.Concat(new[] { (string.Join(", ", refModule.Select(t => t.Name).OrderBy(x => x)), $"{definitionPath}/{refModule.Key}/references") });
+                }
             }
 
             imports.AddRange(localImports.OrderBy(i => i.Path));
             return imports;
+        }
+
+        private string GetModuleName(INamedTypeSymbol type)
+        {
+            var fixedProjectName = $"{ProjectName.Substring(0, 1).ToUpper()}{ProjectName.Substring(1).ToLowerInvariant()}";
+
+            var module = type.ContainingNamespace.ToString()
+                .Replace($"{fixedProjectName}.", string.Empty)
+                .Replace("DataContract", string.Empty)
+                .Replace("Contract", string.Empty)
+                .Replace(".", "/")
+                .ToDashCase();
+            return module;
         }
 
         /// <summary>
@@ -269,12 +251,7 @@ namespace Kinetix.SpaServiceGenerator
 
         private string GetModulePathPrefix(string module, int count)
         {
-            if (count == 0)
-            {
-                return $"./{module}";
-            }
-
-            return $"{string.Join(string.Empty, Enumerable.Range(0, count).Select(_ => "../"))}{module}";
+            return count == 0 ? $"./{module}" : $"{string.Join(string.Empty, Enumerable.Range(0, count).Select(_ => "../"))}{module}";
         }
     }
 }
