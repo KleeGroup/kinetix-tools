@@ -19,10 +19,5 @@
         /// If should generate entities in JS.
         /// </summary>
         public bool IsGenerateEntities { get; set; } = true;
-
-        /// <summary>
-        /// Génération de modèle pour Focus4 v8.x.
-        /// </summary>
-        public bool Focus4v8 { get; set; } = false;
     }
 }

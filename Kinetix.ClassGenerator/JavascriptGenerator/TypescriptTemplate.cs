@@ -22,11 +22,6 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         public string RootNamespace { get; set; }
 
         /// <summary>
-        /// Génération de modèle pour Focus4 v8.x.
-        /// </summary>
-        public bool Focus4v8 { get; set; }
-
-        /// <summary>
         /// Create the template output
         /// </summary>
         public virtual string TransformText()
@@ -34,46 +29,10 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera per" +
                     "due.\r\n*/\r\n\r\n");
 
-            if (!Focus4v8)
-            {
-                Write("import {EntityToType, StoreNode} from \"focus4/entity\";");
-            }
-            else
-            {
-                Write("/* tslint:disable */\r\n");
-                Write("import {");
-
-                var entityImports = new List<string>();
-
-                if (!Model.PropertyList.All(p => IsArray(p) || p.IsFromComposition))
-                {
-                    entityImports.Add("EntityField");
-                }
-
-                if (Model.PropertyList.Any(p => IsArray(p)))
-                {
-                    entityImports.Add("StoreListNode");
-                }
-
-                if (Model.ParentClass == null)
-                {
-                    entityImports.Add("StoreNode");
-                }
-
-                Write(string.Join(", ", entityImports));
-                Write("} from \"focus4/entity\";");
-            }
-
+            Write("import {EntityToType, StoreNode} from \"focus4/entity\";");
             Write("\r\nimport {");
             Write(string.Join(", ", GetDomainList()));
-            if (!Focus4v8)
-            {
-                Write("} from \"../../domains\";\r\n");
-            }
-            else
-            {
-                Write("} from \"../domains\";\r\n");
-            }
+            Write("} from \"../../domains\";\r\n");
 
             var imports = GetImportList();
             foreach (var import in imports)
@@ -91,99 +50,15 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             var properties = Model.PropertyList.Where(p => !p.IsParentId);
 
-            if (!Focus4v8)
-            {
-                Write("\r\nexport type ");
-                Write(Model.Name);
-                Write(" = EntityToType<typeof ");
-                Write(Model.Name);
-                Write("Entity>;\r\nexport type ");
-                Write(Model.Name);
-                Write("Node = StoreNode<typeof ");
-                Write(Model.Name);
-                Write("Entity>;\r\n\r\n");
-            }
-            else
-            {
-                Write("\r\nexport interface ");
-                Write(Model.Name);
-                if (Model.ParentClass != null)
-                {
-                    Write($" extends {Model.ParentClass.Name}");
-                }
-                Write(" {\r\n");
-
-                foreach (var property in properties)
-                {
-                    Write("    ");
-                    Write(property.Name.ToFirstLower());
-                    Write(property.DataMember.IsRequired || property.IsPrimaryKey || IsArray(property) || property.IsFromComposition ? string.Empty : "?");
-                    Write(": ");
-                    if (IsArray(property))
-                    {
-                        Write(property.DataDescription.ReferenceClass.Name);
-                        Write("[]");
-                    }
-                    else if (property.IsFromComposition)
-                    {
-                        Write(property.DataDescription.ReferenceClass.Name);
-                    }
-                    else
-                    {
-                        Write(TSUtils.CSharpToTSType(property));
-                    }
-                    Write(";\r\n");
-                }
-
-                Write("}\r\n\r\nexport interface ");
-                Write(Model.Name);
-                if (Model.ParentClass == null)
-                {
-                    Write("Node extends StoreNode<");
-                    Write(Model.Name);
-                    Write("> {\r\n");
-                }
-                else
-                {
-                    Write($"Node extends {Model.ParentClass.Name}Node {{\r\n");
-                }
-
-                foreach (var property in properties)
-                {
-                    Write("    ");
-                    Write(property.Name.ToFirstLower());
-                    Write(": ");
-
-                    if (IsArray(property))
-                    {
-                        Write("StoreListNode<");
-                        Write(property.DataDescription.ReferenceClass.Name);
-                        Write("Node>");
-                    }
-                    else if (property.IsFromComposition)
-                    {
-                        Write(property.DataDescription.ReferenceClass.Name);
-                        Write("Node");
-                    }
-                    else
-                    {
-                        Write("EntityField<");
-                        Write(TSUtils.CSharpToTSType(property));
-                        Write(", typeof ");
-                        Write(GetDomain(property));
-                        Write(">");
-                    }
-
-                    Write(";\r\n");
-                }
-
-                if (Model.ParentClass != null)
-                {
-                    Write($"    set(config: Partial<{Model.Name}>): void;\r\n");
-                }
-
-                Write("}\r\n\r\n");
-            }
+            Write("\r\nexport type ");
+            Write(Model.Name);
+            Write(" = EntityToType<typeof ");
+            Write(Model.Name);
+            Write("Entity>;\r\nexport type ");
+            Write(Model.Name);
+            Write("Node = StoreNode<typeof ");
+            Write(Model.Name);
+            Write("Entity>;\r\n\r\n");
 
             Write("export const ");
             Write(Model.Name);
@@ -203,12 +78,6 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("        ");
                 Write(property.Name.ToFirstLower());
                 Write(": {\r\n");
-
-                if (Focus4v8 && GetDomain(property) != null)
-                {
-                    Write($"            name: \"{property.Name.ToFirstLower()}\",\r\n");
-                }
-
                 Write("            type: ");
                 if (IsArray(property))
                 {
@@ -227,26 +96,16 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
                 if (GetDomain(property) != null)
                 {
-                    if (!Focus4v8)
-                    {
-                        Write("            name: \"");
-                        Write(property.Name.ToFirstLower());
-                        Write("\",\r\n            fieldType: {} as ");
-                        Write(TSUtils.CSharpToTSType(property));
-                        Write(",\r\n");
-                    }
+                    Write("            name: \"");
+                    Write(property.Name.ToFirstLower());
+                    Write("\",\r\n            fieldType: {} as ");
+                    Write(TSUtils.CSharpToTSType(property));
+                    Write(",\r\n");
                     Write("            domain: ");
                     Write(GetDomain(property));
                     Write(",\r\n            isRequired: ");
                     Write((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString().ToFirstLower());
-                    if (!Focus4v8)
-                    {
-                        Write(",\r\n            label: \"");
-                    }
-                    else
-                    {
-                        Write(",\r\n            translationKey: \"");
-                    }
+                    Write(",\r\n            label: \"");
                     Write(TSUtils.ToNamespace(Model.Namespace.Name));
                     Write(".");
                     Write(Model.Name.ToFirstLower());
@@ -256,18 +115,9 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 }
                 else
                 {
-                    if (!Focus4v8)
-                    {
-                        Write("            entity: ");
-                        Write(GetReferencedType(property));
-                        Write("Entity");
-                    }
-                    else
-                    {
-                        Write("            entityName: ");
-                        Write($"\"{GetReferencedType(property).ToFirstLower()}\"");
-                    }
-
+                    Write("            entity: ");
+                    Write(GetReferencedType(property));
+                    Write("Entity");
                     Write("\r\n");
                 }
 
@@ -283,7 +133,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             Write("    }\r\n};\r\n");
 
-            if (Model.IsReference && !Focus4v8)
+            if (Model.IsReference)
             {
                 Write("\r\nexport const ");
                 Write(Model.Name.ToFirstLower());
@@ -339,26 +189,31 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 var module = GetModuleName(type);
                 var name = type.Split('.').Last();
 
-                module = module == currentModule 
-                    ? $"." 
+                module = module == currentModule
+                    ? $"."
                     : $"../{module}";
 
                 return (
-                    import: Focus4v8 
-                        ? Model.ParentClass != null && Model.ParentClass.Name == name ? $"{name}, {name}Node, {name}Entity" : $"{name}, {name}Node" 
-                        : $"{name}Entity", 
+                    import: $"{name}Entity",
                     path: $"{module}/{name.ToDashCase()}");
             }).Distinct().ToList();
 
             var references = Model.PropertyList
                 .Where(property => property.DataDescription?.ReferenceClass != null && property.DataType == "string" && property.DataDescription.ReferenceClass.IsReference)
-                .Select(property => $"{property.DataDescription.ReferenceClass.Name}Code")
-                .Distinct()
-                .OrderBy(x => x);
+                .Select(property => (Code: $"{property.DataDescription.ReferenceClass.Name}Code", property.DataDescription.ReferenceClass.FullyQualifiedName))
+                .Distinct();
 
             if (references.Any())
             {
-                imports.Add((string.Join(", ", references), Focus4v8 ? "../references" : "./references"));
+                var referenceTypeMap = references.GroupBy(t => GetModuleName(t.FullyQualifiedName));
+                foreach (var refModule in referenceTypeMap)
+                {
+                    var module = refModule.Key == currentModule
+                    ? $"."
+                    : $"../{refModule.Key}";
+
+                    imports.Add((string.Join(", ", refModule.Select(r => r.Code).OrderBy(x => x)), $"{module}/references"));
+                }
             }
 
             return imports.OrderBy(i => i.path);
@@ -379,24 +234,14 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
         private string GetReferencedType(ModelProperty property)
         {
-            return GetDomain(property) != null 
-                ? null 
+            return GetDomain(property) != null
+                ? null
                 : property?.DataDescription?.ReferenceClass?.Name;
         }
 
         private bool IsArray(ModelProperty property)
         {
             return property.IsCollection && property.DataDescription?.Domain?.DataType == null;
-        }
-
-        /// <summary>
-        /// Transforme une liste de constantes en type Typescript.
-        /// </summary>
-        /// <param name="constValues">La liste de constantes.</param>
-        /// <returns>Le type de sorte.</returns>
-        private string ToUnion(IEnumerable<string> constValues)
-        {
-            return string.Join(" | ", constValues);
         }
     }
 }

@@ -17,21 +17,11 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         public IEnumerable<ModelClass> References { get; set; }
 
         /// <summary>
-        /// Générer pour Focus4 v8.x.
-        /// </summary>
-        public bool Focus4v8 { get; set; }
-
-        /// <summary>
         /// Create the template output
         /// </summary>
         public string TransformText()
         {
             Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera perdue.\r\n*/\r\n");
-
-            if (Focus4v8)
-            {
-                Write("\r\n/* tslint:disable */\r\n");
-            }
 
             foreach (var reference in References)
             {
@@ -55,18 +45,15 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
                 Write("}\r\n");
 
-                if (!Focus4v8)
-                {
-                    Write("export const ");
-                    Write(reference.Name.ToFirstLower());
-                    Write(" = {type: {} as ");
-                    Write(reference.Name);
-                    Write(", valueKey: \"");
-                    Write(reference.PrimaryKey.First().Name.ToFirstLower());
-                    Write("\", labelKey: \"");
-                    Write(reference.DefaultProperty?.ToFirstLower() ?? "libelle");
-                    Write("\"};\r\n");
-                }
+                Write("export const ");
+                Write(reference.Name.ToFirstLower());
+                Write(" = {type: {} as ");
+                Write(reference.Name);
+                Write(", valueKey: \"");
+                Write(reference.PrimaryKey.First().Name.ToFirstLower());
+                Write("\", labelKey: \"");
+                Write(reference.DefaultProperty?.ToFirstLower() ?? "libelle");
+                Write("\"};\r\n");
             }
             return GenerationEnvironment.ToString();
         }
@@ -79,14 +66,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         private string GetConstValues(ModelClass reference)
         {
             var constValues = string.Join(" | ", reference.ConstValues.Values.Select(value => value.Code));
-            if (constValues == string.Empty)
-            {
-                return "string";
-            }
-            else
-            {
-                return constValues;
-            }
+            return constValues == string.Empty ? "string" : constValues;
         }
 
         /// <summary>

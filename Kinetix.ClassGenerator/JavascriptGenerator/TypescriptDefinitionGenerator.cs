@@ -70,7 +70,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                             Directory.CreateDirectory(directoryInfo.FullName);
                         }
 
-                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model, Focus4v8 = parameters.Focus4v8 };
+                        var template = new TypescriptTemplate { RootNamespace = rootNamespace, Model = model };
                         var result = template.TransformText();
                         File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                     }
@@ -80,16 +80,8 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     }
                 }
 
-                if (!parameters.Focus4v8)
-                {
-                    GenerateReferenceLists(parameters, staticLists, entry.Key);
-                    staticLists.Clear();
-                }
-            }
-
-            if (parameters.Focus4v8)
-            {
-                GenerateReferenceLists(parameters, staticLists);
+                GenerateReferenceLists(parameters, staticLists, entry.Key);
+                staticLists.Clear();
             }
         }
 
@@ -113,7 +105,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     Directory.CreateDirectory(directoryInfo.FullName);
                 }
 
-                var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) , Focus4v8 = parameters.Focus4v8 };
+                var template = new ReferenceTemplate { References = staticLists.OrderBy(r => r.Name) };
                 var result = template.TransformText();
                 File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
