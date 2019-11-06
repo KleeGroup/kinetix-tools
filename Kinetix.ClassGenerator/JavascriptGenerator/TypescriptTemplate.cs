@@ -29,7 +29,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             Write("/*\r\n    Ce fichier a été généré automatiquement.\r\n    Toute modification sera per" +
                     "due.\r\n*/\r\n\r\n");
 
-            Write("import {EntityToType, StoreNode} from \"focus4/entity\";");
+            Write("import {EntityToType, StoreNode} from \"@focus4/stores\";");
             Write("\r\nimport {");
             Write(string.Join(", ", GetDomainList()));
             Write("} from \"../../domains\";\r\n");
@@ -62,23 +62,21 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
             Write("export const ");
             Write(Model.Name);
-            Write("Entity = {\r\n    name: \"");
-            Write(Model.Name.ToFirstLower());
-            Write("\",\r\n    fields: {\r\n");
+            Write("Entity = {\r\n");
 
             if (Model.ParentClass != null)
             {
                 Write("        ...");
                 Write(Model.ParentClass.Name);
-                Write("Entity.fields,\r\n");
+                Write("Entity,\r\n");
             }
 
             foreach (var property in properties)
             {
-                Write("        ");
+                Write("    ");
                 Write(property.Name.ToFirstLower());
                 Write(": {\r\n");
-                Write("            type: ");
+                Write("        type: ");
                 if (IsArray(property))
                 {
                     if (GetReferencedType(property) != Model.Name)
@@ -103,9 +101,9 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
 
                 if (GetDomain(property) != null)
                 {
-                    Write("            name: \"");
+                    Write("        name: \"");
                     Write(property.Name.ToFirstLower());
-                    Write("\",\r\n            fieldType: ");
+                    Write("\",\r\n        fieldType: ");
                     var propType = TSUtils.CSharpToTSType(property);
                     if (propType == "string")
                     {
@@ -129,11 +127,11 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                     }
 
                     Write(",\r\n");
-                    Write("            domain: ");
+                    Write("        domain: ");
                     Write(GetDomain(property));
-                    Write(",\r\n            isRequired: ");
+                    Write(",\r\n        isRequired: ");
                     Write((property.DataMember.IsRequired && (!property.IsPrimaryKey || property.DataType != "int?")).ToString().ToFirstLower());
-                    Write(",\r\n            label: \"");
+                    Write(",\r\n        label: \"");
                     Write(TSUtils.ToNamespace(Model.Namespace.Name));
                     Write(".");
                     Write(Model.Name.ToFirstLower());
@@ -143,13 +141,13 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 }
                 else if (GetReferencedType(property) != Model.Name)
                 {
-                    Write("            entity: ");
+                    Write("        entity: ");
                     Write(GetReferencedType(property));
                     Write("Entity");
                     Write("\r\n");
                 }
 
-                Write("        }");
+                Write("    }");
 
                 if (property != properties.Last())
                 {
@@ -159,7 +157,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                 Write("\r\n");
             }
 
-            Write("    }\r\n} as const;\r\n");
+            Write("} as const;\r\n");
 
             if (Model.IsReference)
             {
