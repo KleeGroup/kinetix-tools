@@ -114,5 +114,14 @@ namespace Kinetix.Tools.Common.Parameters
             get;
             set;
         }
+
+        /// <summary>
+        /// Garde les noms dans les OOMs pour les noms de tables/colonnes...
+        /// </summary>
+        public bool KeepOriginalNames
+        {
+            get;
+            set;
+        }
     }
 }

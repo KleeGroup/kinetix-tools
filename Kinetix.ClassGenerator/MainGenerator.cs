@@ -211,7 +211,7 @@ namespace Kinetix.ClassGenerator
         /// <returns>Parser de modèle objet.</returns>
         private IModelParser LoadModelParser()
         {
-            return new OomParser(_parameters.ModelFiles, _parameters.DomainModelFile, _parameters.ExtModelFiles);
+            return new OomParser(_parameters.ModelFiles, _parameters.DomainModelFile, _parameters.ExtModelFiles, _parameters.KeepOriginalNames);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Kinetix.ClassGenerator
 
             // Génère les warnings pour le modèle.
             List<NVortexMessage> messageList = new List<NVortexMessage>(modelParser.ErrorList);
-            messageList.AddRange(CodeChecker.Check(_modelList));
+            messageList.AddRange(CodeChecker.Check(_modelList, _parameters.KeepOriginalNames));
             messageList.AddRange(StaticListChecker.Instance.Check(_modelList, staticTableInitList));
             messageList.AddRange(ReferenceListChecker.Instance.Check(_modelList, referenceTableInitList));
             messageList.AddRange(AbstractSchemaGenerator.CheckAllIdentifiersNames(_modelList));

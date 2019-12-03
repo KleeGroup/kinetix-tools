@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.Checker
@@ -16,9 +17,15 @@ namespace Kinetix.ClassGenerator.Checker
         private static readonly Dictionary<string, string> TrigramDictionary = new Dictionary<string, string>();
 
         /// <summary>
+        /// Garde les noms originaux pour les noms de colonnes/tables...
+        /// </summary>
+        public bool KeepOriginalNames { get; set; }
+
+        /// <summary>
         /// Vérifie l'intégrité du modèle.
         /// </summary>
         /// <param name="objet">Le modèle à vérifier.</param>
+        /// <param name="keepOriginalNames">Garde les noms originaux pour les noms de colonnes/tables...</param>
         public override void Check(IModelObject objet)
         {
             ModelRoot root = objet as ModelRoot;
@@ -56,19 +63,22 @@ namespace Kinetix.ClassGenerator.Checker
                     string otherClasse = string.Empty;
                     if (classe.DataContract.IsPersistent)
                     {
-                        if (string.IsNullOrEmpty(classe.Trigram))
+                        if (!classe.PropertyList.All(p => p.IsFromAssociation) && !KeepOriginalNames)
                         {
-                            RegisterFatalError(classe, "La classe " + classe.Name + " est persistante mais ne définit pas de trigrame.");
-                        }
-                        else
-                        {
-                            if (TrigramDictionary.TryGetValue(classe.Trigram, out otherClasse))
+                            if (string.IsNullOrEmpty(classe.Trigram))
                             {
-                                RegisterBug(objet, "Le trigramme " + classe.Trigram + " est utilisé dans la classe " + classe.Name + " et dans la classe " + otherClasse);
+                                RegisterFatalError(classe, "La classe " + classe.Name + " est persistante mais ne définit pas de trigrame.");
                             }
                             else
                             {
-                                TrigramDictionary.Add(classe.Trigram, classe.Name);
+                                if (TrigramDictionary.TryGetValue(classe.Trigram, out otherClasse))
+                                {
+                                    RegisterBug(objet, "Le trigramme " + classe.Trigram + " est utilisé dans la classe " + classe.Name + " et dans la classe " + otherClasse);
+                                }
+                                else
+                                {
+                                    TrigramDictionary.Add(classe.Trigram, classe.Name);
+                                }
                             }
                         }
                     }

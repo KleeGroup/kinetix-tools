@@ -84,6 +84,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
 
         private readonly string _domainModelFile;
         private readonly ICollection<string> _extModelFiles;
+        private readonly bool _keepOriginalNames;
 
         /// <summary>
         /// Constructeur.
@@ -91,11 +92,13 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <param name="modelFiles">Liste des modèles à analyser.</param>
         /// <param name="domainModelFile">Modele contenant les domaines.</param>
         /// <param name="extModelFiles">Liste des modèles de base de données externes à analyser.</param>
-        public OomParser(ICollection<string> modelFiles, string domainModelFile, ICollection<string> extModelFiles)
+        /// <param name="keepOriginalNames">Garde les noms originaux pour les noms de colonnes/tables...</param>
+        public OomParser(ICollection<string> modelFiles, string domainModelFile, ICollection<string> extModelFiles, bool keepOriginalNames)
             : base(modelFiles)
         {
             _domainModelFile = domainModelFile;
             _extModelFiles = extModelFiles;
+            _keepOriginalNames = keepOriginalNames;
         }
 
         /// <summary>
@@ -119,18 +122,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 return false;
             }
 
-            if (!pClassComposeFClass && !fClassComposePClass)
-            {
-                associationCode = primaryClass.Trigram.Substring(0, 1).ToUpperInvariant() + primaryClass.Trigram.Substring(1).ToLowerInvariant() + foreignClass.Trigram.Substring(0, 1).ToUpperInvariant() + foreignClass.Trigram.Substring(1).ToLowerInvariant();
-            }
-            else if (pClassComposeFClass)
-            {
-                associationCode = primaryClass.Name + "List";
-            }
-            else
-            {
-                associationCode = foreignClass.Name;
-            }
+            associationCode = !pClassComposeFClass && !fClassComposePClass
+                ? primaryClass.Trigram.Substring(0, 1).ToUpperInvariant() + primaryClass.Trigram.Substring(1).ToLowerInvariant() + foreignClass.Trigram.Substring(0, 1).ToUpperInvariant() + foreignClass.Trigram.Substring(1).ToLowerInvariant()
+                : pClassComposeFClass
+                    ? primaryClass.Name + "List"
+                    : foreignClass.Name;
 
             if (string.IsNullOrEmpty(role))
             {
@@ -246,12 +242,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         /// <returns>Nom de modèle pour .Net.</returns>
         private static string ConvertModelName(string modelName)
         {
-            if (string.IsNullOrEmpty(modelName))
-            {
-                return modelName;
-            }
-
-            return modelName.Replace('_', '.');
+            return string.IsNullOrEmpty(modelName) ? modelName : modelName.Replace('_', '.');
         }
 
         /// <summary>
@@ -549,11 +540,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
 
                             // For 0..1/1..1 & 1..1/1..0 the FK will only be on the 1..1 side
                             // For 0..1 / 0..1 the FK will only be on the side with the navigability property set
-                            if ((Multiplicity01.Equals(multiplicityA) && !Multiplicity11.Equals(multiplicityB)) || Multiplicity11.Equals(multiplicityA))
+                            if (Multiplicity01.Equals(multiplicityA) && !Multiplicity11.Equals(multiplicityB) || Multiplicity11.Equals(multiplicityA))
                             {
                                 associateBIntoA = true;
                             }
-                            if ((Multiplicity01.Equals(multiplicityB) && !Multiplicity11.Equals(multiplicityA)) || Multiplicity11.Equals(multiplicityB))
+                            if (Multiplicity01.Equals(multiplicityB) && !Multiplicity11.Equals(multiplicityA) || Multiplicity11.Equals(multiplicityB))
                             {
                                 associateAIntoB = true;
                             }
@@ -566,7 +557,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (associateBIntoA)
                             {
                                 // On ajoute la clé primaire de la classe B dans la classe A
-                                var property = ParserHelper.BuildClassAssociationProperty(classB, classA, multiplicityA, roleAName, name);
+                                var property = ParserHelper.BuildClassAssociationProperty(classB, classA, multiplicityA, roleAName, name, _keepOriginalNames);
                                 if (classA.DataContract.IsPersistent && !classB.DataContract.IsPersistent)
                                 {
                                     RegisterError(Category.Error, "L'association [" + code + "] de multiplicité 0..1/1..1 entre la classe persistente [" + classA.Name + "] et la classe non persistente [" + classB.Name + "] n'est pas possible.");
@@ -582,7 +573,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                             if (associateAIntoB)
                             {
                                 // On ajoute la clé primaire de la classe A dans la classe B
-                                var property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name, initialValueB);
+                                var property = ParserHelper.BuildClassAssociationProperty(classA, classB, multiplicityB, roleBName, name, _keepOriginalNames, initialValueB);
                                 if (classB.DataContract.IsPersistent && !classA.DataContract.IsPersistent)
                                 {
                                     RegisterError(Category.Error, "L'association [" + code + "] de multiplicité 0..1/1..1 entre la classe persistente [" + classB.Name + "] et la classe non persistente [" + classA.Name + "] n'est pas possible.");
@@ -688,7 +679,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
 
                 if (isPersistent)
                 {
-                    var tableName = ParserHelper.ConvertCsharp2Bdd(classe.Name);
+                    var tableName = _keepOriginalNames ? classe.Name : ParserHelper.ConvertCsharp2Bdd(classe.Name);
                     if (string.IsNullOrEmpty(persistentCode))
                     {
                         persistentCode = tableName;
@@ -877,7 +868,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 },
                 DataMember = new ModelDataMember()
                 {
-                    Name = classe.Trigram + "_DATE_CREATION",
+                    Name = classe.TrigramPrefix + "DATE_CREATION",
                     IsRequired = true
                 }
             });
@@ -899,7 +890,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 },
                 DataMember = new ModelDataMember()
                 {
-                    Name = classe.Trigram + "_DATE_MODIF",
+                    Name = classe.TrigramPrefix + "DATE_MODIF",
                     IsRequired = true
                 }
             });
@@ -921,7 +912,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 },
                 DataMember = new ModelDataMember()
                 {
-                    Name = classe.Trigram + "_NUMERO_VERSION",
+                    Name = classe.TrigramPrefix + "NUMERO_VERSION",
                     IsRequired = true
                 }
             });
@@ -951,7 +942,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 },
                 DataMember = new ModelDataMember()
                 {
-                    Name = classe.Trigram + "_DATE_MODIFICATION",
+                    Name = classe.TrigramPrefix + "DATE_MODIFICATION",
                     IsRequired = false
                 }
             });
@@ -973,7 +964,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                 },
                 DataMember = new ModelDataMember()
                 {
-                    Name = classe.Trigram + "_DATE_ENVOI",
+                    Name = classe.TrigramPrefix + "DATE_ENVOI",
                     IsRequired = false
                 }
             });
@@ -1104,15 +1095,15 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     var dataMemberName = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
                     if (property.IsPersistent)
                     {
-                        var columnName = ParserHelper.ConvertCsharp2Bdd(property.Name);
+                        var columnName = _keepOriginalNames ? property.Name : ParserHelper.ConvertCsharp2Bdd(property.Name);
                         if (string.IsNullOrEmpty(dataMemberName))
                         {
-                            if (property.DataDescription.IsPrimaryKey)
+                            if (property.DataDescription.IsPrimaryKey && !_keepOriginalNames)
                             {
                                 classe.Trigram = property.DataDescription.Libelle;
                             }
 
-                            dataMemberName = property.IsReprise ? columnName : classe.Trigram + "_" + columnName;
+                            dataMemberName = property.IsReprise ? columnName : classe.TrigramPrefix + columnName;
                         }
                         else if (dataMemberName.Equals(columnName))
                         {

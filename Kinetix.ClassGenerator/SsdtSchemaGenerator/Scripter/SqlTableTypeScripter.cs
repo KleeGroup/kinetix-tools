@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Common.Model;
 using Kinetix.ClassGenerator.SsdtSchemaGenerator.Contract;
+using Kinetix.Tools.Common.Model;
 
 namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
 {
@@ -127,7 +127,7 @@ namespace Kinetix.ClassGenerator.SsdtSchemaGenerator.Scripter
         /// <param name="classe">Classe.</param>
         private static void WriteInsertKeyLine(StringBuilder sb, ModelClass classe)
         {
-            sb.Append("[").Append(classe.Trigram + '_' + "INSERT_KEY] int null");
+            sb.Append("[").Append(classe.TrigramPrefix + "INSERT_KEY] int null");
         }
 
         /// <summary>

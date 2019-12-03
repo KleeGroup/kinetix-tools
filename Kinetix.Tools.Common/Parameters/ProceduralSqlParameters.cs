@@ -67,5 +67,14 @@
             get;
             set;
         }
+
+        /// <summary>
+        /// Désactive les colonnes d'identité.
+        /// </summary>
+        public bool DisableIdentity
+        {
+            get;
+            set;
+        }
     }
 }

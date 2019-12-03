@@ -74,6 +74,11 @@ namespace Kinetix.Tools.Common.Model
         }
 
         /// <summary>
+        /// Trigramme avec _.
+        /// </summary>
+        public string TrigramPrefix => string.IsNullOrEmpty(Trigram) ? string.Empty : $"{Trigram}_";
+
+        /// <summary>
         /// Indique si la classe doit être sérializable.
         /// </summary>
         public bool IsSerializable
@@ -629,14 +634,6 @@ namespace Kinetix.Tools.Common.Model
             if (property == null)
             {
                 throw new ArgumentNullException("property");
-            }
-
-            if (property.DataDescription.IsPrimaryKey)
-            {
-                if (PrimaryKey.Count != 0)
-                {
-                    Trigram = property.Name;
-                }
             }
 
             _propertyList.Add(property);

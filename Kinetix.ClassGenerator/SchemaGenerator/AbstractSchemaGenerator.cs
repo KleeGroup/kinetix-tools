@@ -426,7 +426,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             writer.WriteLine("  * Génération de la contrainte de clef étrangère pour " + tableName + "." + propertyName);
             writer.WriteLine(" **/");
             writer.WriteLine("alter table " + Quote(tableName));
-            string constraintName = Quote("FK_" + property.Class.Trigram + "_" + propertyName);
+            string constraintName = Quote("FK_" + property.Class.TrigramPrefix + propertyName);
 
             writer.WriteLine("\tadd constraint " + constraintName + " foreign key (" + Quote(propertyName) + ")");
             writer.Write("\t\treferences " + Quote(property.DataDescription.ReferenceClass.DataContract.Name.ToUpperInvariant()) + " (");
@@ -460,7 +460,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             writer.WriteLine("/**");
             writer.WriteLine("  * Création de l'index de clef étrangère pour " + tableName + "." + propertyName);
             writer.WriteLine(" **/");
-            writer.WriteLine("create index " + Quote("IDX_" + property.Class.Trigram + "_" + propertyName + "_FK") + " on " + tableName + " (");
+            writer.WriteLine("create index " + Quote("IDX_" + property.Class.TrigramPrefix + propertyName + "_FK") + " on " + tableName + " (");
             writer.WriteLine("\t" + Quote(propertyName) + " ASC");
             writer.WriteLine(")");
             WriteTableSpaceIndex(writer, property.Class);
@@ -568,6 +568,23 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                 }
             }
 
+            if (classe.PropertyList.All(p => p.IsFromAssociation))
+            {
+                foreach (var fkProperty in classe.PropertyList)
+                {
+                    ++pkCount;
+                    writerCrebas.Write(Quote(fkProperty.DataMember.Name.ToUpperInvariant()));
+                    if (pkCount < classe.PropertyList.Count)
+                    {
+                        writerCrebas.Write(",");
+                    }
+                    else
+                    {
+                        writerCrebas.WriteLine(")");
+                    }
+                }
+            }
+
             writerCrebas.WriteLine(")");
         }
 
@@ -603,7 +620,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
             {
                 var persistentType = property.DataDescription.Domain.PersistentDataType;
                 writerCrebas.Write("\t" + Quote(CheckIdentifierLength(property.DataMember.Name)) + " " + persistentType);
-                if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID")
+                if (property.DataDescription.IsPrimaryKey && property.DataDescription.Domain.Code == "DO_ID" && !_parameters.DisableIdentity)
                 {
                     WriteIdentityColumn(writerCrebas);
                 }
@@ -675,7 +692,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
                     writerType.WriteLine();
                 }
 
-                writerType.WriteLine('\t' + classe.Trigram + '_' + "INSERT_KEY int");
+                writerType.WriteLine('\t' + classe.TrigramPrefix + "INSERT_KEY int");
                 writerType.WriteLine();
                 writerType.WriteLine(")");
                 writerType.WriteLine(BatchSeparator);

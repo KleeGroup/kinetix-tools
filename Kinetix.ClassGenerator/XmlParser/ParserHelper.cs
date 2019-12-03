@@ -116,7 +116,7 @@ namespace Kinetix.ClassGenerator.XmlParser
         /// <param name="name">Nom de l'association.</param>
         /// <paral name="initialValue">Valeur par défaut.</paral>
         /// <returns>La propriété relative à l'association.</returns>
-        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, string initialValue = null)
+        internal static ModelProperty BuildClassAssociationProperty(ModelClass sourceClass, ModelClass targetClass, string multiplicity, string role, string name, bool keepOriginalNames, string initialValue = null)
         {
             ModelProperty classSourceproperty = GetPrimaryKeyProperty(sourceClass);
             if (classSourceproperty == null)
@@ -155,7 +155,14 @@ namespace Kinetix.ClassGenerator.XmlParser
             string dmName = classSourceproperty.DataMember.Name;
             if (!string.IsNullOrEmpty(role))
             {
-                dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
+                if (keepOriginalNames)
+                {
+                    dmName = role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
+                }
+                else
+                {
+                    dmName += "_" + role.Replace(" ", "_").Replace("-", "_").ToUpper(CultureInfo.CurrentCulture);
+                }
                 dmName = DeleteAccents(dmName);
             }
 

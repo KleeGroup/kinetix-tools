@@ -24,7 +24,7 @@ namespace Kinetix.ClassGenerator.SchemaGenerator
         /// <param name="writerCrebas">Flux d'écriture création bases.</param>
         protected override void WriteIdentityColumn(StreamWriter writerCrebas)
         {
-            writerCrebas.Write(" identity(2020, 1)");
+            writerCrebas.Write(" identity(1, 1)");
         }
 
         /// <summary>
