@@ -41,9 +41,9 @@ namespace Kinetix.ClassGenerator
             LoadObjectModel();
 
             // Génération.
-            //GenerateCSharp();
-            //GenerateSqlSchema();
-            //GenerateJavascript();
+            GenerateCSharp();
+            GenerateSqlSchema();
+            GenerateJavascript();
             GenerateYaml();
 
             // Pause.

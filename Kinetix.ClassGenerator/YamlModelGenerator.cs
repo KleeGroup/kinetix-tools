@@ -166,7 +166,9 @@ namespace Kinetix.ClassGenerator
                 return;
             }
 
-            fw.Write(string.Join(string.Empty, Enumerable.Range(0, indent).Select(_ => "  ")));
+            var spaces = string.Join(string.Empty, Enumerable.Range(0, indent).Select(_ => "  "));
+
+            fw.Write(spaces);
             if (property != null)
             {
                 fw.Write($"{property}:");
@@ -177,14 +179,32 @@ namespace Kinetix.ClassGenerator
                 {
                     fw.Write(" ");
                 }
-                if (value.Contains(":"))
+                if (value.Contains("\n"))
                 {
-                    value = @$"""{value}""";
+                    fw.Write("|\r\n");
                 }
-
-                fw.Write(value);
+                var lines = value.Split("\r\n");
+                foreach (var line in lines)
+                {
+                    if (value.Contains("\n"))
+                    {
+                        fw.Write($"{spaces}  ");
+                    }
+                    if (line.Contains(":"))
+                    {
+                        fw.Write($@"""{line}""");
+                    } 
+                    else
+                    {
+                        fw.Write(line);
+                    }
+                    fw.Write("\r\n");
+                }
+            } 
+            else
+            {
+                fw.Write("\r\n");
             }
-            fw.Write("\r\n");
         }
     }
 }
