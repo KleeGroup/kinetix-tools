@@ -153,16 +153,20 @@ namespace Kinetix.ClassGenerator.XmlParser
                 }
 
                 ModelProperty alias = modelPropertyMap[key];
+                mp.AliasedProperty = alias;
+
                 mp.Name = alias.Name;
 
                 if (splittedName.Length >= 3)
                 {
                     mp.Name = splittedName[2] + mp.Name;
+                    mp.AliasPrefix = splittedName[2];
                 }
 
                 if (splittedName.Length >= 4)
                 {
                     mp.Name += splittedName[3];
+                    mp.AliasSuffix = splittedName[3];
                 }
 
                 if (mp.DataDescription.Libelle.StartsWith("[Override]"))

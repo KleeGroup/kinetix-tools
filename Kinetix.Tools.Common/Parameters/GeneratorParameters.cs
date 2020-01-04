@@ -123,5 +123,14 @@ namespace Kinetix.Tools.Common.Parameters
             get;
             set;
         }
+
+        /// <summary>
+        /// Génère le modèle en YAML pour migration.
+        /// </summary>
+        public bool Yaml
+        {
+            get;
+            set;
+        }
     }
 }

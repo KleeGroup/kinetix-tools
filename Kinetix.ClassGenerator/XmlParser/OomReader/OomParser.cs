@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Kinetix.ClassGenerator.Checker;
@@ -24,6 +25,10 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string NodeModel = "/Model/o:RootObject/c:Children/o:Model";
         private const string NodeNamespace = "/Model/o:RootObject/c:Children/o:Model/c:Packages";
         private const string NodeDomains = "/Model/o:RootObject/c:Children/o:Model/c:Domains";
+        
+        private const string ClassDiagrams = "c:ClassDiagrams";
+        private const string ClassDiagram = "o:ClassDiagram";
+
         private const string NodeClasses = "c:Classes";
         private const string NodeAssociations = "c:Associations";
         private const string NodeGeneralizations = "c:Generalizations";
@@ -655,8 +660,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         [SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", Justification = "Non internationalisé")]
         private void BuildNamespaceClasses(ModelNamespace nmspace, XmlNode nmspaceNode, string modelFile)
         {
+            var classDiagramsNode = nmspaceNode.SelectSingleNode(ClassDiagrams, _currentNsManager);
+            var classDiagrams = classDiagramsNode.SelectNodes(ClassDiagram, _currentNsManager).OfType<XmlNode>();
+
             foreach (XmlNode classNode in nmspaceNode.SelectSingleNode(NodeClasses, _currentNsManager).SelectNodes(NodeClass, _currentNsManager))
-            {
+            {                  
                 var classe = new ModelClass()
                 {
                     Label = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyName, _currentNsManager)),
@@ -665,7 +673,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     Stereotype = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyStereotype, _currentNsManager)),
                     Namespace = nmspace,
                     ModelFile = modelFile,
-                    IsExternal = _extModelFiles.Contains(modelFile)
+                    IsExternal = _extModelFiles.Contains(modelFile),
+                    ClassDiagramsList = classDiagrams
+                        .Where(cd => cd.SelectNodes($"c:Symbols/o:ClassSymbol/c:Object/o:Class[@Ref='{classNode.Attributes["Id"].Value}']", _currentNsManager).Count > 0)
+                        .Select(cd => ParserHelper.GetXmlValue(cd.SelectSingleNode(PropertyName, _currentNsManager)))
+                        .ToList()                        
                 };
 
                 if (!string.IsNullOrEmpty(classe.Stereotype) && classe.Stereotype != "Reference" && classe.Stereotype != "Statique")

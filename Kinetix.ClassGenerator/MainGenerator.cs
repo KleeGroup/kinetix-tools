@@ -41,9 +41,10 @@ namespace Kinetix.ClassGenerator
             LoadObjectModel();
 
             // Génération.
-            GenerateCSharp();
-            GenerateSqlSchema();
-            GenerateJavascript();
+            //GenerateCSharp();
+            //GenerateSqlSchema();
+            //GenerateJavascript();
+            GenerateYaml();
 
             // Pause.
             if (parameters.Pause.Value)
@@ -319,6 +320,18 @@ namespace Kinetix.ClassGenerator
                 Console.WriteLine("***** Génération du modèle et des ressources JS *****");
                 TypescriptDefinitionGenerator.Generate(_parameters.RootNamespace, _parameters.Javascript, _modelList);
                 JavascriptResourceGenerator.Generate(_parameters.Javascript, _modelList);
+            }
+        }
+
+        /// <summary>
+        /// Génère les fichiers YAML.
+        /// </summary>
+        private void GenerateYaml()
+        {
+            if (_parameters.Yaml)
+            {
+                Console.WriteLine("***** Génération du modèle en YAML *****");
+                YamlModelGenerator.Generate(_modelList);
             }
         }
     }

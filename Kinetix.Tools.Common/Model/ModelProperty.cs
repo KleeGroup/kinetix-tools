@@ -251,6 +251,21 @@ namespace Kinetix.Tools.Common.Model
             DataDescription.Domain.IsTranslatable;
 
         /// <summary>
+        /// Si la propriété est un alias, lien vers la propriété en question.
+        /// </summary>
+        public ModelProperty AliasedProperty { get; set; }
+
+        /// <summary>
+        /// Si la propriété est un alias, suffixe a ajouter à la propriété originale.
+        /// </summary>
+        public string AliasSuffix { get; set; }
+
+        /// <summary>
+        /// Si la propriété est un alias, préfixe a ajouter à la propriété originale.
+        /// </summary>
+        public string AliasPrefix { get; set; }
+
+        /// <summary>
         /// Liste des annotations.
         /// </summary>
         public ICollection<ModelAnnotation> Annotations => _annotations;

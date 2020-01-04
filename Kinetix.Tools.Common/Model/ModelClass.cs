@@ -594,6 +594,15 @@ namespace Kinetix.Tools.Common.Model
         }
 
         /// <summary>
+        /// Liste de tous les class diagrams dans lesquels cette classe est référencée.
+        /// </summary>
+        public IList<string> ClassDiagramsList
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Ajoute un namespace dans la liste des using de la classe.
         /// </summary>
         /// <param name="nmspace">Le namespace à ajouter.</param>
