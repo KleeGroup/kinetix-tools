@@ -42,7 +42,7 @@ namespace Kinetix.ClassGenerator
 
                 Directory.CreateDirectory($"yaml/{moduleName}/{type}");
 
-                foreach (var file in ns.Value.ClassList.GroupBy(c => c.ClassDiagramsList.FirstOrDefault()))
+                foreach (var file in ns.Value.ClassList.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()))
                 {
                     var fileName = file.Key ?? "00 Missing";
                     var fullPath = $"yaml/{moduleName}/{type}/{fileName}.yml";
@@ -74,12 +74,12 @@ namespace Kinetix.ClassGenerator
                             Write(fw, 2, "kind", rType);
                             Write(fw, 2, "files");
 
-                            foreach (var rFile in module.GroupBy(c => c.ClassDiagramsList.FirstOrDefault()))
+                            foreach (var rFile in module.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()).OrderBy(f => f.Key))
                             {
                                 Write(fw, 3, "- file", rFile.Key ?? "00 Missing");
                                 Write(fw, 4, "classes");
 
-                                foreach (var reference in rFile)
+                                foreach (var reference in rFile.OrderBy(f => f.Name))
                                 {
                                     Write(fw, 5, null, $"- {reference.Name}");
                                 }
