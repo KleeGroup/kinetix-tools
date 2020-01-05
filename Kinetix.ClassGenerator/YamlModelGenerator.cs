@@ -126,6 +126,7 @@ namespace Kinetix.ClassGenerator
                             {
                                 Write(fw, 2, "- association", property.DataDescription.ReferenceClass.Name);
                                 Write(fw, 3, "role", property.Role, !string.IsNullOrWhiteSpace(property.Role));
+                                Write(fw, 3, "label", property.DataDescription.Libelle);
                                 Write(fw, 3, "required", $"{property.DataMember.IsRequired}".ToLower(), !property.IsPrimaryKey);
                                 Write(fw, 3, "comment", property.Comment);
                             }

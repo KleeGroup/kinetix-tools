@@ -125,7 +125,7 @@ namespace Kinetix.Tools.Common
         /// <param name="type">Le type d'entrée.</param>
         /// <param name="removeBrackets">Supprime la liste.</param>
         /// <returns>Le type en sortie.</returns>
-        private static string CSharpToTSType(string type)
+        public static string CSharpToTSType(string type)
         {
             switch (type)
             {
