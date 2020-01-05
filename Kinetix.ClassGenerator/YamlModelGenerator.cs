@@ -57,7 +57,7 @@ namespace Kinetix.ClassGenerator
 
                     var references = file
                         .SelectMany(c => c.PropertyList)
-                        .Select(p => p.DataDescription?.ReferenceClass)
+                        .Select(p => p.DataDescription?.ReferenceClass ?? p.AliasedProperty?.Class)
                         .Where(rc => rc != null && !file.Any(c => c.Name == rc.Name))
                         .Distinct()
                         .ToList();
@@ -190,7 +190,7 @@ namespace Kinetix.ClassGenerator
                     {
                         fw.Write($"{spaces}  ");
                     }
-                    if (line.Contains(":"))
+                    if (line.Contains(":") || line.Contains("["))
                     {
                         fw.Write($@"""{line}""");
                     } 
