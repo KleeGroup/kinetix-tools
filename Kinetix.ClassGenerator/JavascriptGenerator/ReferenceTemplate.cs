@@ -65,7 +65,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
         /// <returns>Le type de sorte.</returns>
         private string GetConstValues(ModelClass reference)
         {
-            var constValues = string.Join(" | ", reference.ConstValues.Values.Select(value => value.Code));
+            var constValues = string.Join(" | ", reference.ConstValues.Values.Select(value => value.Code).OrderBy(x => x));
             return constValues == string.Empty ? "string" : constValues;
         }
 

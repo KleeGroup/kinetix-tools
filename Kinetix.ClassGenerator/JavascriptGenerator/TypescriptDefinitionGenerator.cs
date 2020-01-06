@@ -62,8 +62,6 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
                         fileName = $"{parameters.ModelOutputDirectory}/{entry.Key.ToDashCase(false)}/{fileName}.ts";
                         var fileInfo = new FileInfo(fileName);
 
-                        var isNewFile = !fileInfo.Exists;
-
                         var directoryInfo = fileInfo.Directory;
                         if (!directoryInfo.Exists)
                         {

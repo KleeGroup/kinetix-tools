@@ -144,7 +144,7 @@ namespace Kinetix.ClassGenerator.JavascriptGenerator
             {
                 writerJs.WriteLine($"export const {FirstToLower(namespaceName)} = {{");
                 int i = 1;
-                foreach (var classe in modelClassList)
+                foreach (var classe in modelClassList.OrderBy(c => c.Name))
                 {
                     WriteClasseNode(writerJs, classe, modelClassList.Count == i++);
                 }
