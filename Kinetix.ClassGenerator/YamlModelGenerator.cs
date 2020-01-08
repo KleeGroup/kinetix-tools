@@ -119,7 +119,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 2, "- alias");
                                 Write(fw, 4, "property", property.AliasedProperty.Name);
                                 Write(fw, 4, "class", property.AliasedProperty.Class.Name);
-                                Write(fw, 3, "prefix", property.AliasPrefix, !string.IsNullOrWhiteSpace(property.AliasPrefix));
+                                Write(fw, 3, "prefix", property.AliasPrefix, !string.IsNullOrWhiteSpace(property.AliasPrefix) && !property.AliasedProperty.Name.StartsWith(property.AliasPrefix));
                                 Write(fw, 3, "suffix", property.AliasSuffix, !string.IsNullOrWhiteSpace(property.AliasSuffix));
                             }
                             else if (property.IsFromAssociation)
@@ -142,6 +142,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 2, "- name", property.Name);
                                 Write(fw, 3, "label", property.DataDescription.Libelle);
                                 Write(fw, 3, "primaryKey", "true", property.IsPrimaryKey);
+                                Write(fw, 3, "unique", "true", property.IsUnique);
                                 Write(fw, 3, "required", $"{property.DataMember.IsRequired}".ToLower(), !property.IsPrimaryKey);
                                 Write(fw, 3, "domain", property.DataDescription?.Domain?.Code);
                                 Write(fw, 3, "defaultValue", property.DefaultValue, !string.IsNullOrWhiteSpace(property.DefaultValue));

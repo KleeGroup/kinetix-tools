@@ -129,6 +129,7 @@ namespace Kinetix.Tools.Common
         {
             switch (type)
             {
+                case "int":
                 case "int?":
                 case "decimal?":
                 case "short?":
