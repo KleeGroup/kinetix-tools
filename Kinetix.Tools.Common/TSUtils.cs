@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Kinetix.Tools.Common.Model;
 using Microsoft.CodeAnalysis;
@@ -197,6 +199,54 @@ namespace Kinetix.Tools.Common
                 : namespaceName.EndsWith("Contract", StringComparison.Ordinal)
                     ? namespaceName.Substring(0, namespaceName.Length - 8).ToFirstLower()
                     : namespaceName.ToFirstLower();
+        }
+
+        /// <summary>
+        /// Convertit un nom avec la syntaxe C#.
+        /// </summary>
+        /// <param name="name">Nom au format C#.</param>
+        /// <returns>Nom base de données.</returns>
+        public static string ConvertCsharp2Bdd(string name)
+        {
+            var sb = new StringBuilder();
+            var c = name.ToCharArray();
+            var lastIsUp = true;
+            var anteLastIsUp = false;
+            for (var i = 0; i < c.Length; ++i)
+            {
+                var upperChar = new string(c[i], 1).ToUpper(CultureInfo.CurrentCulture);
+                if (i > 0)
+                {
+                    var isLastCaracter = i == c.Length - 1;
+                    var nextIsMinus = !isLastCaracter && !new string(c[i + 1], 1).ToUpper(CultureInfo.CurrentCulture).Equals(new string(c[i + 1], 1));
+
+                    if (upperChar.Equals(new string(c[i], 1)))
+                    {
+                        if (!lastIsUp || anteLastIsUp ||
+                            !lastIsUp && isLastCaracter ||
+                            lastIsUp && nextIsMinus)
+                        {
+                            sb.Append('_');
+                            anteLastIsUp = false;
+                            lastIsUp = true;
+                        }
+                        else
+                        {
+                            anteLastIsUp = lastIsUp;
+                            lastIsUp = true;
+                        }
+                    }
+                    else
+                    {
+                        anteLastIsUp = lastIsUp;
+                        lastIsUp = false;
+                    }
+                }
+
+                sb.Append(upperChar);
+            }
+
+            return sb.ToString();
         }
     }
 }

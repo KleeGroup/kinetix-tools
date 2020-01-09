@@ -30,6 +30,7 @@ namespace Kinetix.ClassGenerator
                     Write(fw, 1, "sqlType", domain.PersistentDataType, !string.IsNullOrWhiteSpace(domain.PersistentDataType));
                     Write(fw, 1, "customAnnotation", domain.CustomAnnotation, !string.IsNullOrWhiteSpace(domain.CustomAnnotation));
                     Write(fw, 1, "customUsings", domain.CustomUsings, !string.IsNullOrWhiteSpace(domain.CustomUsings));
+                    Write(fw, 1, "useTypeName", "true", domain.Stereotype == "TypeName");
                 }
             }
 
@@ -195,14 +196,14 @@ namespace Kinetix.ClassGenerator
                     if (line.Contains(":") || line.Contains("["))
                     {
                         fw.Write($@"""{line}""");
-                    } 
+                    }
                     else
                     {
                         fw.Write(line);
                     }
                     fw.Write("\r\n");
                 }
-            } 
+            }
             else
             {
                 fw.Write("\r\n");
