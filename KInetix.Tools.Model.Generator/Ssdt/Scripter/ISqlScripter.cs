@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Kinetix.Tools.Model.Generator.Ssdt.Contract
+namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter
 {
     /// <summary>
     /// Interface des implémentations spécifiques qui scriptent de fichiers SQL.
@@ -14,13 +14,6 @@ namespace Kinetix.Tools.Model.Generator.Ssdt.Contract
         /// <param name="item">Item à scripter.</param>
         /// <returns>Nom du fichier de script.</returns>
         string GetScriptName(T item);
-
-        /// <summary>
-        /// Indique si l'item doit générer un script.
-        /// </summary>
-        /// <param name="item">Item candidat.</param>
-        /// <returns><code>True</code> si un script doit être généré.</returns>
-        bool IsScriptGenerated(T item);
 
         /// <summary>
         /// Ecrit dans un flux le script pour l'item.

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Model.Generator.Ssdt.Contract;
-using Kinetix.Tools.Model;
 
 namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter
 {
@@ -31,11 +29,6 @@ namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter
             }
 
             return item.SqlName + ".sql";
-        }
-
-        public bool IsScriptGenerated(Class item)
-        {
-            return true;
         }
 
         /// <summary>

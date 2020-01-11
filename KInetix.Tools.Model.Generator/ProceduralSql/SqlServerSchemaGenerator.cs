@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using Kinetix.Tools.Model;
 using Kinetix.Tools.Model.Config;
+using Microsoft.Extensions.Logging;
 
 namespace Kinetix.Tools.Model.Generator.ProceduralSql
 {
@@ -9,8 +9,8 @@ namespace Kinetix.Tools.Model.Generator.ProceduralSql
     /// </summary>
     public class SqlServerSchemaGenerator : AbstractSchemaGenerator
     {
-        public SqlServerSchemaGenerator(string appName, ProceduralSqlConfig config)
-            : base(appName, config)
+        public SqlServerSchemaGenerator(string appName, ProceduralSqlConfig config, ILogger<ProceduralSqlGenerator> logger)
+            : base(appName, config, logger)
         {
         }
 

@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Model;
 using Kinetix.Tools.Model.Config;
+using Microsoft.Extensions.Logging;
 
 namespace Kinetix.Tools.Model.Generator.Javascript
 {
@@ -14,13 +13,19 @@ namespace Kinetix.Tools.Model.Generator.Javascript
     public class TypescriptDefinitionGenerator : IGenerator
     {
         private readonly JavascriptConfig? _config;
+        private readonly ILogger<TypescriptDefinitionGenerator> _logger;
         private readonly ModelStore _modelStore;
 
-        public TypescriptDefinitionGenerator(ModelStore modelStore, JavascriptConfig? config = null)
+        public TypescriptDefinitionGenerator(ModelStore modelStore, ILogger<TypescriptDefinitionGenerator> logger, JavascriptConfig? config = null)
         {
             _config = config;
+            _logger = logger;
             _modelStore = modelStore;
         }
+
+        public bool CanGenerate => _config?.ModelOutputDirectory != null;
+
+        public string Name => "du modèle Typescript";
 
         /// <summary>
         /// Génère les définitions Typescript.
@@ -38,6 +43,9 @@ namespace Kinetix.Tools.Model.Generator.Javascript
 
             foreach (var entry in nameSpaceMap)
             {
+                _logger.LogInformation($"Génération du modèle pour le module {entry.Key}...");
+
+                var count = 0;
                 foreach (var model in entry.Value)
                 {
                     if (model.Stereotype != Stereotype.Statique)
@@ -48,7 +56,6 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                         }
 
                         var fileName = model.Name.ToDashCase();
-                        Console.Out.WriteLine($"Generating Typescript file: {fileName}.ts ...");
 
                         fileName = $"{_config.ModelOutputDirectory}/{entry.Key.ToDashCase()}/{fileName}.ts";
                         var fileInfo = new FileInfo(fileName);
@@ -64,6 +71,7 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                         var template = new TypescriptTemplate(model);
                         var result = template.TransformText();
                         File.WriteAllText(fileName, result, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                        count++;
                     }
                     else
                     {
@@ -72,6 +80,8 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                 }
 
                 GenerateReferenceLists(_config, staticLists, entry.Key);
+
+                _logger.LogInformation($"{count + (staticLists.Any() ? 1 : 0)} fichiers de modèle générés.");
                 staticLists.Clear();
             }
         }
@@ -80,8 +90,6 @@ namespace Kinetix.Tools.Model.Generator.Javascript
         {
             if (staticLists.Any())
             {
-                Console.Out.WriteLine($"Generating Typescript file: references.ts ...");
-
                 var fileName = namespaceName != null
                     ? $"{parameters.ModelOutputDirectory}/{namespaceName.ToDashCase()}/references.ts"
                     : $"{parameters.ModelOutputDirectory}/references.ts";

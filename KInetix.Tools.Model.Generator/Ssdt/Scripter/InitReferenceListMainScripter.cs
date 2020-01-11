@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Kinetix.Tools.Model.Generator.Ssdt.Contract;
 using Kinetix.Tools.Model.Generator.Ssdt.Dto;
 
 namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Model.Generator.Ssdt.Contract;
-using Kinetix.Tools.Model.Generator.Ssdt.Dto;
-using Kinetix.Tools.Model;
 using Kinetix.Tools.Model.Config;
+using Kinetix.Tools.Model.Generator.Ssdt.Dto;
 
 namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter
 {
