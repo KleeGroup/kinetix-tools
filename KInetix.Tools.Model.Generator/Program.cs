@@ -6,7 +6,6 @@ using Kinetix.Tools.Model.Generator.ProceduralSql;
 using Kinetix.Tools.Model.Generator.Ssdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 
 namespace Kinetix.Tools.Model.Generator
 {

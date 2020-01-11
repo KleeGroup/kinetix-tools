@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using Kinetix.Tools.Model;
 using Kinetix.Tools.Model.Config;
 using Kinetix.Tools.Model.FileModel;
 using Microsoft.Extensions.Logging;

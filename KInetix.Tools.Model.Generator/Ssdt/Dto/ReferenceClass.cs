@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Kinetix.Tools.Model;
 
 #nullable disable
 namespace Kinetix.Tools.Model.Generator.Ssdt.Dto
