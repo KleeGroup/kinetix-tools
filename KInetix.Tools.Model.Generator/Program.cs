@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Kinetix.Tools.Model.Config;
 using Kinetix.Tools.Model.Generator.CSharp;
 using Kinetix.Tools.Model.Generator.Javascript;
 using Kinetix.Tools.Model.Generator.ProceduralSql;
@@ -14,8 +13,7 @@ namespace Kinetix.Tools.Model.Generator
         public static void Main(string[] args)
         {
             using var provider = new ServiceCollection()
-                .AddConfig(args[0])
-                .AddSingleton<ModelStore>()
+                .AddModelStore(args[0])
                 .AddSingleton<IGenerator, SsdtGenerator>()
                 .AddSingleton<IGenerator, ProceduralSqlGenerator>()
                 .AddSingleton<IGenerator, CSharpGenerator>()
