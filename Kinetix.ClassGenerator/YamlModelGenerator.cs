@@ -77,13 +77,7 @@ namespace Kinetix.ClassGenerator
 
                             foreach (var rFile in module.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()).OrderBy(f => f.Key))
                             {
-                                Write(fw, 3, "- file", rFile.Key ?? "00 Missing");
-                                Write(fw, 4, "classes");
-
-                                foreach (var reference in rFile.OrderBy(f => f.Name))
-                                {
-                                    Write(fw, 5, null, $"- {reference.Name}");
-                                }
+                                Write(fw, 3, null, $"- {rFile.Key ?? "00 Missing"}");                                
                             }
                         }
                     }

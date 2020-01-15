@@ -33,7 +33,7 @@ namespace Kinetix.Tools.Model.Loaders
                 {
                     foreach (var depFile in dep.Files)
                     {
-                        var (a, b) = classFiles[(dep.Module, dep.Kind, depFile.File)];
+                        var (a, b) = classFiles[(dep.Module, dep.Kind, depFile)];
                         LoadClasses(a, b, classes, classFiles, domains, deserializer);
                     }
                 }
