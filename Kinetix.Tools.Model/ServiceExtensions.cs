@@ -24,6 +24,8 @@ namespace Kinetix.Tools.Model
             services
                 .AddSingleton(deserializer)
                 .AddSingleton(fileChecker)
+                .AddSingleton<ModelFileLoader>()
+                .AddSingleton<DomainFileLoader>()
                 .AddSingleton<ModelStore>();
 
             if (configFilePath != null)

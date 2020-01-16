@@ -332,7 +332,7 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                 fw.Write(reference.Name);
                 fw.Write("Code = ");
                 fw.Write(reference.ReferenceValues != null
-                    ? string.Join(" | ", reference.ReferenceValues.Select(r => r.Value.code).OrderBy(x => x))
+                    ? string.Join(" | ", reference.ReferenceValues.Select(r => $@"""{r.Value[reference.PrimaryKey]}""").OrderBy(x => x))
                     : "string");
                 fw.Write(";\r\nexport interface ");
                 fw.Write(reference.Name);
