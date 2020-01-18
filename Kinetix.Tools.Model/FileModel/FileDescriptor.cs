@@ -11,5 +11,7 @@ namespace Kinetix.Tools.Model.FileModel
         public string File { get; set; }
 #nullable enable
         public IList<DependencyDescriptor>? Uses { get; set; }
+
+        public Namespace Namespace => new Namespace { Kind = Kind, Module = Module };
     }
 }
