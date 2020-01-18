@@ -1,4 +1,5 @@
-﻿using Kinetix.Tools.Model.Config;
+﻿using System.Linq;
+using Kinetix.Tools.Model.Config;
 using Microsoft.Extensions.Logging;
 
 namespace Kinetix.Tools.Model.Generator.Ssdt
@@ -42,7 +43,7 @@ namespace Kinetix.Tools.Model.Generator.Ssdt
                 SsdtInsertGenerator.GenerateListInitScript(
                     _config,
                     _logger,
-                    _modelStore.StaticListsMap,
+                    _modelStore.Classes.Where(c => c.Stereotype == Stereotype.Statique && c.ReferenceValues != null),
                     _config.InitStaticListScriptFolder,
                     _config.InitStaticListMainScriptName,
                     true);
@@ -53,7 +54,7 @@ namespace Kinetix.Tools.Model.Generator.Ssdt
                 SsdtInsertGenerator.GenerateListInitScript(
                     _config,
                     _logger,
-                    _modelStore.ReferenceListsMap,
+                    _modelStore.Classes.Where(c => c.Stereotype == Stereotype.Reference && c.ReferenceValues != null),
                     _config.InitReferenceListScriptFolder,
                     _config.InitReferenceListMainScriptName,
                     false);

@@ -1,4 +1,5 @@
-﻿using Kinetix.Tools.Model.Config;
+﻿using System.Linq;
+using Kinetix.Tools.Model.Config;
 using Microsoft.Extensions.Logging;
 
 namespace Kinetix.Tools.Model.Generator.ProceduralSql
@@ -34,8 +35,8 @@ namespace Kinetix.Tools.Model.Generator.ProceduralSql
                 : (AbstractSchemaGenerator)new SqlServerSchemaGenerator(rootNamespace, _config, _logger);
 
             schemaGenerator.GenerateSchemaScript(_modelStore.Classes);
-            schemaGenerator.GenerateListInitScript(_modelStore.StaticListsMap, isStatic: true);
-            schemaGenerator.GenerateListInitScript(_modelStore.ReferenceListsMap, isStatic: false);
+            schemaGenerator.GenerateListInitScript(_modelStore.Classes.Where(c => c.Stereotype == Stereotype.Statique && c.ReferenceValues != null), isStatic: true);
+            schemaGenerator.GenerateListInitScript(_modelStore.Classes.Where(c => c.Stereotype == Stereotype.Reference && c.ReferenceValues != null), isStatic: false);
         }
     }
 }
