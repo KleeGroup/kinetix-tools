@@ -22,6 +22,7 @@ namespace Kinetix.Tools.Model
             var fileChecker = new FileChecker(deserializer);
 
             services
+                .AddMemoryCache()
                 .AddSingleton(deserializer)
                 .AddSingleton(fileChecker)
                 .AddSingleton<ModelFileLoader>()

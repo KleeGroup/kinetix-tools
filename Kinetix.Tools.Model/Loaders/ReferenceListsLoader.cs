@@ -39,7 +39,7 @@ namespace Kinetix.Tools.Model.Loaders
 
                     return (prop, propValue);
                 }).ToDictionary(v => v.prop, v => v.propValue)
-            });
+            }).ToList();
         }
     }
 }
