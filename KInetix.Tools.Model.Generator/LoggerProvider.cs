@@ -6,7 +6,9 @@ namespace Kinetix.Tools.Model.Generator
 {
     public class LoggerProvider : ILoggerProvider
     {
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
 
         public ILogger CreateLogger(string categoryName)
         {
@@ -28,6 +30,7 @@ namespace Kinetix.Tools.Model.Generator
                 {
                     return;
                 }
+
                 Console.ForegroundColor = logLevel switch
                 {
                     LogLevel.Error => ConsoleColor.Red,

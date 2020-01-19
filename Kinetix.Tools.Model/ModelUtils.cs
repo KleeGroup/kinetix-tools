@@ -29,7 +29,6 @@ namespace Kinetix.Tools.Model
         /// Transforme le type en type Typescript.
         /// </summary>
         /// <param name="type">Le type d'entrée.</param>
-        /// <param name="removeBrackets">Supprime la liste.</param>
         /// <returns>Le type en sortie.</returns>
         public static string CSharpToTSType(string type)
         {
@@ -146,9 +145,10 @@ namespace Kinetix.Tools.Model
             {
                 relative = $".\\{relative}";
             }
+
             return relative;
         }
-            
+
         public static IList<T> Sort<T>(IEnumerable<T> source, Func<T, IEnumerable<T>> getDependencies)
             where T : notnull
         {
