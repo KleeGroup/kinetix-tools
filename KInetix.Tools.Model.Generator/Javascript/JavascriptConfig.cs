@@ -1,4 +1,4 @@
-﻿namespace Kinetix.Tools.Model.Config
+﻿namespace Kinetix.Tools.Model.Generator.Javascript
 {
     /// <summary>
     /// Paramètres pour la génération du Javascript.

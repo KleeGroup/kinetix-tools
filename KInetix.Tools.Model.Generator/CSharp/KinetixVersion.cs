@@ -1,4 +1,4 @@
-﻿namespace Kinetix.Tools.Model.Config
+﻿namespace Kinetix.Tools.Model.Generator.CSharp
 {
     public enum KinetixVersion
     {

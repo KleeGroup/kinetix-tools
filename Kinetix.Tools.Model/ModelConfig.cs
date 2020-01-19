@@ -1,6 +1,6 @@
-﻿namespace Kinetix.Tools.Model.Config
+﻿namespace Kinetix.Tools.Model
 {
-    public class RootConfig
+    public class ModelConfig
     {
 #nullable disable
         public string ModelRoot { get; set; }

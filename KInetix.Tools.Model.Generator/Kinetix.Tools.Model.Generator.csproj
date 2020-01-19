@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Kinetix.Tools.Model\Kinetix.Tools.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="schema.config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

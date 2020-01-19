@@ -32,7 +32,7 @@ namespace Kinetix.Tools.Model.Generator
                 {
                     LogLevel.Error => ConsoleColor.Red,
                     LogLevel.Warning => ConsoleColor.Yellow,
-                    _ => ConsoleColor.White
+                    _ => ConsoleColor.Gray
                 };
 
                 var message = formatter(state, exception);
@@ -41,7 +41,7 @@ namespace Kinetix.Tools.Model.Generator
                 category = category == "I" ? string.Empty : $"{category}: ";
 
                 Console.WriteLine($"{category}{message}");
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
 
             public bool IsEnabled(LogLevel logLevel)

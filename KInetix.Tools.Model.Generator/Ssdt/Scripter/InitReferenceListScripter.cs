@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Kinetix.Tools.Model.Config;
 using Kinetix.Tools.Model.Generator.Ssdt.Dto;
 
 namespace Kinetix.Tools.Model.Generator.Ssdt.Scripter

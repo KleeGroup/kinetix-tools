@@ -1,4 +1,4 @@
-﻿namespace Kinetix.Tools.Model.Config
+﻿namespace Kinetix.Tools.Model.Generator.Ssdt
 {
     /// <summary>
     /// Paramètres pour la génération SSDT.

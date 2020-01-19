@@ -1,13 +1,15 @@
-﻿namespace Kinetix.Tools.Model.Generator.Ssdt
+﻿using Microsoft.Extensions.Logging;
+
+namespace Kinetix.Tools.Model.Generator.Ssdt
 {
     /// <summary>
     /// Writer pour l'écriture de fichier.
     /// Spécifique pour les fichiers SQL (usage du token commentaire SQL).
     /// </summary>
-    internal class SqlFileWriter : FileWriter
+    public class SqlFileWriter : FileWriter
     {
-        public SqlFileWriter(string fileName) 
-            : base(fileName)
+        public SqlFileWriter(string fileName, ILogger logger)
+            : base(fileName, logger)
         {
         }
 
