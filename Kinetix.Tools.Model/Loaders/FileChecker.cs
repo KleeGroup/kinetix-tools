@@ -34,6 +34,7 @@ namespace Kinetix.Tools.Model.Loaders
             _deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .WithNodeTypeResolver(new InferTypeFromValueResolver())
+                .IgnoreUnmatchedProperties()
                 .Build();
             _serialiazer = new SerializerBuilder()
                 .JsonCompatible()

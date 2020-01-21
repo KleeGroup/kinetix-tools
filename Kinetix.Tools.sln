@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kinetix.Tools.Model", "Kine
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kinetix.Tools.Model.Generator", "Kinetix.Tools.Model.Generator\Kinetix.Tools.Model.Generator.csproj", "{5BC4231E-A790-4C12-A091-F4FDDBF98D8C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kinetix.Tools.Model.Visualization", "Kinetix.Tools.Model.Visualization\Kinetix.Tools.Model.Visualization.csproj", "{CE9D93D7-2118-4ADB-9B71-FFFC7810396C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kinetix.Tools.Model.UI", "Kinetix.Tools.Model.UI\Kinetix.Tools.Model.UI.csproj", "{79F4BA4A-C5B7-490A-9FBB-513EF76026CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,10 @@ Global
 		{5BC4231E-A790-4C12-A091-F4FDDBF98D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BC4231E-A790-4C12-A091-F4FDDBF98D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BC4231E-A790-4C12-A091-F4FDDBF98D8C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE9D93D7-2118-4ADB-9B71-FFFC7810396C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE9D93D7-2118-4ADB-9B71-FFFC7810396C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE9D93D7-2118-4ADB-9B71-FFFC7810396C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE9D93D7-2118-4ADB-9B71-FFFC7810396C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79F4BA4A-C5B7-490A-9FBB-513EF76026CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79F4BA4A-C5B7-490A-9FBB-513EF76026CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79F4BA4A-C5B7-490A-9FBB-513EF76026CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79F4BA4A-C5B7-490A-9FBB-513EF76026CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
