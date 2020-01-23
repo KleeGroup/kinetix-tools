@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Kinetix.Tools.Model.FileModel;
 
 namespace Kinetix.Tools.Model
 {
@@ -13,6 +14,8 @@ namespace Kinetix.Tools.Model
         public string Name { get; set; }
 
         public string Comment { get; set; }
+
+        public ModelFile ModelFile { get; set; }
 
 #nullable enable
         public Class? Extends { get; set; }
