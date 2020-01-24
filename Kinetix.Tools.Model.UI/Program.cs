@@ -25,7 +25,8 @@ namespace Kinetix.Tools.Model.UI
                    services
                        .AddModelStore(fileChecker, config, dn)
                        .AddHostedService<ModelWatcherService>()
-                       .AddSingleton<IModelWatcher, ModelWatcherHandler>();
+                       .AddSingleton<ModelFileProvider>()
+                       .AddSingleton<IModelWatcher>(p => p.GetService<ModelFileProvider>());
                })
                .Build()
                .Run();
