@@ -17,8 +17,7 @@ namespace Kinetix.Tools.Model.UI
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _watcher = _modelStore.BeginWatch();
-            _modelStore.LoadFromConfig();
+            _watcher = _modelStore.LoadFromConfig(true);
             return Task.CompletedTask;
         }
 
