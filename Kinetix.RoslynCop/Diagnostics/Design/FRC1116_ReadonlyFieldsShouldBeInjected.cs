@@ -42,11 +42,12 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
             var location = context.Symbol.Locations.First();
             var racine = location.SourceTree.GetRoot();
             var modèleSémantique = context.Compilation.GetSemanticModel(location.SourceTree);
-            var déclarationChamp = racine.FindNode(location.SourceSpan) as VariableDeclaratorSyntax;
 
             // On vérifie que le champ est bien en lecture seule et n'est pas initialisé à la déclaration.
-            if (déclarationChamp == null || (context.Symbol as IFieldSymbol)?.IsReadOnly == false || déclarationChamp.Initializer != null)
+            if (!(racine.FindNode(location.SourceSpan) is VariableDeclaratorSyntax déclarationChamp) || (context.Symbol as IFieldSymbol)?.IsReadOnly == false || déclarationChamp.Initializer != null)
+            {
                 return;
+            }
 
             // On parcourt tous les constructeurs de la classe et récupère les assignations du champ dans chacun.
             var usages = racine.FindNode(déclarationChamp.Ancestors().OfType<ClassDeclarationSyntax>().First().Span)
@@ -56,18 +57,20 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
                         .Where(x =>
                         {
                             var assignation = x as AssignmentExpressionSyntax;
-                            return assignation?.Left != null && modèleSémantique.GetSymbolInfo(assignation.Left).Symbol == context.Symbol;
+                            return assignation?.Left != null && SymbolEqualityComparer.Default.Equals(modèleSémantique.GetSymbolInfo(assignation.Left).Symbol, context.Symbol);
                         }).Concat(
                     constructeur.DescendantNodes()
                         .Where(x =>
                         {
                             var argument = x as ArgumentSyntax;
-                            return argument?.RefOrOutKeyword.Kind() == SyntaxKind.OutKeyword && modèleSémantique.GetSymbolInfo(argument.Expression).Symbol == context.Symbol;
+                            return argument?.RefOrOutKeyword.Kind() == SyntaxKind.OutKeyword && SymbolEqualityComparer.Default.Equals(modèleSémantique.GetSymbolInfo(argument.Expression).Symbol, context.Symbol);
                         })));
 
             // Si le champ n'est jamais initialisé, on lève l'erreur.
             if (usages.Count() == 0)
+            {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, context.Symbol.Locations[0]));
+            }
         }
     }
 }

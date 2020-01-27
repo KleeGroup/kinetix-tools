@@ -33,8 +33,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
             /* Obtient le node d'identifiant. */
-            var identifier = context.Node as IdentifierNameSyntax;
-            if (identifier == null)
+            if (!(context.Node is IdentifierNameSyntax identifier))
             {
                 return;
             }
@@ -59,7 +58,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
             var referenceAssembly = identifierSymbol.ContainingAssembly;
             var currentAssembly = currentNodeSymbol.ContainingAssembly;
             /* Compare les assemblées. */
-            if (referenceAssembly != currentAssembly &&
+            if (!SymbolEqualityComparer.Default.Equals(referenceAssembly, currentAssembly) &&
                 referenceAssembly.IsBusinessImplementationAssembly() &&
                 currentAssembly.IsBusinessImplementationAssembly())
             {
