@@ -24,7 +24,6 @@ namespace Kinetix.Tools.Model
                 CombinePath(rootDir, config, c => c.ModelRoot);
                 CombinePath(rootDir, config, c => c.Domains);
                 CombinePath(rootDir, config, c => c.StaticLists);
-                CombinePath(rootDir, config, c => c.ReferenceLists);
                 services.AddSingleton(config);
             }
 
