@@ -101,7 +101,7 @@ namespace Kinetix.Tools.Model
 
         private void LoadReferenceLists()
         {
-            var staticLists = ReferenceListsLoader.LoadReferenceLists(_config.StaticLists);
+            var staticLists = ReferenceListsLoader.LoadReferenceLists(_config.InitLists);
 
             var classMap = _modelFiles.SelectMany(mf => mf.Value.Classes)
                 .ToDictionary(c => c.Name, c => c);
