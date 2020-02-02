@@ -1,13 +1,10 @@
-﻿namespace Kinetix.Tools.Model
+﻿#nullable disable
+namespace Kinetix.Tools.Model
 {
     public class ModelConfig
     {
-#nullable disable
         public string ModelRoot { get; set; }
 
         public string Domains { get; set; }
-
-#nullable enable
-        public string? InitLists { get; set; }
     }
 }

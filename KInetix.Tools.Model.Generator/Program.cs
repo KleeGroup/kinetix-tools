@@ -76,8 +76,6 @@ namespace Kinetix.Tools.Model.Generator
                     .AddSingleton<IModelWatcher, SsdtGenerator>();
             }
 
-            services.AddSingleton<IModelWatcher, YamlReferenceListGenerator>();
-
             if (config.Csharp != null)
             {
                 CombinePath(dn, config.Csharp, c => c.OutputDirectory);
