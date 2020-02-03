@@ -1,4 +1,6 @@
-﻿namespace Kinetix.Tools.Common.Model
+﻿using System.Collections.Generic;
+
+namespace Kinetix.Tools.Common.Model
 {
     /// <summary>
     /// Représentation simple d'un élément d'une liste statique
@@ -31,5 +33,10 @@
             get;
             set;
         }
+
+        /// <summary>
+        /// Valeurs complètes de l'item.
+        /// </summary>
+        public IDictionary<string, object> Values { get; set; }
     }
 }

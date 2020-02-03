@@ -77,7 +77,7 @@ namespace Kinetix.ClassGenerator
 
                             foreach (var rFile in module.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()).OrderBy(f => f.Key))
                             {
-                                Write(fw, 3, null, $"- {rFile.Key ?? "00 Missing"}");                                
+                                Write(fw, 3, null, $"- {rFile.Key ?? "00 Missing"}");
                             }
                         }
                     }
@@ -95,7 +95,7 @@ namespace Kinetix.ClassGenerator
                         Write(fw, 1, "name", classe.Name);
                         Write(fw, 1, "extends", classe.ParentClass?.Name, classe.ParentClass != null);
                         Write(fw, 1, "label", classe.Label, classe.Name != classe.Label);
-                        Write(fw, 1, "stereotype", classe.Stereotype, !string.IsNullOrWhiteSpace(classe.Stereotype));
+                        Write(fw, 1, "reference", "true", !string.IsNullOrWhiteSpace(classe.Stereotype));
                         Write(fw, 1, "orderProperty", orderProperty?.Name, orderProperty != null);
                         Write(fw, 1, "defaultProperty", defaultProperty?.Name, defaultProperty != null);
                         Write(fw, 1, "comment", classe.Comment);
@@ -149,6 +149,43 @@ namespace Kinetix.ClassGenerator
                                 fw.WriteLine();
                             }
                         }
+
+                        if (classe.ConstValues != null && classe.ConstValues.Any())
+                        {
+                            fw.WriteLine();
+                            fw.WriteLine("  values:");
+                            var keyLength = classe.ConstValues.Select(v => v.Key).Max(n => n.Length);
+
+                            var maxLengths = classe.ConstValues.SelectMany(rv => rv.Value.Values).GroupBy(p => p.Key)
+                                .ToDictionary(p => p.Key, p => p.Max(v => Escape(v.Value?.ToString())?.Length ?? 0));
+
+                            foreach (var value in classe.ConstValues)
+                            {
+                                fw.Write("    ");
+                                fw.Write($"{value.Key}:{string.Join(string.Empty, Enumerable.Range(0, keyLength - value.Key.Length).Select(_ => " "))} {{");
+
+                                var props = value.Value.Values.ToList();
+                                foreach (var prop in props)
+                                {
+                                    var v = prop.Value?.ToString();
+                                    if (v == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    fw.Write($" {prop.Key}: ");
+                                    fw.Write(Escape(v));
+
+                                    if (props.IndexOf(prop) < props.Count - 1)
+                                    {
+                                        fw.Write(",");
+                                        fw.Write(string.Join(string.Empty, Enumerable.Range(0, maxLengths[prop.Key] - (Escape(v)?.Length ?? 0)).Select(_ => " ")));
+                                    }
+                                }
+
+                                fw.WriteLine(" }");
+                            }
+                        }
                     }
 
                     Console.WriteLine($"Ecriture du fichier {fullPath}");
@@ -187,14 +224,8 @@ namespace Kinetix.ClassGenerator
                     {
                         fw.Write($"{spaces}  ");
                     }
-                    if (line.Contains(":") || line.Contains("["))
-                    {
-                        fw.Write($@"""{line}""");
-                    }
-                    else
-                    {
-                        fw.Write(line);
-                    }
+
+                    fw.Write(Escape(line, false));
                     fw.Write("\r\n");
                 }
             }
@@ -202,6 +233,15 @@ namespace Kinetix.ClassGenerator
             {
                 fw.Write("\r\n");
             }
+        }
+
+        private static string Escape(string v, bool forRef = true)
+        {
+            return v == null
+                ? null
+                : v.Contains(":") || v.Contains("[") || forRef && v.Contains(",") || v == string.Empty || forRef && v.EndsWith(" ")
+                ? $@"""{v}"""
+                : v;
         }
     }
 }

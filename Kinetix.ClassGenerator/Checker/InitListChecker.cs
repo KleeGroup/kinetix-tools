@@ -183,7 +183,7 @@ namespace Kinetix.ClassGenerator.Checker
                     libelle = itemInit.VarName;
                 }
 
-                classe.ConstValues.Add(itemInit.VarName, new StaticListElement() { Code = propertyValue, Libelle = libelle, CodeType = propertyValue.GetType().ToString() });
+                classe.ConstValues.Add(itemInit.VarName, new StaticListElement() { Code = propertyValue, Libelle = libelle, CodeType = propertyValue.GetType().ToString(), Values = definition });
             }
         }
 
