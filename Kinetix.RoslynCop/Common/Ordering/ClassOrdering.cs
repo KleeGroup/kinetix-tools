@@ -106,21 +106,34 @@ namespace Kinetix.RoslynCop.Common.Ordering
                 classes);
         }
 
-        private static IEnumerable<T> Concaténer<T>(params IEnumerable<T>[] listes) => listes.SelectMany(x => x);
+        private static IEnumerable<T> Concaténer<T>(params IEnumerable<T>[] listes)
+        {
+            return listes.SelectMany(x => x);
+        }
 
         private static IEnumerable<BaseFieldDeclarationSyntax> TrierParNom(this IEnumerable<BaseFieldDeclarationSyntax> éléments)
-            => éléments.OrderBy(élément => élément.Declaration.Variables.First().Identifier.ToString(), StringComparer.Ordinal);
+        {
+            return éléments.OrderBy(élément => élément.Declaration.Variables.First().Identifier.ToString(), StringComparer.Ordinal);
+        }
 
         private static IEnumerable<BaseTypeDeclarationSyntax> TrierParNom(this IEnumerable<BaseTypeDeclarationSyntax> éléments)
-            => éléments.OrderBy(élément => élément.Identifier.ToString(), StringComparer.Ordinal);
+        {
+            return éléments.OrderBy(élément => élément.Identifier.ToString(), StringComparer.Ordinal);
+        }
 
         private static IEnumerable<BaseMethodDeclarationSyntax> TrierParNombreParametres(this IEnumerable<BaseMethodDeclarationSyntax> éléments)
-            => éléments.OrderBy(élément => élément.ParameterList.ChildNodes().Count());
+        {
+            return éléments.OrderBy(élément => élément.ParameterList.ChildNodes().Count());
+        }
 
         private static IEnumerable<BaseFieldDeclarationSyntax> TrierParSymbole(this IEnumerable<BaseFieldDeclarationSyntax> éléments, SemanticModel modèleSémantique, IComparer<ISymbol> comparateur)
-            => éléments.OrderBy(élément => modèleSémantique.GetDeclaredSymbol(élément.Declaration.Variables.First()), comparateur);
+        {
+            return éléments.OrderBy(élément => modèleSémantique.GetDeclaredSymbol(élément.Declaration.Variables.First()), comparateur);
+        }
 
         private static IEnumerable<MemberDeclarationSyntax> TrierParSymbole(this IEnumerable<MemberDeclarationSyntax> éléments, SemanticModel modèleSémantique, IComparer<ISymbol> comparateur)
-            => éléments.OrderBy(élément => modèleSémantique.GetDeclaredSymbol(élément), comparateur);
+        {
+            return éléments.OrderBy(élément => modèleSémantique.GetDeclaredSymbol(élément), comparateur);
+        }
     }
 }

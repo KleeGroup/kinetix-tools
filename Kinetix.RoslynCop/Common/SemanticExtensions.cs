@@ -13,11 +13,11 @@ namespace Kinetix.RoslynCop.Common
         private const string ServiceContractAttributeName = "System.ServiceModel.ServiceContractAttribute";
         private const string ServiceImplementationAttributeName = "System.ServiceModel.ServiceBehaviorAttribute";
         private static readonly string[] HttpVerbAttributes = {
-                "System.Web.Http.HttpGetAttribute",
-                "System.Web.Http.HttpPostAttribute",
-                "System.Web.Http.HttpPutAttribute",
-                "System.Web.Http.HttpDeleteAttribute"
-            };
+            "System.Web.Http.HttpGetAttribute",
+            "System.Web.Http.HttpPostAttribute",
+            "System.Web.Http.HttpPutAttribute",
+            "System.Web.Http.HttpDeleteAttribute"
+        };
 
         /// <summary>
         /// Renvoie le nom de l'application d'une assemblée.
@@ -37,13 +37,10 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est décoré avec un attribut de verbes HTTP.</returns>
         public static bool HasHttpVerbAttribute(this IMethodSymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => HttpVerbAttributes.Contains(a.AttributeClass?.ToString()));
+            return symbol == null
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => HttpVerbAttributes.Contains(a.AttributeClass?.ToString()));
         }
 
         /// <summary>
@@ -53,13 +50,10 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est décoré avec un attribut de route.</returns>
         public static bool HasRouteAttribute(this IMethodSymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => a.AttributeClass?.ToString() == "System.Web.Http.RouteAttribute");
+            return symbol == null
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => a.AttributeClass?.ToString() == "System.Web.Http.RouteAttribute");
         }
 
         /// <summary>
@@ -91,17 +85,11 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si l'assemblée est une implémentation de module métier.</returns>
         public static bool IsBusinessImplementationAssembly(this IAssemblySymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(symbol.Name))
-            {
-                return false;
-            }
-
-            return symbol.Name.EndsWith("Implementation", System.StringComparison.Ordinal);
+            return symbol == null
+                ? false
+                : string.IsNullOrEmpty(symbol.Name)
+                ? false
+                : symbol.Name.EndsWith("Implementation", System.StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -111,23 +99,14 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est une implémentation de DAL.</returns>
         public static bool IsDalImplementation(this INamedTypeSymbol symbol)
         {
-            if (symbol == null || !(symbol.TypeKind == TypeKind.Class))
-            {
-                return false;
-            }
-
-            if (symbol.Name == "AbstractDal")
-            {
-                return true;
-            }
-
-            if (!symbol.Name.StartsWith("Dal", System.StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
+            return symbol == null || !(symbol.TypeKind == TypeKind.Class)
+                ? false
+                : symbol.Name == "AbstractDal"
+                ? true
+                : !symbol.Name.StartsWith("Dal", System.StringComparison.Ordinal)
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
         }
 
         /// <summary>
@@ -137,12 +116,9 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est une implémentation de DAL.</returns>
         public static bool IsFramework(this INamedTypeSymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return symbol.ToString().StartsWith("Kinetix.", System.StringComparison.Ordinal);
+            return symbol == null
+                ? false
+                : symbol.ToString().StartsWith("Kinetix.", System.StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -152,13 +128,10 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est une opération de contrat de service WCF.</returns>
         public static bool IsOperationContract(this IMethodSymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => a.AttributeClass?.ToString() == OperationContractAttributeName);
+            return symbol == null
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => a.AttributeClass?.ToString() == OperationContractAttributeName);
         }
 
         /// <summary>
@@ -168,13 +141,10 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est un contrat de service WCF.</returns>
         public static bool IsServiceContract(this INamedTypeSymbol symbol)
         {
-            if (symbol == null || !(symbol.TypeKind == TypeKind.Interface))
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => a.AttributeClass?.ToString() == ServiceContractAttributeName);
+            return symbol == null || !(symbol.TypeKind == TypeKind.Interface)
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => a.AttributeClass?.ToString() == ServiceContractAttributeName);
         }
 
         /// <summary>
@@ -184,13 +154,10 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est une implémentation de service WCF.</returns>
         public static bool IsServiceImplementation(this INamedTypeSymbol symbol)
         {
-            if (symbol == null || !(symbol.TypeKind == TypeKind.Class))
-            {
-                return false;
-            }
-
-            return symbol.GetAttributes()
-                            .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
+            return symbol == null || !(symbol.TypeKind == TypeKind.Class)
+                ? false
+                : symbol.GetAttributes()
+                    .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
         }
 
         /// <summary>
@@ -247,7 +214,7 @@ namespace Kinetix.RoslynCop.Common
                 return false;
             }
 
-            for (int i = 0; i < leftParams.Length; ++i)
+            for (var i = 0; i < leftParams.Length; ++i)
             {
                 var leftParam = leftParams[i];
                 var rightParam = rightParams[i];

@@ -13,16 +13,13 @@ namespace Kinetix.RoslynCop.Common
         /// <summary>
         /// Détermine si le inheritDoc du symbole méthode est présent et correct.
         /// </summary>
-        /// <param name="racine">Le nœud racine de l'arbre syntaxtique courant.</param>
         /// <param name="modèleSémantique">Le modèle sémantique lié.</param>
         /// <param name="méthode">La méthode concernée.</param>
         /// <returns>La ligne inheritDoc correcte dans le cas où l'actuelle est manquante/incorrecte, sinon null.</returns>
-        public static string InheritDocEstCorrect(SyntaxNode racine, SemanticModel modèleSémantique, MethodDeclarationSyntax méthode)
+        public static string InheritDocEstCorrect(SemanticModel modèleSémantique, MethodDeclarationSyntax méthode)
         {
-            var classe = méthode?.Parent as ClassDeclarationSyntax;
-
             // Si on est bien dans une méthode de classe.
-            if (méthode != null && classe != null)
+            if (méthode != null && méthode?.Parent is ClassDeclarationSyntax classe)
             {
                 // On récupère la version sémantique de la méthode pour identifier ses paramètres.
                 var méthodeSémantique = modèleSémantique.GetDeclaredSymbol(méthode);
@@ -47,7 +44,7 @@ namespace Kinetix.RoslynCop.Common
                     var inheritDoc = $@"/// <inheritdoc cref=""{
                         RécupérerNomType(méthode, méthodeCorrespondante, modèleSémantique)
                     }.{
-                        RécupérerNomMéthode(méthode, méthodeCorrespondante)
+                        RécupérerNomMéthode(méthodeCorrespondante)
                       + RécupérerParamètres(méthode, méthodeCorrespondante, modèleSémantique, nombreMéthodesSurchargées)
                     }"" />";
 
@@ -74,13 +71,14 @@ namespace Kinetix.RoslynCop.Common
         /// <summary>
         /// Récupère le nom complet de la méthode (avec paramètre de type éventuel).
         /// </summary>
-        /// <param name="méthode">La méthode.</param>
         /// <param name="méthodeCorrespondante">La méthode correspondante.</param>
         /// <returns>Le nom complet de la méthode.</returns>
-        private static string RécupérerNomMéthode(MethodDeclarationSyntax méthode, IMethodSymbol méthodeCorrespondante) =>
-            méthodeCorrespondante.Name + (méthodeCorrespondante.TypeParameters.Count() > 0 ?
+        private static string RécupérerNomMéthode(IMethodSymbol méthodeCorrespondante)
+        {
+            return méthodeCorrespondante.Name + (méthodeCorrespondante.TypeParameters.Count() > 0 ?
                 "{" + string.Join(", ", méthodeCorrespondante.TypeParameters.Select(type => type.Name)) + "}"
                 : string.Empty);
+        }
 
         /// <summary>
         /// Récupère le nom complet du type de la méthode (avec paramètre de type éventuel).
@@ -89,10 +87,12 @@ namespace Kinetix.RoslynCop.Common
         /// <param name="méthodeCorrespondante">La méthode correspondante.</param>
         /// <param name="modèleSémantique">Le modèle sémantique (pour simplifier les types).</param>
         /// <returns>Le nom complet de la méthode.</returns>
-        private static string RécupérerNomType(MethodDeclarationSyntax méthode, IMethodSymbol méthodeCorrespondante, SemanticModel modèleSémantique) =>
-            méthodeCorrespondante.ContainingType.ConstructedFrom
+        private static string RécupérerNomType(MethodDeclarationSyntax méthode, IMethodSymbol méthodeCorrespondante, SemanticModel modèleSémantique)
+        {
+            return méthodeCorrespondante.ContainingType.ConstructedFrom
                 .ToMinimalDisplayString(modèleSémantique, méthode.GetLocation().SourceSpan.Start)
                 .Replace('<', '{').Replace('>', '}');
+        }
 
         /// <summary>
         /// Récupère les paramètres de la méthode.

@@ -33,8 +33,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
             /* Obtient le node de déclaration de classe. */
-            var classDecl = context.Node as ClassDeclarationSyntax;
-            if (classDecl == null)
+            if (!(context.Node is ClassDeclarationSyntax classDecl))
             {
                 return;
             }

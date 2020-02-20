@@ -17,14 +17,16 @@ namespace Kinetix.RoslynCop.Common.Ordering
         /// <param name="expressions">Liste d'expressions.</param>
         /// <param name="modèleSémantique">Modèle sémantique.</param>
         /// <returns>La liste d'assignations.</returns>
-        public static IEnumerable<StatementSyntax> TrouverAssignations(SyntaxList<StatementSyntax> expressions, SemanticModel modèleSémantique) =>
-            expressions.Where(e =>
+        public static IEnumerable<StatementSyntax> TrouverAssignations(SyntaxList<StatementSyntax> expressions, SemanticModel modèleSémantique)
+        {
+            return expressions.Where(e =>
             {
                 var expression = (e as ExpressionStatementSyntax)?.Expression as AssignmentExpressionSyntax;
                 return expression?.Kind() == SyntaxKind.SimpleAssignmentExpression
-                    && modèleSémantique.GetSymbolInfo(expression.Left).Symbol?.Kind == SymbolKind.Field
-                    && modèleSémantique.GetSymbolInfo(expression.Right).Symbol?.Kind == SymbolKind.Parameter;
+                && modèleSémantique.GetSymbolInfo(expression.Left).Symbol?.Kind == SymbolKind.Field
+                && modèleSémantique.GetSymbolInfo(expression.Right).Symbol?.Kind == SymbolKind.Parameter;
             });
+        }
 
         /// <summary>
         /// Retourne les conditions sur les paramètres dans une listes d'expressions.
@@ -33,17 +35,19 @@ namespace Kinetix.RoslynCop.Common.Ordering
         /// <param name="paramètres">Les paramètres du constructeur.</param>
         /// <param name="modèleSémantique">Modèle sémantique.</param>
         /// <returns>La liste d'assignations.</returns>
-        public static IEnumerable<IfStatementSyntax> TrouveConditionsParametres(SyntaxList<StatementSyntax> expressions, ParameterListSyntax paramètres, SemanticModel modèleSémantique) =>
-            expressions
+        public static IEnumerable<IfStatementSyntax> TrouveConditionsParametres(SyntaxList<StatementSyntax> expressions, ParameterListSyntax paramètres, SemanticModel modèleSémantique)
+        {
+            return expressions
                 .OfType<IfStatementSyntax>()
                 .Where(e =>
                     (e.Condition
                         ?.DescendantNodes()?.OfType<IdentifierNameSyntax>()
                         ?.Any(identifiant => modèleSémantique.GetSymbolInfo(identifiant).Symbol?.Kind == SymbolKind.Parameter)
                     ?? false)
-                && (e.Statement
+                    && (e.Statement
                         ?.DescendantNodes()?.OfType<IdentifierNameSyntax>()
                         ?.All(identifiant => modèleSémantique.GetSymbolInfo(identifiant).Symbol?.Kind != SymbolKind.Field)
                     ?? false));
+        }
     }
 }

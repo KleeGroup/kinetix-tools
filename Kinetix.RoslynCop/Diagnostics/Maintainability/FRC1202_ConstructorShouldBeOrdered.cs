@@ -43,7 +43,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
         private static void AnalyserMéthode(SymbolAnalysisContext contexte)
         {
             if (OrdreAssignationEstFaux(contexte))
+            {
                 contexte.ReportDiagnostic(Diagnostic.Create(Rule, contexte.Symbol.Locations[0]));
+            }
         }
 
         /// <summary>
@@ -55,7 +57,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
         {
             // On vérifie que la méthode est bien un constructeur.
             if ((context.Symbol as IMethodSymbol)?.MethodKind != MethodKind.Constructor)
+            {
                 return false;
+            }
 
             // On récupère les informations nécessaires du contexte du symbole.
             var location = context.Symbol.Locations.First();
@@ -64,9 +68,10 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
             var méthode = racine.FindNode(location.SourceSpan) as ConstructorDeclarationSyntax;
 
             // On récupère le corps du constructeur.
-            var corps = méthode?.ChildNodes().FirstOrDefault(nœud => nœud as BlockSyntax != null) as BlockSyntax;
-            if (corps == null)
+            if (!(méthode?.ChildNodes().FirstOrDefault(nœud => nœud as BlockSyntax != null) is BlockSyntax corps))
+            {
                 return false;
+            }
 
             // On récupère toutes les conditions sur les paramètres.
             var conditions = ConstructorOrdering.TrouveConditionsParametres(corps.Statements, méthode.ParameterList, modèleSémantique);
@@ -76,7 +81,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
 
             // On vérifie que toutes les conditions puis toutes les assignations sont au début.
             if (!conditions.Concat(assignations).SequenceEqual(corps.Statements.Take(conditions.Count() + assignations.Count())))
+            {
                 return true;
+            }
 
             // Et on vérifie l'ordre.
             return !assignations.SequenceEqual(assignations.OrderBy(x => x.ToString()));

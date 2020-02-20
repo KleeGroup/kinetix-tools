@@ -34,8 +34,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
             /* Vérifie qu'on est dans un controller Web API. */
-            var classNode = context.Node as ClassDeclarationSyntax;
-            if (classNode == null)
+            if (!(context.Node is ClassDeclarationSyntax classNode))
             {
                 return;
             }

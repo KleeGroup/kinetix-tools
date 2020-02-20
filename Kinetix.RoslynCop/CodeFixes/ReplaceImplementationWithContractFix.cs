@@ -22,7 +22,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1100_DoNotDependOnServiceImplementationAnalyzer.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -30,8 +33,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var paramNode = root.FindNode(diagnosticSpan).Parent as ParameterSyntax;
-            if (paramNode == null)
+            if (!(root.FindNode(diagnosticSpan).Parent is ParameterSyntax paramNode))
             {
                 return;
             }

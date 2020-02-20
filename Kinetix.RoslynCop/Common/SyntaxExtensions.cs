@@ -94,12 +94,7 @@ namespace Kinetix.RoslynCop.Common
         public static string GetNameSpaceFullName(this ClassDeclarationSyntax classNode)
         {
             var nsNode = classNode.FirstAncestorOrSelf<NamespaceDeclarationSyntax>();
-            if (nsNode == null)
-            {
-                return null;
-            }
-
-            return nsNode.Name.ToString();
+            return nsNode?.Name.ToString();
         }
 
         /// <summary>
@@ -110,12 +105,9 @@ namespace Kinetix.RoslynCop.Common
         public static bool IsDalContractFile(this SyntaxTree tree)
         {
             var filePath = tree.FilePath;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-
-            return _dalContractFileRegex.IsMatch(filePath);
+            return string.IsNullOrEmpty(filePath)
+                ? false
+                : _dalContractFileRegex.IsMatch(filePath);
         }
 
         /// <summary>
@@ -126,12 +118,9 @@ namespace Kinetix.RoslynCop.Common
         public static bool IsDalImplementationFile(this SyntaxTree tree)
         {
             var filePath = tree.FilePath;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-
-            return _dalImplementationFileRegex.IsMatch(filePath);
+            return string.IsNullOrEmpty(filePath)
+                ? false
+                : _dalImplementationFileRegex.IsMatch(filePath);
         }
 
         /// <summary>
@@ -162,12 +151,9 @@ namespace Kinetix.RoslynCop.Common
         public static bool IsServiceContractFile(this SyntaxTree tree)
         {
             var filePath = tree.FilePath;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-
-            return _serviceContractFileRegex.IsMatch(filePath);
+            return string.IsNullOrEmpty(filePath)
+                ? false
+                : _serviceContractFileRegex.IsMatch(filePath);
         }
 
         /// <summary>
@@ -178,12 +164,9 @@ namespace Kinetix.RoslynCop.Common
         public static bool IsServiceImplementationFile(this SyntaxTree tree)
         {
             var filePath = tree.FilePath;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-
-            return _serviceImplementationFileRegex.IsMatch(filePath);
+            return string.IsNullOrEmpty(filePath)
+                ? false
+                : _serviceImplementationFileRegex.IsMatch(filePath);
         }
 
         /// <summary>

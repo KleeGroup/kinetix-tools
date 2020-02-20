@@ -34,8 +34,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
             /* Vérifie que la classe est un contrat de service. */
-            var interfaceNode = context.Node as InterfaceDeclarationSyntax;
-            if (interfaceNode == null)
+            if (!(context.Node is InterfaceDeclarationSyntax interfaceNode))
             {
                 return;
             }

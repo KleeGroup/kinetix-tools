@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using Kinetix.RoslynCop.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -21,11 +20,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static readonly string Description = "Renommer le paramètre comme le service.";
         private const string Category = "Naming";
 
-        private static readonly Regex ServiceContractPattern = new Regex(@"^I(Service|Dal)(.*)$");
-
         private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -35,8 +32,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            var node = context.Node as ClassDeclarationSyntax;
-            if (node == null)
+            if (!(context.Node is ClassDeclarationSyntax node))
             {
                 return;
             }

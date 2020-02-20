@@ -16,12 +16,9 @@ namespace Kinetix.RoslynCop.Common
         /// <returns>Chaîne en camelCase.</returns>
         public static string ToCamelCase(this string raw)
         {
-            if (string.IsNullOrEmpty(raw))
-            {
-                return raw;
-            }
-
-            return char.ToLowerInvariant(raw[0]) + raw.Substring(1);
+            return string.IsNullOrEmpty(raw)
+                ? raw
+                : char.ToLowerInvariant(raw[0]) + raw.Substring(1);
         }
 
         /// <summary>
@@ -31,12 +28,9 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si c'est un contrat.</returns>
         public static bool IsServiceContractName(this string candidate)
         {
-            if (string.IsNullOrEmpty(candidate))
-            {
-                return false;
-            }
-
-            return ServiceContractPattern.IsMatch(candidate);
+            return string.IsNullOrEmpty(candidate)
+                ? false
+                : ServiceContractPattern.IsMatch(candidate);
         }
 
         /// <summary>
@@ -46,12 +40,9 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si c'est un contrat.</returns>
         public static string GetServiceContractFieldName(this string contractName)
         {
-            if (string.IsNullOrEmpty(contractName))
-            {
-                return contractName;
-            }
-
-            return $"_{contractName.GetServiceContractParameterName()}";
+            return string.IsNullOrEmpty(contractName)
+                ? contractName
+                : $"_{contractName.GetServiceContractParameterName()}";
         }
 
         /// <summary>

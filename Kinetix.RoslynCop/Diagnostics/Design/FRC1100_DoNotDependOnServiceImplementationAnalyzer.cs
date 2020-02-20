@@ -20,9 +20,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
         private static readonly string Title = "Ne pas injecter une implémentation de service";
 
-        private static DiagnosticDescriptor rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
+        private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -33,8 +33,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
             /* 1. Vérifier qu'on est dans un constructeur d'une classe. */
-            var method = context.Symbol as IMethodSymbol;
-            if (method == null || method.MethodKind != MethodKind.Constructor)
+            if (!(context.Symbol is IMethodSymbol method) || method.MethodKind != MethodKind.Constructor)
             {
                 return;
             }
@@ -52,8 +51,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
             {
                 var paramType = parameter.Type;
                 /* 2.a. Vérifier si le paramètre est typé par une implémentation de services. */
-                var paramClass = paramType as INamedTypeSymbol;
-                if (paramClass == null || !paramClass.IsServiceImplementation())
+                if (!(paramType is INamedTypeSymbol paramClass) || !paramClass.IsServiceImplementation())
                 {
                     continue;
                 }
@@ -61,7 +59,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
                 /* 2.b. Créér le diagnostic. */
                 var paramTypeLocation = GetTypeLocation(root, parameter);
                 var dependencyName = paramClass.Name;
-                var diagnostic = Diagnostic.Create(rule, paramTypeLocation, className, dependencyName);
+                var diagnostic = Diagnostic.Create(Rule, paramTypeLocation, className, dependencyName);
                 context.ReportDiagnostic(diagnostic);
             }
         }

@@ -25,18 +25,15 @@ namespace Kinetix.RoslynCop.Common.Ordering
             var xEstExplicite = (x as IMethodSymbol)?.MethodKind == MethodKind.ExplicitInterfaceImplementation;
             var yEstExplicite = (y as IMethodSymbol)?.MethodKind == MethodKind.ExplicitInterfaceImplementation;
 
-            if (xEstExplicite || yEstExplicite)
-            {
-                return xEstExplicite && y.DeclaredAccessibility == Accessibility.Public
+            return xEstExplicite || yEstExplicite
+                ? xEstExplicite && y.DeclaredAccessibility == Accessibility.Public
                     || yEstExplicite && x.DeclaredAccessibility == Accessibility.Public
                     || xEstExplicite && yEstExplicite
                     ? 0
-                    : xEstExplicite ? -1 : 1;
-            }
-
-            return valeurs[x.DeclaredAccessibility] > valeurs[y.DeclaredAccessibility] ? -1
-                 : valeurs[x.DeclaredAccessibility] < valeurs[y.DeclaredAccessibility] ? 1
-                 : 0;
+                    : xEstExplicite ? -1 : 1
+                : valeurs[x.DeclaredAccessibility] > valeurs[y.DeclaredAccessibility] ? -1
+                : valeurs[x.DeclaredAccessibility] < valeurs[y.DeclaredAccessibility] ? 1
+                : 0;
         }
     }
 }

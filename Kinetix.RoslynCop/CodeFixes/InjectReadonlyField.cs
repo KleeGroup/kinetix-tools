@@ -26,7 +26,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         /// Permet d'effectuer des corrections de masse via le correcteur en lot par défaut.
         /// </summary>
         /// <returns>Le correcteur de masse.</returns>
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         /// <summary>
         /// Enregistre les corrections de codes.
@@ -68,7 +71,9 @@ namespace Kinetix.RoslynCop.CodeFixes
             var constructeur = racine.DescendantNodes().OfType<ConstructorDeclarationSyntax>().FirstOrDefault();
 
             if (constructeur == null)
+            {
                 return document;
+            }
 
             // On construit le nom du paramètre en enlevant la première lettre du champ (qui doit être un _).
             var paramètre = SyntaxFactory.Identifier(champ.Identifier.ToString().Substring(1));
@@ -108,52 +113,49 @@ namespace Kinetix.RoslynCop.CodeFixes
                     constructeur.GetLeadingTrivia()
                         .Select(i =>
                         {
-                            var doc = i.GetStructure() as DocumentationCommentTriviaSyntax;
-
-                            if (doc == null)
-                                return i;
-
-                            return SyntaxFactory.Trivia(
-                                doc.AddContent(
-                                    SyntaxFactory.XmlText(
-                                        SyntaxFactory.TokenList(
-                                            SyntaxFactory.XmlTextLiteral(
-                                                SyntaxFactory.TriviaList(
-                                                    SyntaxFactory.DocumentationCommentExterior("/// ")),
-                                                string.Empty,
-                                                string.Empty,
-                                                SyntaxFactory.TriviaList()))),
-                                    SyntaxFactory.XmlElement(
-                                        SyntaxFactory.XmlElementStartTag(
-                                            SyntaxFactory.XmlName("param "),
+                            return !(i.GetStructure() is DocumentationCommentTriviaSyntax doc)
+                                ? i
+                                : SyntaxFactory.Trivia(
+                                    doc.AddContent(
+                                        SyntaxFactory.XmlText(
+                                            SyntaxFactory.TokenList(
+                                                SyntaxFactory.XmlTextLiteral(
+                                                    SyntaxFactory.TriviaList(
+                                                        SyntaxFactory.DocumentationCommentExterior("/// ")),
+                                                    string.Empty,
+                                                    string.Empty,
+                                                    SyntaxFactory.TriviaList()))),
+                                        SyntaxFactory.XmlElement(
+                                            SyntaxFactory.XmlElementStartTag(
+                                                SyntaxFactory.XmlName("param "),
+                                                SyntaxFactory.List(
+                                                    new List<XmlAttributeSyntax>
+                                                    {
+                                                        SyntaxFactory.XmlNameAttribute(
+                                                            SyntaxFactory.XmlName("name"),
+                                                            SyntaxFactory.Token(SyntaxKind.DoubleQuoteToken),
+                                                            SyntaxFactory.IdentifierName(paramètre.ToString()),
+                                                            SyntaxFactory.Token(SyntaxKind.DoubleQuoteToken))
+                                                    })),
                                             SyntaxFactory.List(
-                                                new List<XmlAttributeSyntax>
+                                                new List<XmlNodeSyntax>
                                                 {
-                                                    SyntaxFactory.XmlNameAttribute(
-                                                        SyntaxFactory.XmlName("name"),
-                                                        SyntaxFactory.Token(SyntaxKind.DoubleQuoteToken),
-                                                        SyntaxFactory.IdentifierName(paramètre.ToString()),
-                                                        SyntaxFactory.Token(SyntaxKind.DoubleQuoteToken))
-                                                })),
-                                        SyntaxFactory.List(
-                                            new List<XmlNodeSyntax>
-                                            {
-                                                SyntaxFactory.XmlText(
-                                                    SyntaxFactory.TokenList(
-                                                        SyntaxFactory.XmlTextLiteral(
-                                                            SyntaxFactory.TriviaList(),
-                                                            texte,
-                                                            string.Empty,
-                                                            SyntaxFactory.TriviaList())))
-                                            }),
-                                        SyntaxFactory.XmlElementEndTag(SyntaxFactory.XmlName("param"))),
-                                    SyntaxFactory.XmlText(
-                                        SyntaxFactory.TokenList(
-                                            SyntaxFactory.XmlTextNewLine(
-                                                SyntaxFactory.TriviaList(),
-                                                "\r\n",
-                                                string.Empty,
-                                                SyntaxFactory.TriviaList())))));
+                                                    SyntaxFactory.XmlText(
+                                                        SyntaxFactory.TokenList(
+                                                            SyntaxFactory.XmlTextLiteral(
+                                                                SyntaxFactory.TriviaList(),
+                                                                texte,
+                                                                string.Empty,
+                                                                SyntaxFactory.TriviaList())))
+                                                }),
+                                            SyntaxFactory.XmlElementEndTag(SyntaxFactory.XmlName("param"))),
+                                        SyntaxFactory.XmlText(
+                                            SyntaxFactory.TokenList(
+                                                SyntaxFactory.XmlTextNewLine(
+                                                    SyntaxFactory.TriviaList(),
+                                                    "\r\n",
+                                                    string.Empty,
+                                                    SyntaxFactory.TriviaList())))));
                         }));
 
             // Met à jour la racine, en reformattant le document.

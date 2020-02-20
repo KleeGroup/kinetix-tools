@@ -22,7 +22,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1103_ServiceShouldBeStatelessAnalyzer.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

@@ -23,7 +23,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1503_ControllerNamingAnalyser.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -38,8 +41,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             }
 
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-            var namedTypeSymbol = semanticModel.GetDeclaredSymbol(node, context.CancellationToken) as INamedTypeSymbol;
-            if (namedTypeSymbol == null)
+            if (!(semanticModel.GetDeclaredSymbol(node, context.CancellationToken) is INamedTypeSymbol namedTypeSymbol))
             {
                 return;
             }
@@ -65,8 +67,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             }
 
             /* Vérifie que le paramètre est un contrat de service. */
-            var namedParamType = paramList.First().Type as INamedTypeSymbol;
-            if (namedParamType == null)
+            if (!(paramList.First().Type is INamedTypeSymbol namedParamType))
             {
                 return;
             }

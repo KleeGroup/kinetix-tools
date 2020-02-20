@@ -21,9 +21,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
         private static readonly string Title = "Un service doit être sans état";
 
-        private static DiagnosticDescriptor rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
+        private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -36,23 +36,19 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
             // TODO refactoriser en semantic
 
             /* 1. Vérifier qu'on est dans une classe de service. */
-            var node = context.Node as FieldDeclarationSyntax;
-            var serviceClass = node.Parent as ClassDeclarationSyntax;
-            if (node == null || serviceClass == null)
+            if (!(context.Node is FieldDeclarationSyntax node) || !(node.Parent is ClassDeclarationSyntax serviceClass))
             {
                 return;
             }
 
             var classInfo = context.SemanticModel.GetDeclaredSymbol(serviceClass, context.CancellationToken);
-            bool isServiceImpl = classInfo.IsServiceImplementation();
+            var isServiceImpl = classInfo.IsServiceImplementation();
             if (!isServiceImpl)
             {
                 return;
             }
 
             /* 2. Vérifier si le field déclaré est un état. */
-            var fieldInfo = context.SemanticModel.GetSymbolInfo(node, context.CancellationToken);
-
             if (IsStatelessField(node))
             {
                 // Champ sans état => OK pas de warning.
@@ -61,8 +57,8 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
             /* 3. Création du warning. */
             var serviceClassName = serviceClass.GetClassName();
-            string fieldName = node.GetFieldName();
-            var diagnostic = Diagnostic.Create(rule, node.GetLocation(), serviceClassName, fieldName);
+            var fieldName = node.GetFieldName();
+            var diagnostic = Diagnostic.Create(Rule, node.GetLocation(), serviceClassName, fieldName);
             context.ReportDiagnostic(diagnostic);
         }
 

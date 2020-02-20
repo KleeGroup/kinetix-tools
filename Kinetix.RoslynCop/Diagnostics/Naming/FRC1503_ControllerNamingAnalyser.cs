@@ -24,7 +24,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
         private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -34,8 +34,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
         private void AnalyseSymbol(SymbolAnalysisContext context)
         {
             /* Vérifie qu'on est dans un contrôleur Web API. */
-            var namedTypedSymbol = context.Symbol as INamedTypeSymbol;
-            if (namedTypedSymbol == null)
+            if (!(context.Symbol is INamedTypeSymbol namedTypedSymbol))
             {
                 return;
             }
@@ -60,11 +59,11 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
             }
 
             /* Vérifie que le paramètre est un contrat de service. */
-            var namedParamType = paramList.First().Type as INamedTypeSymbol;
-            if (namedParamType == null)
+            if (!(paramList.First().Type is INamedTypeSymbol namedParamType))
             {
                 return;
             }
+
             if (!namedParamType.IsServiceContract())
             {
                 return;

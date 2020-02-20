@@ -23,9 +23,7 @@ namespace Kinetix.RoslynCop.Common
         public static MethodDeclarationSyntax AddAttribute(this MethodDeclarationSyntax methDecl, string attributeName)
         {
             var attributeSyntax = CreateAttribute(attributeName);
-            var newAttrList = SyntaxFactory.AttributeList(
-                SyntaxFactory.SeparatedList(new[] { attributeSyntax
-                }));
+            var newAttrList = SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new[] { attributeSyntax }));
 
             /* Récupère le trivia du premier token. */
             var initFirstToken = methDecl.GetFirstToken();

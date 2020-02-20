@@ -31,8 +31,7 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 
         private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            var expression = context.Node as MemberAccessExpressionSyntax;
-            if (expression == null)
+            if (!(context.Node is MemberAccessExpressionSyntax expression))
             {
                 return;
             }

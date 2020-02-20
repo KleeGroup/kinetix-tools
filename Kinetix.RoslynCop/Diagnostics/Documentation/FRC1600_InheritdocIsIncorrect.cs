@@ -58,12 +58,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Documentation
             var méthode = racine.FindNode(location.SourceSpan) as MethodDeclarationSyntax;
 
             // On ignore le code généré.
-            if ((méthode?.Parent as ClassDeclarationSyntax)?.AttributeLists.Any(node => node.ChildNodes().Any(node2 => node2.ToString().Contains("GeneratedCode"))) ?? true)
-            {
-                return null;
-            }
-
-            return Inheritdoc.InheritDocEstCorrect(racine, modèleSémantique, méthode);
+            return (méthode?.Parent as ClassDeclarationSyntax)?.AttributeLists.Any(node => node.ChildNodes().Any(node2 => node2.ToString().Contains("GeneratedCode"))) ?? true
+                ? null
+                : Inheritdoc.InheritDocEstCorrect(modèleSémantique, méthode);
         }
     }
 }

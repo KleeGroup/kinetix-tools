@@ -25,7 +25,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1600_InheritdocIsIncorrect.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         /// <summary>
         /// Enregistre les corrections de codes.
@@ -64,7 +67,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var modèleSémantique = await document.GetSemanticModelAsync(jetonAnnulation);
 
             // On a déjà trouvé le inheritDoc dans le diagnostic mais on ne peut pas vraiment le passer au correctif...
-            var inheritDoc = Inheritdoc.InheritDocEstCorrect(racine, modèleSémantique, méthode);
+            var inheritDoc = Inheritdoc.InheritDocEstCorrect(modèleSémantique, méthode);
 
             // Ajoute la ligne de commentaire à la méthode.
             var méthodeCommentée = méthode

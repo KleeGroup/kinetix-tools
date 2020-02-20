@@ -43,7 +43,9 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
         private static void AnalyserTypeNommé(SymbolAnalysisContext contexte)
         {
             if (OrdreÉlémentsEstFaux(contexte))
+            {
                 contexte.ReportDiagnostic(Diagnostic.Create(Rule, contexte.Symbol.Locations[0]));
+            }
         }
 
         /// <summary>
@@ -56,12 +58,13 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
             // On récupère les informations nécessaires du contexte du symbole.
             var location = context.Symbol.Locations.First();
             var racine = location.SourceTree.GetRoot();
-            var type = racine.FindNode(location.SourceSpan) as TypeDeclarationSyntax;
             var modèleSémantique = context.Compilation.GetSemanticModel(location.SourceTree);
 
             // On ignore la vérification sur les classes partielles.
-            if (type == null)
+            if (!(racine.FindNode(location.SourceSpan) is TypeDeclarationSyntax type))
+            {
                 return false;
+            }
 
             // On ignore le code généré.
             if (type.AttributeLists.Any(node => node.ChildNodes().Any(node2 => node2.ToString().Contains("GeneratedCode"))))

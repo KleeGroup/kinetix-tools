@@ -24,7 +24,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1201_ClassMembersShouldBeOrdered.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         /// <summary>
         /// Enregistre les corrections de codes.
@@ -62,24 +65,7 @@ namespace Kinetix.RoslynCop.CodeFixes
                 .ConfigureAwait(false);
             var modèleSémantique = await document.GetSemanticModelAsync(jetonAnnulation);
 
-            // Pour une raison étrange, TypeDeclarationSyntax n'expose pas WithMembers() alors que les trois classes qui en héritent l'expose.
-            // Il faut donc gérer les trois cas différemment...
-            SyntaxNode nouveauType;
-            if (type is ClassDeclarationSyntax)
-            {
-                nouveauType = (type as ClassDeclarationSyntax)
-                    .WithMembers(SyntaxFactory.List(ClassOrdering.OrdonnerMembres(type.Members, modèleSémantique)));
-            }
-            else if (type is InterfaceDeclarationSyntax)
-            {
-                nouveauType = (type as InterfaceDeclarationSyntax)
-                    .WithMembers(SyntaxFactory.List(ClassOrdering.OrdonnerMembres(type.Members, modèleSémantique)));
-            }
-            else
-            {
-                nouveauType = (type as StructDeclarationSyntax)
-                    .WithMembers(SyntaxFactory.List(ClassOrdering.OrdonnerMembres(type.Members, modèleSémantique)));
-            }
+            var nouveauType = type.WithMembers(SyntaxFactory.List(ClassOrdering.OrdonnerMembres(type.Members, modèleSémantique)));
 
             // Et on met à jour la racine.
             var nouvelleRacine = racine.ReplaceNode(type, nouveauType);

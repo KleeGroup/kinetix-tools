@@ -23,7 +23,10 @@ namespace Kinetix.RoslynCop.CodeFixes
             FRC1107_ServiceImplementationClassDecorationAnalyser.DiagnosticId,
             FRC1108_DalImplementationClassDecorationAnalyser.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

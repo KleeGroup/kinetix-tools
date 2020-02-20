@@ -44,14 +44,13 @@ namespace Kinetix.RoslynCop.Diagnostics.Maintainability
 
         private void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            var clazz = context.Node as ClassDeclarationSyntax;
-            if (clazz == null)
+            if (!(context.Node is ClassDeclarationSyntax clazz))
             {
                 return;
             }
 
             /* Vérifie le nombre de ligne. */
-            int nbLignes = clazz.GetLocation().GetLineCount();
+            var nbLignes = clazz.GetLocation().GetLineCount();
             if (nbLignes <= _maxRows)
             {
                 return;

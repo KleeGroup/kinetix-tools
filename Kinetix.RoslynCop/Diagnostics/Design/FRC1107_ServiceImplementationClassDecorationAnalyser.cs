@@ -5,14 +5,15 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Kinetix.RoslynCop.Diagnostics.Design {
+namespace Kinetix.RoslynCop.Diagnostics.Design
+{
 
     /// <summary>
     /// Vérifie que les classes d'implémentations de service sont décorées avec ServiceBehavior.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class FRC1107_ServiceImplementationClassDecorationAnalyser : DiagnosticAnalyzer {
-
+    public class FRC1107_ServiceImplementationClassDecorationAnalyser : DiagnosticAnalyzer
+    {
         public const string DiagnosticId = "FRC1107";
         private const string Category = "Design";
         private static readonly string Description = "Les services doivent être décorés avec les attributs WCF.";
@@ -24,30 +25,34 @@ namespace Kinetix.RoslynCop.Diagnostics.Design {
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
-        public override void Initialize(AnalysisContext context) {
+        public override void Initialize(AnalysisContext context)
+        {
             /* Analyse pour les déclaration de classes. */
             context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.ClassDeclaration);
         }
 
-        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context) {
-
+        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+        {
             /* Vérifie que la classe est candidate pour être un service WCF  */
-            var classNode = context.Node as ClassDeclarationSyntax;
-            if (classNode == null || !classNode.IsPublic()) {
+            if (!(context.Node is ClassDeclarationSyntax classNode) || !classNode.IsPublic())
+            {
                 return;
             }
 
-            if (!classNode.SyntaxTree.IsServiceImplementationFile()) {
+            if (!classNode.SyntaxTree.IsServiceImplementationFile())
+            {
                 return;
             }
 
             /* Vérifie que la classe n'est pas déjà un service décoré WCF. */
             var classSymbol = context.SemanticModel.GetDeclaredSymbol(classNode, context.CancellationToken);
-            if (classSymbol == null) {
+            if (classSymbol == null)
+            {
                 return;
             }
 
-            if (classSymbol.IsServiceImplementation()) {
+            if (classSymbol.IsServiceImplementation())
+            {
                 return;
             }
 

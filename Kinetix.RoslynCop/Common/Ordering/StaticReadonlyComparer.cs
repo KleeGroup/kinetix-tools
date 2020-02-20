@@ -17,9 +17,14 @@ namespace Kinetix.RoslynCop.Common.Ordering
         {
             var valeur = 0;
             if (x.IsStatic)
+            {
                 valeur += 2;
+            }
+
             if ((x as IFieldSymbol)?.IsReadOnly ?? false)
+            {
                 valeur++;
+            }
 
             return valeur;
         }

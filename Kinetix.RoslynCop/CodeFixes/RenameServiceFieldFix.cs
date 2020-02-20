@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Kinetix.RoslynCop.Common;
 using Kinetix.RoslynCop.Diagnostics.Design;
@@ -22,7 +21,10 @@ namespace Kinetix.RoslynCop.CodeFixes
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(FRC1500_ServiceFieldNamingAnalyser.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -38,8 +40,7 @@ namespace Kinetix.RoslynCop.CodeFixes
 
             /* Récupère le type du field. */
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-            var namedTypeSymbol = semanticModel.GetTypeInfo(node.Declaration.Type, context.CancellationToken).Type as INamedTypeSymbol;
-            if (namedTypeSymbol == null)
+            if (!(semanticModel.GetTypeInfo(node.Declaration.Type, context.CancellationToken).Type is INamedTypeSymbol namedTypeSymbol))
             {
                 return;
             }
@@ -64,12 +65,12 @@ namespace Kinetix.RoslynCop.CodeFixes
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: titleFormat,
-                    createChangedSolution: c => RenameField(context.Document, fieldNameSymbol, newName, c),
+                    createChangedSolution: c => RenameField(context.Document, fieldNameSymbol, newName),
                     equivalenceKey: titleFormat),
                 diagnostic);
         }
 
-        private static async Task<Solution> RenameField(Document document, ISymbol symbol, string newName, CancellationToken cancellationToken)
+        private static async Task<Solution> RenameField(Document document, ISymbol symbol, string newName)
         {
             var solution = document.Project.Solution;
             var options = solution.Workspace.Options;

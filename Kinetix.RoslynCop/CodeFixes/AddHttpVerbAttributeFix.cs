@@ -25,10 +25,8 @@ namespace Kinetix.RoslynCop.CodeFixes
             "HttpDelete"
         };
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds
-        {
-            get { return ImmutableArray.Create(FRC1111_ApiActionShouldBeDecoratedWithHttpVerbAnalyser.DiagnosticId); }
-        }
+        public sealed override ImmutableArray<string> FixableDiagnosticIds =>
+            ImmutableArray.Create(FRC1111_ApiActionShouldBeDecoratedWithHttpVerbAnalyser.DiagnosticId);
 
         public sealed override FixAllProvider GetFixAllProvider()
         {
