@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <NoWarn>RS1025,RS1026</NoWarn>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Klee Group</Authors>
+    <Company>Klee Group</Company>
   </PropertyGroup>
 
   <ItemGroup>
