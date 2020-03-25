@@ -38,9 +38,9 @@ namespace Kinetix.Tools.Model
                 case "int?":
                 case "decimal?":
                 case "short?":
-                case "TimeSpan?":
                     return "number";
                 case "DateTime?":
+                case "TimeSpan?":
                 case "Guid?":
                 case "string":
                     return "string";
