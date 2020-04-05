@@ -97,6 +97,11 @@ namespace Kinetix.Tools.Model
         /// <returns>Nom base de données.</returns>
         public static string ConvertCsharp2Bdd(string name)
         {
+            if (name.Contains("_"))
+            {
+                return name.ToUpperInvariant();
+            }
+
             var sb = new StringBuilder();
             var c = name.ToCharArray();
             var lastIsUp = true;
