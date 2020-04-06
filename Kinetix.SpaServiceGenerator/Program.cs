@@ -198,7 +198,8 @@ namespace Kinetix.SpaServiceGenerator
                 Type = model.GetSymbolInfo(parameter.Type).Symbol as INamedTypeSymbol,
                 Name = parameter.Identifier.ToString(),
                 IsOptional = parameter.Default != null,
-                IsFromBody = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromBody")
+                IsFromBody = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromBody"),
+                IsFormData = parameter.AttributeLists.SelectMany(list => list.Attributes).Any(attr => attr.ToString() == "FromForm")
             }).ToList();
 
             var routeParameters = new List<string>();

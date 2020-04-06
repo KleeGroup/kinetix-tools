@@ -95,13 +95,39 @@ namespace Kinetix.SpaServiceGenerator
 
                 Write("options: RequestInit = {}): Promise<");
                 Write(TSUtils.CSharpToTSType(service.ReturnType));
-                Write("> {\r\n    return fetch(\"");
+                Write("> {\r\n");
+
+                if (service.IsFormData)
+                {
+                    Write("    const body = new FormData();\r\n");
+                    foreach (var parameter in service.Parameters)
+                    {
+                        if (parameter.Type.Name == "IFormFile")
+                        {
+                            Write($@"    body.append(""{parameter.Name}"", {parameter.Name})");
+                        }
+                        else
+                        {
+                            Write($@"    for (const key in {parameter.Name}) {{
+        body.append(key, ({parameter.Name} as any)[key]);
+    }}");
+                        }
+
+                        Write("\r\n");
+                    }
+                }
+
+                Write("    return fetch(\"");
                 Write(service.Verb);
                 Write("\", `./");
                 Write(Regex.Replace(service.Route.Replace("{", "${"), ":([a-z]+)", string.Empty));
                 Write("`, {");
 
-                if (service.BodyParameter != null)
+                if (service.IsFormData)
+                {
+                    Write("body");
+                }
+                else if (service.BodyParameter != null)
                 {
                     Write("body: ");
                     Write(service.BodyParameter.Name);
@@ -112,7 +138,7 @@ namespace Kinetix.SpaServiceGenerator
                     Write(", ");
                 }
 
-                if (service.QueryParameters.Any())
+                if (!service.IsFormData && service.QueryParameters.Any())
                 {
                     Write("query: {");
 

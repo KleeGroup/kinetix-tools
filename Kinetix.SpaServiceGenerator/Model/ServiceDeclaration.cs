@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Kinetix.SpaServiceGenerator.Model
@@ -52,5 +53,10 @@ namespace Kinetix.SpaServiceGenerator.Model
         /// La documentation du service.
         /// </summary>
         public Documentation Documentation { get; set; }
+
+        /// <summary>
+        /// Génération d'un FormData à l'appel.
+        /// </summary>
+        public bool IsFormData => Parameters.Any(p => p.IsFormData);
     }
 }

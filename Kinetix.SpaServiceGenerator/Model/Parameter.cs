@@ -27,5 +27,9 @@ namespace Kinetix.SpaServiceGenerator.Model
         /// </summary>
         public bool IsFromBody { get; set; }
 
+        /// <summary>
+        /// Avec attribut FromForm ou non.
+        /// </summary>
+        public bool IsFormData { get; set; }
     }
 }

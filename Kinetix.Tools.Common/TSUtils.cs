@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Kinetix.Tools.Common.Model;
 using Microsoft.CodeAnalysis;
@@ -99,6 +97,11 @@ namespace Kinetix.Tools.Common
             if (type.Name.Contains("IActionResult"))
             {
                 return "void";
+            }
+
+            if (type.Name == "IFormFile")
+            {
+                return "File";
             }
 
             switch (type.SpecialType)
@@ -199,6 +202,6 @@ namespace Kinetix.Tools.Common
                 : namespaceName.EndsWith("Contract", StringComparison.Ordinal)
                     ? namespaceName.Substring(0, namespaceName.Length - 8).ToFirstLower()
                     : namespaceName.ToFirstLower();
-        }       
+        }
     }
 }
