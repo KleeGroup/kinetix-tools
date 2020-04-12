@@ -9,7 +9,7 @@ namespace Kinetix.RoslynCop.Common
     /// <summary>
     /// Extensions pour les objets du modèle syntaxique.
     /// </summary>
-    internal static class SyntaxExtensions
+    public static class SyntaxExtensions
     {
         private static readonly Regex _dalContractFileRegex = new Regex(@"\\DAL\.Interface\\IDal[^\\]*.cs");
         private static readonly Regex _dalImplementationFileRegex = new Regex(@"\\DAL\.Implementation\\Dal[^\\]*.cs");

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Kinetix.RoslynCop.CodeFixes.TestGenerator
+namespace Kinetix.RoslynCop.CodeFixes.Test
 {
     /// <summary>
     /// Représente une méthode de DAL.

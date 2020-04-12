@@ -6,7 +6,7 @@ namespace Kinetix.RoslynCop.Common
     /// <summary>
     /// Extensions pour les symboles du modèle sémantique.
     /// </summary>
-    internal static class SemanticExtensions
+    public static class SemanticExtensions
     {
         private const string OperationContractAttributeName = "System.ServiceModel.OperationContractAttribute";
 

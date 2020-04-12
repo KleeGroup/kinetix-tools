@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace Kinetix.RoslynCop.CodeFixes.TestGenerator
+namespace Kinetix.RoslynCop.CodeFixes.Test
 {
     /// <summary>
     /// Template de test de DAL.

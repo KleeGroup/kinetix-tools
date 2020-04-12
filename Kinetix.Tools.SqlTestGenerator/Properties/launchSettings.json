@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Kinetix.Tools.SqlTestGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\Projets\\NOUBA\\Sources\\Nouba.sln"
+    }
+  }
+}

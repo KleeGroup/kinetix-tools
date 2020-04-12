@@ -1,4 +1,4 @@
-﻿namespace Kinetix.RoslynCop.CodeFixes.TestGenerator
+﻿namespace Kinetix.RoslynCop.CodeFixes.Test
 {
     /// <summary>
     /// Stratégies de test de DAL.

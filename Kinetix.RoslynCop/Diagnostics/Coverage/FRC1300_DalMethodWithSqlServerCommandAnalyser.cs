@@ -60,7 +60,6 @@ namespace Kinetix.RoslynCop.Diagnostics.Coverage
 
         private class MethodWithSqlServerCommandWalker : CSharpSyntaxWalker
         {
-
             private readonly SyntaxNodeAnalysisContext _context;
             private MethodDeclarationSyntax _currentMethDecl;
 
