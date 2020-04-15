@@ -89,6 +89,7 @@ namespace Kinetix.Tools.SqlTestGenerator
                     var (fileName, folder, content) = TestGenerator.GenerateTest(methSymbol, classDecl, DalTestStrategy.Semantic);
                     var fullPath = $"{testProjectFileInfo.Directory}\\{folder}\\{fileName}.cs";
 
+                    Directory.CreateDirectory($"{testProjectFileInfo.Directory}\\{folder}");
                     File.WriteAllText(fullPath, content);
                     Console.WriteLine($"{folder}/{fileName} généré avec succès");
                 }
