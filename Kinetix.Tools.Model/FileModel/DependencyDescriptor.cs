@@ -7,7 +7,7 @@ namespace Kinetix.Tools.Model.FileModel
     {
         public string Module { get; set; }
 
-        public Kind Kind { get; set; }
+        public string Kind { get; set; }
 
         public IList<string> Files { get; set; }
     }

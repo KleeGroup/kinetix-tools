@@ -1,6 +1,4 @@
-﻿using Kinetix.Tools.Model.FileModel;
-
-namespace Kinetix.Tools.Model
+﻿namespace Kinetix.Tools.Model
 {
     public struct Namespace
     {
@@ -8,8 +6,6 @@ namespace Kinetix.Tools.Model
 
         public string Module { get; set; }
 
-        public Kind Kind { get; set; }
-
-        public string CSharpName => Module + (Kind == Kind.Data ? "DataContract" : "Contract");
+        public string Kind { get; set; }
     }
 }

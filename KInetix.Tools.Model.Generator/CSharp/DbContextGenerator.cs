@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Kinetix.Tools.Model.FileModel;
 using Microsoft.Extensions.Logging;
 
 namespace Kinetix.Tools.Model.Generator.CSharp
@@ -64,8 +63,7 @@ namespace Kinetix.Tools.Model.Generator.CSharp
             }
 
             foreach (var ns in classes
-                .Where(cl => cl.Namespace.Kind == Kind.Data)
-                .Select(cl => cl.Namespace.CSharpName)
+                .Select(cl => cl.CSharpNamepace)
                 .Distinct())
             {
                 usings.Add($"{rootNamespace}.{ns}");
