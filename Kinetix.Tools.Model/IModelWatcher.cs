@@ -7,6 +7,10 @@ namespace Kinetix.Tools.Model
     {
         string Name { get; }
 
+        int Number { get; set; }
+
+        string FullName => $"{Name}@{Number}";
+
         void OnFilesChanged(IEnumerable<ModelFile> files);
     }
 }

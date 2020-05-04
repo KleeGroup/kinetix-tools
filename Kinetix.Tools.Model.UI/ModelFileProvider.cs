@@ -28,6 +28,8 @@ namespace Kinetix.Tools.Model.UI
 
         public string Name => "UI";
 
+        public int Number { get; set; }
+
         public void OnFilesChanged(IEnumerable<ModelFile> files)
         {
             foreach (var file in files)
