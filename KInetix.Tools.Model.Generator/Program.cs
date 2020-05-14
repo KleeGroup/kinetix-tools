@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using Kinetix.Tools.Model.Generator.CSharp;
 using Kinetix.Tools.Model.Generator.Javascript;
+using Kinetix.Tools.Model.Generator.Kasper;
 using Kinetix.Tools.Model.Generator.ProceduralSql;
 using Kinetix.Tools.Model.Generator.Ssdt;
 using Kinetix.Tools.Model.Loaders;
@@ -109,6 +110,17 @@ namespace Kinetix.Tools.Model.Generator
                             new TypescriptDefinitionGenerator(p.GetService<ILogger<TypescriptDefinitionGenerator>>(), jsConfig))
                         .AddSingleton<IModelWatcher>(p =>
                             new JavascriptResourceGenerator(p.GetService<ILogger<JavascriptResourceGenerator>>(), jsConfig));
+                }
+            }
+
+            if (config.Kasper != null)
+            {
+                foreach (var kasperConfig in config.Kasper)
+                {
+                    CombinePath(dn, kasperConfig, c => c.SourcesDirectory);
+
+                    services.AddSingleton<IModelWatcher>(p =>
+                        new KasperGenerator(p.GetService<ILogger<KasperGenerator>>(), kasperConfig));
                 }
             }
 
