@@ -136,7 +136,7 @@ namespace Kinetix.Tools.Model.Generator.CSharp
                 w.WriteLine(3, "base.OnModelCreating(modelBuilder);");
                 w.WriteLine();
 
-                foreach (var classe in classes.Where(c => c.Trigram != null).OrderBy(c => c.Name))
+                foreach (var classe in classes.Where(c => c.IsPersistent).OrderBy(c => c.Name))
                 {
                     foreach (var property in classe.Properties.OfType<IFieldProperty>())
                     {
