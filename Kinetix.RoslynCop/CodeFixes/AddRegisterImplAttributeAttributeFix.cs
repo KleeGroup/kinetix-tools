@@ -13,11 +13,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Kinetix.RoslynCop.CodeFixes
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddServiceBehaviorAttributeAttributeFix))]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddRegisterImplAttributeAttributeFix))]
     [Shared]
-    public class AddServiceBehaviorAttributeAttributeFix : CodeFixProvider
+    public class AddRegisterImplAttributeAttributeFix : CodeFixProvider
     {
-        private const string Title = "Décorer avec ServiceBehavior";
+        private const string Title = "Décorer avec RegisterImpl";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(
             FRC1107_ServiceImplementationClassDecorationAnalyser.DiagnosticId,
@@ -56,7 +56,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var newAttrList = SyntaxFactory.AttributeList(
                 SyntaxFactory.SeparatedList(new[] { SyntaxFactory.Attribute(
                         SyntaxFactory.IdentifierName(
-                            SyntaxFactory.Identifier("ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall, IncludeExceptionDetailInFaults = true)")))
+                            SyntaxFactory.Identifier("RegisterImpl")))
                 }));
 
             /* Récupère le trivia du premier token. */
@@ -80,7 +80,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var newRoot = oldRoot.ReplaceNode(classDecl, newClassSyntax);
 
             /* Ajoute le using. */
-            newRoot = newRoot.AddUsing(FrameworkNames.SystemServiceModel);
+            newRoot = newRoot.AddUsing(FrameworkNames.KinetixServicesAnnotations);
 
             return document.WithSyntaxRoot(newRoot);
         }

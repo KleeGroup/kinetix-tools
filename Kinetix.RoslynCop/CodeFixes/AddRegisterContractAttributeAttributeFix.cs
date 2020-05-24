@@ -13,14 +13,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Kinetix.RoslynCop.CodeFixes
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddServiceContractAttributeAttributeFix))]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddRegisterContractAttributeAttributeFix))]
     [Shared]
-    public class AddServiceContractAttributeAttributeFix : CodeFixProvider
+    public class AddRegisterContractAttributeAttributeFix : CodeFixProvider
     {
-        private const string Title = "Décorer avec ServiceContract";
+        private const string Title = "Décorer avec RegisterContract";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(
-            FRC1109_ServiceContractClassDecorationAnalyser.DiagnosticId,
+            FRC1109_RegisterContractClassDecorationAnalyser.DiagnosticId,
             FRC1110_DalContractClassDecorationAnalyser.DiagnosticId);
 
         public sealed override FixAllProvider GetFixAllProvider()
@@ -56,7 +56,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var newAttrList = SyntaxFactory.AttributeList(
                 SyntaxFactory.SeparatedList(new[] { SyntaxFactory.Attribute(
                         SyntaxFactory.IdentifierName(
-                            SyntaxFactory.Identifier(FrameworkNames.ServiceContract)))
+                            SyntaxFactory.Identifier(FrameworkNames.RegisterContract)))
                 }));
 
             /* Récupère le trivia du premier token. */
@@ -80,7 +80,7 @@ namespace Kinetix.RoslynCop.CodeFixes
             var newRoot = oldRoot.ReplaceNode(interfaceDecl, newInterfaceSyntax);
 
             /* Ajoute le using. */
-            newRoot = newRoot.AddUsing(FrameworkNames.SystemServiceModel);
+            newRoot = newRoot.AddUsing(FrameworkNames.KinetixServicesAnnotations);
 
             return document.WithSyntaxRoot(newRoot);
         }

@@ -6,19 +6,14 @@
     public static class FrameworkNames
     {
         /// <summary>
-        /// Identifiant raccourci <code>OperationContract</code>.
+        /// Identifiant raccourci <code>RegisterContract</code>.
         /// </summary>
-        public const string OperationContract = "OperationContract";
-
-        /// <summary>
-        /// Identifiant raccourci <code>ServiceContract</code>.
-        /// </summary>
-        public const string ServiceContract = "ServiceContract";
+        public const string RegisterContract = "RegisterContract";
 
         /// <summary>
         /// Espace de nom <code>System.ServiceModel</code>.
         /// </summary>
-        public const string SystemServiceModel = "System.ServiceModel";
+        public const string KinetixServicesAnnotations = "Kinetix.Services.Annotations";
 
         /// <summary>
         /// Espace de nom <code>System.Web.Http</code>.

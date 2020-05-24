@@ -8,19 +8,19 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Kinetix.RoslynCop.Diagnostics.Design
 {
     /// <summary>
-    /// Vérifie que les classes d'implémentations de DAL sont décorées avec ServiceBehavior.
+    /// Vérifie que les classes d'implémentations de DAL sont décorées avec RegisterImpl.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class FRC1108_DalImplementationClassDecorationAnalyser : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "FRC1108";
         private const string Category = "Design";
-        private static readonly string Description = "Les DAL doivent être décorés avec les attributs WCF.";
-        private static readonly string MessageFormat = "La DAL {0} doit être décoré avec l'attribut WCF ServiceBehavior.";
+        private static readonly string Description = "Les DAL doivent être décorés avec les attributs Kinetix.";
+        private static readonly string MessageFormat = "La DAL {0} doit être décoré avec l'attribut Kinetix RegisterImpl.";
 
         private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        private static readonly string Title = "Les DAL doivent être décorés avec les attributs WCF.";
+        private static readonly string Title = "Les DAL doivent être décorés avec les attributs Kinetix.";
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

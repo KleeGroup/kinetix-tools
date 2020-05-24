@@ -9,19 +9,19 @@ namespace Kinetix.RoslynCop.Diagnostics.Design
 {
 
     /// <summary>
-    /// Vérifie que les classes d'implémentations de service sont décorées avec ServiceBehavior.
+    /// Vérifie que les classes d'implémentations de service sont décorées avec RegisterImpl.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class FRC1107_ServiceImplementationClassDecorationAnalyser : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "FRC1107";
         private const string Category = "Design";
-        private static readonly string Description = "Les services doivent être décorés avec les attributs WCF.";
-        private static readonly string MessageFormat = "Le service {0} doit être décoré avec l'attribut WCF ServiceBehavior.";
+        private static readonly string Description = "Les services doivent être décorés avec les attributs Kinetix.";
+        private static readonly string MessageFormat = "Le service {0} doit être décoré avec l'attribut Kinetix RegisterImpl.";
 
         private static readonly DiagnosticDescriptor Rule = DiagnosticRuleUtils.CreateRule(DiagnosticId, Title, MessageFormat, Category, Description);
 
-        private static readonly string Title = "Les services doivent être décorés avec les attributs WCF.";
+        private static readonly string Title = "Les services doivent être décorés avec les attributs Kinetix.";
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Kinetix.RoslynCop.Diagnostics.Design
 {
     /// <summary>
-    /// Vérifie que les classes de contrats de DAL sont décorées avec ServiceContract.
+    /// Vérifie que les classes de contrats de DAL sont décorées avec RegisterContract.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class FRC1110_DalContractClassDecorationAnalyser : DiagnosticAnalyzer

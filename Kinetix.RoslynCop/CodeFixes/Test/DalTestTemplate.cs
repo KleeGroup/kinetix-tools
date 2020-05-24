@@ -31,18 +31,17 @@ namespace Kinetix.RoslynCop.CodeFixes.Test
 
         public string Render(DalTestStrategy strategy = DalTestStrategy.Semantic)
         {
-
             var sb = new StringBuilder();
             foreach (var usingDirective in GetUsings())
             {
                 sb.AppendLine($@"using {usingDirective};");
             }
 
-            var methodCall = $@"new {Item.DalClassName}().{Item.DalMethodName}({Item.FlatParams})";
+            var methodCall = $@"{Item.DalMethodName}({Item.FlatParams})";
             var methodTest =
                 strategy == DalTestStrategy.Semantic ?
-                $@"this.CheckDalSyntax(() => {methodCall});" : // Test sémantique : on enveloppe l'appel pour attraper les exceptions liées aux données.
-                $@"{methodCall};"; // Test standard
+                $@"this.CheckDalSyntax<{Item.DalClassName}>(dal => dal.{methodCall});" : // Test sémantique : on enveloppe l'appel pour attraper les exceptions liées aux données.
+                $@"Provider.GetService<{Item.DalClassName}>().{methodCall};"; // Test standard
 
             sb.Append(
             $@"

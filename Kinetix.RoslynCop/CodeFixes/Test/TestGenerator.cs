@@ -62,12 +62,7 @@ namespace Kinetix.RoslynCop.CodeFixes.Test
             var folders = new List<string> { classTestDir };
             var hasTest = testProject.Documents.Any(x => x.Name == methTestFile && x.Folders.SequenceEqual(folders));
 
-            if (hasTest)
-            {
-                return false;
-            }
-
-            return true;
+            return !hasTest;
         }
 
         /// <summary>

@@ -8,10 +8,8 @@ namespace Kinetix.RoslynCop.Common
     /// </summary>
     public static class SemanticExtensions
     {
-        private const string OperationContractAttributeName = "System.ServiceModel.OperationContractAttribute";
-
-        private const string ServiceContractAttributeName = "System.ServiceModel.ServiceContractAttribute";
-        private const string ServiceImplementationAttributeName = "System.ServiceModel.ServiceBehaviorAttribute";
+        private const string RegisterContractAttributeName = "Kinetix.Services.Annotations.RegisterContractAttribute";
+        private const string RegisterImplAttributeName = "Kinetix.Services.Annotations.RegisterImplAttribute";
         private static readonly string[] HttpVerbAttributes = {
             "System.Web.Http.HttpGetAttribute",
             "System.Web.Http.HttpPostAttribute",
@@ -106,7 +104,7 @@ namespace Kinetix.RoslynCop.Common
                 : !symbol.Name.StartsWith("Dal", System.StringComparison.Ordinal)
                 ? false
                 : symbol.GetAttributes()
-                    .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
+                    .Any(a => a.AttributeClass?.ToString() == RegisterImplAttributeName);
         }
 
         /// <summary>
@@ -122,19 +120,6 @@ namespace Kinetix.RoslynCop.Common
         }
 
         /// <summary>
-        /// Indique si le symbole est une opération de contrat de service WCF.
-        /// </summary>
-        /// <param name="symbol">Symbole à analyser.</param>
-        /// <returns><code>True</code> si le symbole est une opération de contrat de service WCF.</returns>
-        public static bool IsOperationContract(this IMethodSymbol symbol)
-        {
-            return symbol == null
-                ? false
-                : symbol.GetAttributes()
-                    .Any(a => a.AttributeClass?.ToString() == OperationContractAttributeName);
-        }
-
-        /// <summary>
         /// Indique si le symbole est un contrat de service WCF.
         /// </summary>
         /// <param name="symbol">Symbole à analyser.</param>
@@ -144,7 +129,7 @@ namespace Kinetix.RoslynCop.Common
             return symbol == null || !(symbol.TypeKind == TypeKind.Interface)
                 ? false
                 : symbol.GetAttributes()
-                    .Any(a => a.AttributeClass?.ToString() == ServiceContractAttributeName);
+                    .Any(a => a.AttributeClass?.ToString() == RegisterContractAttributeName);
         }
 
         /// <summary>
@@ -154,10 +139,17 @@ namespace Kinetix.RoslynCop.Common
         /// <returns><code>True</code> si le symbole est une implémentation de service WCF.</returns>
         public static bool IsServiceImplementation(this INamedTypeSymbol symbol)
         {
-            return symbol == null || !(symbol.TypeKind == TypeKind.Class)
-                ? false
-                : symbol.GetAttributes()
-                    .Any(a => a.AttributeClass?.ToString() == ServiceImplementationAttributeName);
+            if (symbol == null || symbol.TypeKind != TypeKind.Class)
+            {
+                return false;
+            }
+
+            var isRegisterImpl = symbol.GetAttributes()
+                .Any(a => a.AttributeClass?.ToString() == RegisterImplAttributeName);
+
+            var hasContract = symbol.AllInterfaces.Any(i => i.GetAttributes().Any(a => a.AttributeClass?.ToString() == RegisterContractAttributeName));
+
+            return isRegisterImpl && hasContract;
         }
 
         /// <summary>
