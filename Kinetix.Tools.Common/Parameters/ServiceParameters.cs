@@ -21,6 +21,11 @@
         public string RootNamespace { get; set; }
 
         /// <summary>
+        /// Suffix of the projects to search for controllers.
+        /// </summary>
+        public string ProjectsSuffix { get; set; }
+
+        /// <summary>
         /// Root path to the generated model files, relative to the output directory.
         /// </summary>
         public string ModelRoot { get; set; }

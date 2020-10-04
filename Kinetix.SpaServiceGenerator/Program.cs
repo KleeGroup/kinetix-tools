@@ -55,10 +55,12 @@ namespace Kinetix.SpaServiceGenerator
                 throw new ArgumentNullException(nameof(ServiceParameters.OutputDirectory));
             }
 
-            Parameters.ModelRoot = Parameters.ModelRoot ?? "model";
-            Parameters.FetchPath = Parameters.FetchPath ?? "services/server";
-            Parameters.SplitIntoApps = Parameters.SplitIntoApps ?? false;
+            Parameters.ModelRoot ??= "model";
+            Parameters.ProjectsSuffix ??= "FrontEnd";
+            Parameters.FetchPath ??= "services/server";
+            Parameters.SplitIntoApps ??= false;
             Parameters.Kinetix = Parameters.Kinetix?.ToLower() ?? "core";
+
             var instance = MSBuildLocator.QueryVisualStudioInstances().First();
             Console.WriteLine($"Using MSBuild at '{instance.MSBuildPath}' to load projects.");
             MSBuildLocator.RegisterInstance(instance);
@@ -67,10 +69,12 @@ namespace Kinetix.SpaServiceGenerator
             msWorkspace.WorkspaceFailed += MsWorkspace_WorkspaceFailed;
             var solution = await msWorkspace.OpenSolutionAsync(Parameters.SolutionPath);
 
-            var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(Parameters.RootNamespace) && projet.AssemblyName.EndsWith("FrontEnd"));
+            var frontEnds = solution.Projects.Where(projet => projet.AssemblyName.StartsWith(Parameters.RootNamespace) && projet.AssemblyName.EndsWith(Parameters.ProjectsSuffix));
             var controllers = frontEnds.SelectMany(f => f.Documents).Where(document =>
                 document.Name.Contains("Controller")
                 && !document.Folders.Contains("Transverse"));
+
+            Console.WriteLine($"{controllers.Count()} contrôleurs trouvés");
 
             foreach (var controller in controllers)
             {
