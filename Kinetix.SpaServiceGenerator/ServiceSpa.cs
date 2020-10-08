@@ -94,7 +94,7 @@ namespace Kinetix.SpaServiceGenerator
                 }
 
                 Write("options: RequestInit = {}): Promise<");
-                Write(TSUtils.CSharpToTSType(service.ReturnType));
+                Write(service.ReturnType == null ? "void" : TSUtils.CSharpToTSType(service.ReturnType));
                 Write("> {\r\n");
 
                 if (service.IsFormData)
@@ -194,9 +194,8 @@ namespace Kinetix.SpaServiceGenerator
                             .AttributeLists.SelectMany(l => l.Attributes)
                             .Any(attr => attr.Name.ToString() == "Reference");
 
-                        return !hasRefAttribute
-                            ? false
-                            : !classDecl
+                        return hasRefAttribute
+                            && !classDecl
                                 .Members
                                 .OfType<PropertyDeclarationSyntax>()
                                 .Any(p => p.Identifier.ToString() == "Id");

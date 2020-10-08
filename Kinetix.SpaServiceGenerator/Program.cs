@@ -170,10 +170,10 @@ namespace Kinetix.SpaServiceGenerator
 
             if (returnType.Name == "Task")
             {
-                returnType = returnType.TypeArguments.First() as INamedTypeSymbol;
+                returnType = returnType.TypeArguments.FirstOrDefault() as INamedTypeSymbol;
             }
 
-            if (returnType.Name.Contains("Redirect"))
+            if (returnType?.Name.Contains("Redirect") ?? false)
             {
                 return null;
             }
