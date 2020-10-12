@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Kinetix.Tools.Model.FileModel;
+﻿using Kinetix.Tools.Model.FileModel;
 
 namespace Kinetix.Tools.Model.UI.Graphing
 {
@@ -9,7 +8,7 @@ namespace Kinetix.Tools.Model.UI.Graphing
         {
             return file == null
                 ? string.Empty
-                : $"{file.Descriptor.Module}/{file.Descriptor.Kind}/{WebUtility.UrlEncode(file.Descriptor.File)}";
+                : file.Name.Replace("/", "+");
         }
 
         public static string ForTooltip(this string source)
