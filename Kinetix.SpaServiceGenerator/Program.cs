@@ -173,7 +173,7 @@ namespace Kinetix.SpaServiceGenerator
                 returnType = returnType.TypeArguments.FirstOrDefault() as INamedTypeSymbol;
             }
 
-            if (returnType?.Name.Contains("Redirect") ?? false)
+            if ((returnType?.Name.Contains("Redirect") ?? false) || (returnType?.Name.Contains("FileContentResult") ?? false))
             {
                 return null;
             }
