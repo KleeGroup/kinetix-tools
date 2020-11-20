@@ -142,6 +142,7 @@ namespace Kinetix.Tools.Common
                     return "number";
                 case "DateTime?":
                 case "Guid?":
+                case "Guid":
                 case "string":
                     return "string";
                 case "bool?":
