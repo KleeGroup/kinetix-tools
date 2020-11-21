@@ -7,8 +7,6 @@ namespace Kinetix.Tools.Model
 
         public string ModelRoot { get; set; }
 
-        public string Domains { get; set; }
-
         public bool AllowCompositePrimaryKey { get; set; }
     }
 }
