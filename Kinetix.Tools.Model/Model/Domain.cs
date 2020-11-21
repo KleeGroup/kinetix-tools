@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
+using Kinetix.Tools.Model.Model.Types;
+using YamlDotNet.Serialization;
 
 namespace Kinetix.Tools.Model
 {
@@ -9,21 +11,24 @@ namespace Kinetix.Tools.Model
         public string Name { get; set; }
 
         public string Label { get; set; }
-
-        public string CsharpType { get; set; }
-
 #nullable enable
+
+        [YamlMember(Alias = "csharp")]
+        public CSharpType? CSharp { get; set; }
+
+        [YamlMember(Alias = "ts")]
+        public TSType? TS { get; set; }
+
         public string? JavaType { get; set; }
 
         public string? SqlType { get; set; }
 
-        public string? CustomAnnotation { get; set; }
-
-        public string? CustomUsings { get; set; }
-
-        public bool UseTypeName { get; set; }
-
         public string CSharpName => Name.Replace("DO_", string.Empty).ToPascalCase();
+
+        public bool ShouldQuoteSqlValue =>
+            (SqlType ?? string.Empty).Contains("varchar")
+            || SqlType == "text"
+            || CSharp?.Type == "string";
 
         public (int Length, int Precision)? SqlTypePrecision
         {
@@ -34,7 +39,7 @@ namespace Kinetix.Tools.Model
                     return null;
                 }
 
-                var match = Regex.Match("numeric(12,2)", @".+\((\d+),.*(\d+)\)");
+                var match = Regex.Match(SqlType, @".+\((\d+),.*(\d+)\)");
                 if (!match.Success)
                 {
                     return null;
