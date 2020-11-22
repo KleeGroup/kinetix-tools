@@ -1,4 +1,4 @@
-﻿namespace Kinetix.Tools.Model.Model.Types
+﻿namespace Kinetix.Tools.Model.Types
 {
     public class TSType
     {

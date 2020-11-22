@@ -1,5 +1,5 @@
 ﻿using System;
-using Kinetix.Tools.Model.Model.Types;
+using Kinetix.Tools.Model.Types;
 
 namespace Kinetix.Tools.Model
 {

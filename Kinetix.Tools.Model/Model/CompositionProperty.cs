@@ -13,6 +13,8 @@ namespace Kinetix.Tools.Model
 
         public Class Class { get; set; }
 
+        public Endpoint Endpoint { get; set; }
+
         public string Label => Name;
 
         public bool PrimaryKey => false;

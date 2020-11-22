@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
-using Kinetix.Tools.Model.Model.Types;
+using Kinetix.Tools.Model.Types;
 using YamlDotNet.Serialization;
 
 namespace Kinetix.Tools.Model

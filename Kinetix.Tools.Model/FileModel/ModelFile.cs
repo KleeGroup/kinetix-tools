@@ -19,6 +19,8 @@ namespace Kinetix.Tools.Model.FileModel
 
         public IList<Domain> Domains { get; set; }
 
+        public IList<Endpoint> Endpoints { get; set; }
+
         public IDictionary<object, Relation> Relationships { get; set; } = new Dictionary<object, Relation>();
 
         public override string ToString()
