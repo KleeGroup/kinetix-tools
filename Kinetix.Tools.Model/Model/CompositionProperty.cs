@@ -7,7 +7,9 @@ namespace Kinetix.Tools.Model
 
         public string Name { get; set; }
 
-        public Composition Kind { get; set; }
+        public string Kind { get; set; }
+
+        public Domain? DomainKind { get; set; }
 
         public string Comment { get; set; }
 
