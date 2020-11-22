@@ -9,7 +9,9 @@ namespace Kinetix.Tools.Model
 
         public string Kind { get; set; }
 
+#nullable enable
         public Domain? DomainKind { get; set; }
+#nullable disable
 
         public string Comment { get; set; }
 

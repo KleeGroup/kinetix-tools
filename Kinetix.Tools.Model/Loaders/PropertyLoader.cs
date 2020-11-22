@@ -196,6 +196,9 @@ namespace Kinetix.Tools.Model.Loaders
                                 case "required":
                                     alp.Required = value == "true";
                                     break;
+                                case "comment":
+                                    alp.Comment = value;
+                                    break;
                                 default:
                                     throw new Exception($"Propriété ${prop} inconnue pour une propriété");
                             }
