@@ -6,9 +6,11 @@ namespace Kinetix.Tools.Model
     {
 #nullable disable
         public Class Association { get; set; }
+#nullable enable
 
-        public string Label { get; set; }
+        public string? Label { get; set; }
 
+#nullable disable
         public string Comment { get; set; }
 
         public Class Class { get; set; }
