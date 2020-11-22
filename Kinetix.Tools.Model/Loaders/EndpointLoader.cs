@@ -39,6 +39,9 @@ namespace Kinetix.Tools.Model.Loaders
                         endpoint.Returns.Endpoint = endpoint;
                         parser.Consume<MappingEnd>();
                         break;
+                    case "body":
+                        endpoint.Body = value!.Value;
+                        break;
                     default:
                         throw new Exception($"Propriété ${prop} inconnue pour un endpoint");
                 }
