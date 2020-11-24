@@ -104,6 +104,11 @@ namespace Kinetix.Tools.Common
                 return "File";
             }
 
+            if (type.Name == "Guid")
+            {
+                return "string";
+            }
+
             switch (type.SpecialType)
             {
                 case SpecialType.None:
