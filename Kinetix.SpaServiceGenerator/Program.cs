@@ -229,7 +229,7 @@ namespace Kinetix.SpaServiceGenerator
             var matches = Regex.Matches(route, "(?s){.+?}");
             foreach (Match match in matches)
             {
-                routeParameters.Add(match.Value.Replace("{", "").Replace("}", ""));
+                routeParameters.Add(Regex.Replace(match.Value.Replace("{", "").Replace("}", ""), ":.+", ""));
             }
 
             return new ServiceDeclaration
