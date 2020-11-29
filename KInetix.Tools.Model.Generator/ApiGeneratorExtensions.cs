@@ -27,7 +27,7 @@ namespace Kinetix.Tools.Model.Generator
         public static string GetParamName(this IProperty property)
         {
             return !(property is AliasProperty alp) || !alp.Property.PrimaryKey
-                ? property.Name
+                ? property.Name.ToFirstLower()
                 : $"{alp.Property.Class.Trigram?.ToLower() ?? alp.Property.Class.Name.ToFirstLower()}{property.Name}";
         }
 
