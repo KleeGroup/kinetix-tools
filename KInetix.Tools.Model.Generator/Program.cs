@@ -9,11 +9,10 @@ using Kinetix.Tools.Model.Generator.Ssdt;
 using Kinetix.Tools.Model.Loaders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using static Kinetix.Tools.Model.ModelUtils;
 
 namespace Kinetix.Tools.Model.Generator
 {
-    using static ModelUtils;
-
     public static class Program
     {
         public static void Main(string[] args)
@@ -92,7 +91,6 @@ namespace Kinetix.Tools.Model.Generator
                 foreach (var csharpConfig in config.Csharp)
                 {
                     CombinePath(dn, csharpConfig, c => c.OutputDirectory);
-                    CombinePath(dn, csharpConfig, c => c.ServerApiOutputDirectory);
 
                     services
                         .AddSingleton<IModelWatcher>(p =>
