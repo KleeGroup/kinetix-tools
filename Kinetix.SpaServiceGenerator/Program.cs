@@ -121,6 +121,11 @@ namespace Kinetix.SpaServiceGenerator
                     .Where(s => s != null)
                     .ToList();
 
+                if (!serviceList.Any())
+                {
+                    continue;
+                }
+
                 var fileInfo = new FileInfo(fileName);
 
                 var directoryInfo = fileInfo.Directory;
@@ -173,7 +178,7 @@ namespace Kinetix.SpaServiceGenerator
                 returnType = returnType.TypeArguments.FirstOrDefault() as INamedTypeSymbol;
             }
 
-            if ((returnType?.Name.Contains("Redirect") ?? false) || (returnType?.Name.Contains("FileContentResult") ?? false))
+            if ((returnType?.Name.Contains("ActionResult") ?? false) || (returnType?.Name.Contains("Redirect") ?? false) || (returnType?.Name.Contains("FileContentResult") ?? false))
             {
                 return null;
             }
