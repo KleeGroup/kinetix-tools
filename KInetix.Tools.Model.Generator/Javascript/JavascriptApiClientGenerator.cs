@@ -163,7 +163,7 @@ namespace Kinetix.Tools.Model.Generator.Javascript
             }
 
             fw.Write(cp.Composition.Name);
-            if (cp.Kind == "list")
+            if (cp.Kind == "list" || cp.Kind == "async-list")
             {
                 fw.Write("[]");
             }
