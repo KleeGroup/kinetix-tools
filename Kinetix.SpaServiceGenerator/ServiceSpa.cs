@@ -206,16 +206,16 @@ namespace Kinetix.SpaServiceGenerator
 
             if (returnTypes.Any(type => type?.Name == "QueryOutput"))
             {
-                imports.Add(("QueryInput, QueryOutput", "focus4/collections"));
+                imports.Add(("QueryInput, QueryOutput", "@focus4/stores"));
             }
             else if (parameterTypes.Any(type => type?.Name == "QueryInput"))
             {
-                imports.Add(("QueryInput", "focus4/collections"));
+                imports.Add(("QueryInput", "@focus4/stores"));
             }
 
             if (returnTypes.Any(type => type?.Name == "AutocompleteResult"))
             {
-                imports.Add(("AutocompleteResult", "focus4/components"));
+                imports.Add(("AutocompleteResult", "@focus4/forms"));
             }
 
             var localImports = types.Except(referenceTypes).Select(type =>
