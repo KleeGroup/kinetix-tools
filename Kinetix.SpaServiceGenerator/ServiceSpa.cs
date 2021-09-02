@@ -104,7 +104,7 @@ namespace Kinetix.SpaServiceGenerator
                     {
                         if (parameter.Type.Name == "IFormFile")
                         {
-                            Write($@"    body.append(""{parameter.Name}"", {parameter.Name})");
+                            Write($@"    body.append(""{parameter.Name}"", {parameter.Name});");
                         }
                         else
                         {
