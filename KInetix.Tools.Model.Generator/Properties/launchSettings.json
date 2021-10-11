@@ -2,7 +2,7 @@
   "profiles": {
     "Kinetix.Tools.Model.Generator": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Projets\\Regis\\Model\\modgen.yaml"
+      "commandLineArgs": "D:\\Projets\\monorepo\\Regis\\Model\\modgen.yaml"
     }
   }
 }

@@ -46,7 +46,11 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                 return;
             }
 
-            var classes = _files.Values.SelectMany(f => f.Classes).Where(c => c.Namespace.Module == module);
+            var classes = _files.Values
+                .SelectMany(f => f.Classes)
+                .Distinct()
+                .Where(c => c.Namespace.Module == module);
+
             var dirInfo = Directory.CreateDirectory(_config.ResourceOutputDirectory);
             var fileName = FirstToLower(module);
 
