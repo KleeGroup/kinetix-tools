@@ -20,6 +20,8 @@ namespace Kinetix.Tools.Model
 
         public string? Role { get; set; }
 
+        public AssociationType Type { get; set; }
+
         public bool Required { get; set; }
 
         public string? DefaultValue { get; set; }
