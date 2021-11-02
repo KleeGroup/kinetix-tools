@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using Kinetix.Tools.Model.Generator.CSharp;
 using Kinetix.Tools.Model.Generator.Javascript;
+using Kinetix.Tools.Model.Generator.Jpa;
 using Kinetix.Tools.Model.Generator.Kasper;
 using Kinetix.Tools.Model.Generator.ProceduralSql;
 using Kinetix.Tools.Model.Generator.Ssdt;
@@ -132,6 +133,29 @@ namespace Kinetix.Tools.Model.Generator
                     {
                         services.AddSingleton<IModelWatcher>(p =>
                             new JavascriptResourceGenerator(p.GetRequiredService<ILogger<JavascriptResourceGenerator>>(), jsConfig));
+                    }
+                }
+            }
+
+            if (config.Jpa != null)
+            {
+                foreach (var jpaConfig in config.Jpa)
+                {
+                    CombinePath(dn, jpaConfig, c => c.ModelOutputDirectory);
+                    CombinePath(dn, jpaConfig, c => c.ApiOutputDirectory);
+
+                    services
+                        .AddSingleton<IModelWatcher>(p =>
+                            new JpaModelGenerator(p.GetRequiredService<ILogger<JpaModelGenerator>>(), jpaConfig));
+                    services
+                        .AddSingleton<IModelWatcher>(p =>
+                            new JpaDaoGenerator(p.GetRequiredService<ILogger<JpaDaoGenerator>>(), jpaConfig));
+
+                    if (jpaConfig.ApiOutputDirectory != null)
+                    {
+                        services
+                            .AddSingleton<IModelWatcher>(p =>
+                                new SpringApiGenerator(p.GetRequiredService<ILogger<SpringApiGenerator>>(), jpaConfig));
                     }
                 }
             }
