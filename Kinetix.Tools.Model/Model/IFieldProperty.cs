@@ -35,6 +35,11 @@ namespace Kinetix.Tools.Model
                     }
                 }
 
+                if (this is AliasProperty { ListDomain: not null })
+                {
+                    fixedType.Type += "[]";
+                }
+
                 return fixedType;
             }
         }
