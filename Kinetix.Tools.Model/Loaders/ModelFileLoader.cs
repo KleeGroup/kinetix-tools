@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Kinetix.Tools.Model.FileModel;
 using YamlDotNet.Core;
@@ -60,7 +59,7 @@ namespace Kinetix.Tools.Model.Loaders
                 }
                 else
                 {
-                    throw new Exception("Type de document inconnu.");
+                    throw new ModelException("Type de document inconnu.");
                 }
 
                 parser.Consume<MappingEnd>();

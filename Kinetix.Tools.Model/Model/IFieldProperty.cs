@@ -1,5 +1,4 @@
-﻿using System;
-using Kinetix.Tools.Model.Types;
+﻿using Kinetix.Tools.Model.Types;
 
 namespace Kinetix.Tools.Model
 {
@@ -17,7 +16,7 @@ namespace Kinetix.Tools.Model
             {
                 if (Domain.TS == null)
                 {
-                    throw new Exception($"Le type Typescript du domaine {Domain.Name} doit être renseigné.");
+                    throw new ModelException($"Le type Typescript du domaine {Domain.Name} doit être renseigné.");
                 }
 
                 var fixedType = new TSType { Type = Domain.TS.Type, Import = Domain.TS.Import };

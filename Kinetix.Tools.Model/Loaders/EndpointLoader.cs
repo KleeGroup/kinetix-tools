@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Kinetix.Tools.Model.FileModel;
 using YamlDotNet.Core;
@@ -54,7 +53,7 @@ namespace Kinetix.Tools.Model.Loaders
                         parser.Consume<MappingEnd>();
                         break;
                     default:
-                        throw new Exception($"Propriété ${prop} inconnue pour un endpoint");
+                        throw new ModelException($"Propriété ${prop} inconnue pour un endpoint");
                 }
             }
 
