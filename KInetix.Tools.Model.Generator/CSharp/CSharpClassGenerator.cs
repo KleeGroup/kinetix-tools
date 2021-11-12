@@ -579,6 +579,11 @@ namespace Kinetix.Tools.Model.Generator.CSharp
                 }
             }
 
+            if (item.Extends != null)
+            {
+                usings.Add(_config.GetNamespace(item.Extends));
+            }
+
             foreach (var property in item.Properties)
             {
                 if (property is IFieldProperty fp)
