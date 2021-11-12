@@ -58,5 +58,6 @@ namespace Kinetix.SpaServiceGenerator.Model
         /// Génération d'un FormData à l'appel.
         /// </summary>
         public bool IsFormData => Parameters.Any(p => p.IsFormData);
+
     }
 }

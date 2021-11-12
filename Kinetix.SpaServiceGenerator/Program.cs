@@ -144,6 +144,15 @@ namespace Kinetix.SpaServiceGenerator
                 };
                 var output = template.TransformText();
                 File.WriteAllText(fileName, output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                if (Parameters.GenerateYaml)
+                {
+                    var appName = frontEnds.Count() > 1 ? $"{controller.Project.Name.Split('.')[1]}" : string.Empty;
+                    var folderName = folders.Count > 1 ? $"/{string.Join("/", folders.Skip(1))}" : string.Empty;
+
+                    var filePath = $"Api{appName}{folderName}/{controllerClass.Identifier.ToString().Replace("Controller", string.Empty)}.yml.todo";
+                    Console.WriteLine($"Generating {filePath}");
+                    YamlEndpointFileGenerator.GenerateYamlEndpointFile(filePath, template);
+                }
             }
         }
 
@@ -196,6 +205,9 @@ namespace Kinetix.SpaServiceGenerator
                     ((param as XmlElementSyntax).StartTag.Attributes.First() as XmlNameAttributeSyntax).Identifier.ToString(),
                     (param as XmlElementSyntax).Content.ToString()));
 
+            var returns = (documentation.Content.FirstOrDefault(content =>
+                    content.ToString().StartsWith("<returns>", StringComparison.Ordinal)) as XmlElementSyntax)?.Content.ToString();
+
             var verbRouteAttribute = method.AttributeLists
                 .SelectMany(list => list.Attributes)
                 .Single(attr => attr.ToString().StartsWith("Http"));
@@ -247,7 +259,7 @@ namespace Kinetix.SpaServiceGenerator
                 UriParameters = parameterList.Where(param => !param.IsFromBody && routeParameters.Contains(param.Name)).ToList(),
                 QueryParameters = parameterList.Where(param => !param.IsFromBody && !routeParameters.Contains(param.Name)).ToList(),
                 BodyParameter = parameterList.SingleOrDefault(param => param.IsFromBody),
-                Documentation = new Documentation { Summary = summary, Parameters = parameters.ToList() }
+                Documentation = new Documentation { Summary = summary, Parameters = parameters.ToList(), Returns = returns }
             };
         }
     }

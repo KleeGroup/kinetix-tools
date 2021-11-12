@@ -45,5 +45,10 @@
         /// Generates "/{frontEnd}/services/{folders}/controller.ts" instead of "/services/{frontEnd}/{folders}/controller.ts"
         /// </summary>
         public bool? SplitIntoApps { get; set; }
+
+        /// <summary>
+        /// Generates YAML endpoint files too.
+        /// </summary>
+        public bool GenerateYaml { get; set; }
     }
 }

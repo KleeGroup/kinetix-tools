@@ -8,11 +8,15 @@ namespace Kinetix.SpaServiceGenerator.Model
     /// </summary>
     public class Documentation
     {
-
         /// <summary>
         /// Le summary.
         /// </summary>
         public string Summary { get; set; }
+
+        /// <summary>
+        /// Returns.
+        /// </summary>
+        public string Returns { get; set; }
 
         /// <summary>
         /// La liste des documentations de paramètres (nom, description).
