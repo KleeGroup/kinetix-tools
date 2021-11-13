@@ -136,7 +136,7 @@ namespace Kinetix.Tools.Model.Generator.Javascript
                     {
                         fw.Write(qParam.GetParamName());
 
-                        if (qParam.Name != endpoint.GetQueryParams().Last().Name)
+                        if (qParam != endpoint.GetQueryParams().Last())
                         {
                             fw.Write(", ");
                         }

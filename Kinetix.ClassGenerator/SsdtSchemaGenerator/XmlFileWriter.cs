@@ -20,7 +20,7 @@ namespace Kinetix.ClassGenerator.Writer
         /// <summary>
         /// Désactive l'entête car un fichier XML de configuration peut être modifié manuellement.
         /// </summary>
-        protected override bool EnableHeader => false;
+        public override bool EnableHeader => false;
 
         /// <summary>
         /// Non utilisé.
