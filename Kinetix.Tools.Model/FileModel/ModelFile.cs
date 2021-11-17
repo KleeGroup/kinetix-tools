@@ -21,9 +21,9 @@ namespace Kinetix.Tools.Model.FileModel
 
         public IList<Endpoint> Endpoints { get; set; }
 
-        public IDictionary<object, Relation> Relationships { get; set; } = new Dictionary<object, Relation>();
+        internal List<(object Target, Relation Relation)> Relationships { get; set; } = new();
 
-        public IList<Alias> Aliases { get; set; }
+        internal IList<Alias> Aliases { get; set; }
 
         public override string ToString()
         {

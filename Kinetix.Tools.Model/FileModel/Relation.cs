@@ -1,23 +1,24 @@
-﻿using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
+﻿using YamlDotNet.Core.Events;
 
 namespace Kinetix.Tools.Model.FileModel
 {
-    public class Relation
+    internal abstract class Relation
     {
-        public Relation(Scalar scalar)
+        public Relation()
         {
-            Start = scalar.Start;
-            End = scalar.End;
-            Value = scalar.Value;
         }
 
-        public Mark Start { get; }
+        public Relation(Scalar scalar)
+        {
+            Reference = new Reference(scalar);
+        }
 
-        public Mark End { get; }
+#nullable disable
+        public Reference Reference { get; set; }
+#nullable enable
 
-        public string Value { get; }
+        public string ReferenceName => Reference.Value;
 
-        public Relation? Peer { get; set; }
+        public string Position => $"[{Reference.Start.Line},{Reference.Start.Column}]";
     }
 }
