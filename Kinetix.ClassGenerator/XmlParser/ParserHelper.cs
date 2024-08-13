@@ -143,6 +143,7 @@ namespace Kinetix.ClassGenerator.XmlParser
             switch (dataType)
             {
                 case "int?":
+                case "int":
                     codeId = "Id";
                     break;
                 case "string":
@@ -211,6 +212,7 @@ namespace Kinetix.ClassGenerator.XmlParser
             switch (dataType)
             {
                 case "int?":
+                case "int":
                     codeId = "IdList";
                     break;
                 case "string":

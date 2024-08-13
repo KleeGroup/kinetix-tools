@@ -143,6 +143,7 @@ namespace Kinetix.ClassGenerator
                 .DistinctBy(d => d.Code)
                 .OrderBy(d => d.Code);
 
+
             using (var fw = File.CreateText($"domains.tmd"))
             {
                 fw.WriteLine("---");
@@ -164,8 +165,23 @@ namespace Kinetix.ClassGenerator
                     Write(fw, 2, "type", domainTypeMapperCs(domain.DataType));
                     Write(fw, 1, "ts");
                     Write(fw, 2, "type", domainTypeMapperTypeScript(domain.DataType));
-                    Write(fw, 1, "sqlType", domainTypeMapperSql(domain.PersistentDataType, domain.PersistentLength, domain.PersistentPrecision), !string.IsNullOrWhiteSpace(domain.PersistentDataType));
+                    if (!string.IsNullOrWhiteSpace(domain.PersistentDataType))
+                    {
+                        Write(fw, 1, "sql");
+                        Write(fw, 2, "type", domainTypeMapperSql(domain.PersistentDataType, domain.PersistentLength, domain.PersistentPrecision), !string.IsNullOrWhiteSpace(domain.PersistentDataType));
+                    }
                 }
+
+                // Ajout manuel du domaine DO_LISTE
+
+                fw.WriteLine("---");
+                Write(fw, 0, "domain");
+                Write(fw, 1, "name", "DO_LISTE");
+                Write(fw, 1, "label", "Liste pour composition");
+                Write(fw, 1, "csharp");
+                Write(fw, 2, "genericType", "ICollection<{T}>");
+                Write(fw, 1, "ts");
+                Write(fw, 2, "genericType", "{T}[]");
             }
 
             foreach (var model in modelList)
@@ -231,7 +247,16 @@ namespace Kinetix.ClassGenerator
                         Write(fw, 1, "comment", string.IsNullOrWhiteSpace(classe.Comment) ? "N/A" : classe.Comment);
 
                         fw.WriteLine();
-                        Write(fw, 1, "properties");
+
+                        if (classe.PropertyList.Any())
+                        {
+                            Write(fw, 1, "properties");
+                        }
+                        else
+                        {
+                            Write(fw, 1, "properties", "[]");
+                        }
+
                         foreach (var property in classe.PropertyList)
                         {
                             if (classe.ParentClass != null && classe.ParentClass.PropertyList.Any(p => p.Name == property.Name))
@@ -267,7 +292,10 @@ namespace Kinetix.ClassGenerator
                             {
                                 Write(fw, 2, "- composition", property.DataDescription.ReferenceClass.Name);
                                 Write(fw, 3, "name", property.Name);
-                                Write(fw, 3, "kind", property.IsCollection ? "list" : "object");
+                                if (property.IsCollection)
+                                {
+                                    Write(fw, 3, "domain", "DO_LISTE");
+                                }
                                 Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment);
                             }
                             else
