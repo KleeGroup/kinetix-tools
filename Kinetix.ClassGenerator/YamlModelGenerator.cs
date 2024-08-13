@@ -383,6 +383,11 @@ namespace Kinetix.ClassGenerator
                 return null;
             }
 
+            if (v == "[]")
+            {
+                return v;
+            }
+
             if (v.Contains(":") || v.Contains("[") || forRef &&
                 v.Contains(",") || v == string.Empty || forRef &&
                 v.EndsWith(" ")
