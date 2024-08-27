@@ -41,9 +41,9 @@ namespace Kinetix.ClassGenerator
             LoadObjectModel();
 
             // Génération.
-            GenerateCSharp();
-            GenerateSqlSchema();
-            GenerateJavascript();
+            //GenerateCSharp();
+            //GenerateSqlSchema();
+            //GenerateJavascript();
             GenerateYaml();
 
             // Pause.
@@ -237,7 +237,7 @@ namespace Kinetix.ClassGenerator
             messageList.AddRange(ReferenceListChecker.Instance.Check(_modelList, referenceTableInitList));
             messageList.AddRange(AbstractSchemaGenerator.CheckAllIdentifiersNames(_modelList));
 
-            NVortexGenerator.Generate(messageList, _parameters.VortexFile, "ClassGenerator");
+            //NVortexGenerator.Generate(messageList, _parameters.VortexFile, "ClassGenerator");
 
             if (!CanGenerate(messageList))
             {
