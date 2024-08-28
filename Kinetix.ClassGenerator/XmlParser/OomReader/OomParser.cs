@@ -25,7 +25,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
         private const string NodeModel = "/Model/o:RootObject/c:Children/o:Model";
         private const string NodeNamespace = "/Model/o:RootObject/c:Children/o:Model/c:Packages";
         private const string NodeDomains = "/Model/o:RootObject/c:Children/o:Model/c:Domains";
-        
+
         private const string ClassDiagrams = "c:ClassDiagrams";
         private const string ClassDiagram = "o:ClassDiagram";
 
@@ -664,7 +664,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
             var classDiagrams = classDiagramsNode.SelectNodes(ClassDiagram, _currentNsManager).OfType<XmlNode>();
 
             foreach (XmlNode classNode in nmspaceNode.SelectSingleNode(NodeClasses, _currentNsManager).SelectNodes(NodeClass, _currentNsManager))
-            {                  
+            {
                 var classe = new ModelClass()
                 {
                     Label = ParserHelper.GetXmlValue(classNode.SelectSingleNode(PropertyName, _currentNsManager)),
@@ -677,7 +677,7 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     ClassDiagramsList = classDiagrams
                         .Where(cd => cd.SelectNodes($"c:Symbols/o:ClassSymbol/c:Object/o:Class[@Ref='{classNode.Attributes["Id"].Value}']", _currentNsManager).Count > 0)
                         .Select(cd => ParserHelper.GetXmlValue(cd.SelectSingleNode(PropertyName, _currentNsManager)))
-                        .ToList()                        
+                        .ToList()
                 };
 
                 if (!string.IsNullOrEmpty(classe.Stereotype) && classe.Stereotype != "Reference" && classe.Stereotype != "Statique")
@@ -1054,7 +1054,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         Stereotype = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyStereotype, _currentNsManager)),
                         Class = classe,
                         ModelFile = modelFile,
-                        DefaultValue = string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue,
+                        /* Les default value de l'OOM ne sont pas utilisées, on utilise le fichier de configuration XML de SSDT. */
+                        DefaultValue = null, // string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue, 
                         IsDerived = ParserHelper.GetXmlInt(propertyNode.SelectSingleNode(PropertyDerived, _currentNsManager)).GetValueOrDefault() == 0 ? false : true,
                         DataDescription = new ModelDataDescription()
                         {

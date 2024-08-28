@@ -230,6 +230,10 @@ namespace Kinetix.ClassGenerator
             ICollection<TableInit> staticTableInitList = LoadTableInitListFromFile(_parameters.StaticListFactoryFileName);
             ICollection<TableInit> referenceTableInitList = LoadTableInitListFromFile(_parameters.ReferenceListFactoryFileName);
 
+            // Charge la configuration de génération (default values, no table, historique de l'ordre de création des colonnes).
+            // HACK réutilise la configuration SSDT.
+            new SsdtConfigurationLoader().LoadConfigurationFiles(_modelList, _parameters.Ssdt);
+
             // Génère les warnings pour le modèle.
             List<NVortexMessage> messageList = new List<NVortexMessage>(modelParser.ErrorList);
             messageList.AddRange(CodeChecker.Check(_modelList, _parameters.KeepOriginalNames));
