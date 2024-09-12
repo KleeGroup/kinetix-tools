@@ -180,6 +180,8 @@ namespace Kinetix.ClassGenerator
                 Write(fw, 1, "label", "Liste pour composition");
                 Write(fw, 1, "csharp");
                 Write(fw, 2, "genericType", "ICollection<{T}>");
+                Write(fw, 2, "imports");
+                Write(fw, 3, "- System.Collections.Generic");
                 Write(fw, 1, "ts");
                 Write(fw, 2, "genericType", "{T}[]");
             }
@@ -271,6 +273,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 4, "class", property.AliasedProperty.Class.Name);
                                 Write(fw, 3, "prefix", property.AliasPrefix, !string.IsNullOrWhiteSpace(property.AliasPrefix) && !property.AliasedProperty.Name.StartsWith(property.AliasPrefix));
                                 Write(fw, 3, "suffix", property.AliasSuffix, !string.IsNullOrWhiteSpace(property.AliasSuffix));
+                                Write(fw, 3, "label", property.DataDescription.Libelle, !string.IsNullOrWhiteSpace(property.DataDescription.Libelle) & property.DataDescription.Libelle != property.AliasedProperty.DataDescription.Libelle);
                             }
                             else if (property.IsFromAssociation)
                             {
@@ -376,7 +379,9 @@ namespace Kinetix.ClassGenerator
 
         private static string Escape(string v, bool forRef = true)
         {
-            v = v?.Replace("{", "(").Replace("}", ")").Replace("\r\n", " ");
+            v = v?
+                ////.Replace("{", "(").Replace("}", ")")
+                .Replace("\r\n", " ");
 
             if (v == null)
             {
