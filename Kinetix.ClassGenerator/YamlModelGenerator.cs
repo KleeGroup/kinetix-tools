@@ -214,7 +214,9 @@ namespace Kinetix.ClassGenerator
                         .Distinct()
                         .ToList();
 
-                    if (references.Any())
+                    var hasAnyNullablePk = file.Any(c => c.PropertyList.Any(p => p.IsPrimaryKey && !p.DataMember.IsRequired));
+
+                    if (references.Any() || hasAnyNullablePk)
                     {
                         Write(fw, 0, "uses");
 
@@ -228,6 +230,11 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 1, null, $"- {rModuleName}/{rType}/{rFile.Key ?? "00 Missing"}");
                             }
                         }
+
+                        if (hasAnyNullablePk)
+                        {
+                            Write(fw, 1, null, $"- decorators");
+                        }
                     }
 
                     fw.WriteLine();
@@ -236,6 +243,9 @@ namespace Kinetix.ClassGenerator
                     {
                         var defaultProperty = classe.PropertyList.SingleOrDefault(p => p.Stereotype == "DefaultProperty");
                         var orderProperty = classe.PropertyList.SingleOrDefault(p => p.Annotations.Any(e => e.Name == "Ordre"));
+
+                        /* LEGACY : gestion des PK déclarées comme nullable. */
+                        var hasNullablePk = classe.PropertyList.Any(p => p.IsPrimaryKey && !p.DataMember.IsRequired);
 
                         fw.WriteLine("---");
                         Write(fw, 0, "class");
@@ -247,6 +257,8 @@ namespace Kinetix.ClassGenerator
                         Write(fw, 1, "orderProperty", orderProperty?.Name, orderProperty != null);
                         Write(fw, 1, "defaultProperty", defaultProperty?.Name, defaultProperty != null);
                         Write(fw, 1, "comment", string.IsNullOrWhiteSpace(classe.Comment) ? "N/A" : classe.Comment);
+                        Write(fw, 1, "decorators", condition: hasNullablePk);
+                        Write(fw, 2, null, "- NullablePrimaryKey", condition: hasNullablePk);
 
                         fw.WriteLine();
 
