@@ -295,11 +295,10 @@ namespace Kinetix.ClassGenerator
                             {
                                 Write(fw, 2, "- composition", property.DataDescription.ReferenceClass.Name);
                                 Write(fw, 3, "name", property.Name);
-                                if (property.IsCollection)
-                                {
-                                    Write(fw, 3, "domain", "DO_LISTE");
-                                }
+                                Write(fw, 3, "domain", "DO_LISTE", property.IsCollection);
+                                Write(fw, 3, "label", property.DataDescription.Libelle, !string.IsNullOrWhiteSpace(property.DataDescription.Libelle) && property.DataDescription.Libelle != property.Comment);
                                 Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment);
+                                Write(fw, 3, "required", "false", !property.IsCollection && !property.DataMember.IsRequired);
                             }
                             else
                             {

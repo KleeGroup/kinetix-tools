@@ -530,8 +530,9 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                         var isComposition = !string.IsNullOrEmpty(typeAssociation) && "C".Equals(typeAssociation);
                         if (isComposition)
                         {
+                            string libelle = !string.IsNullOrWhiteSpace(roleAName) ? roleAName : name;
                             // Si composition il faut traiter uniquement la cardinalité B et l'ajouter dans la classe A.
-                            var property = ParserHelper.BuildClassCompositionProperty(classA, multiplicityB, roleAName, code, name);
+                            var property = ParserHelper.BuildClassCompositionProperty(classA, multiplicityB, libelle, code, name);
                             property.Class = classB;
                             classB.AddProperty(property);
                             classB.AddUsing(classA.Namespace);
