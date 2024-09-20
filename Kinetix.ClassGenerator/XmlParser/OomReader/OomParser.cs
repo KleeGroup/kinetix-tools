@@ -1107,10 +1107,11 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     }
 
                     var dataMemberName = ParserHelper.GetXmlValue(propertyNode.SelectSingleNode(PropertyPersistentCode, _currentNsManager));
+                    var isColumnNameOverride = !string.IsNullOrEmpty(dataMemberName);
                     if (property.IsPersistent)
                     {
                         var columnName = _keepOriginalNames ? property.Name : ParserHelper.ConvertCsharp2Bdd(property.Name);
-                        if (string.IsNullOrEmpty(dataMemberName))
+                        if (!isColumnNameOverride)
                         {
                             if (property.DataDescription.IsPrimaryKey && !_keepOriginalNames)
                             {
@@ -1128,7 +1129,8 @@ namespace Kinetix.ClassGenerator.XmlParser.OomReader
                     property.DataMember = new ModelDataMember()
                     {
                         Name = dataMemberName,
-                        IsRequired = multiplicity != null && "1..1".Equals(multiplicity)
+                        IsRequired = multiplicity != null && "1..1".Equals(multiplicity),
+                        IsColumnNameOverride = isColumnNameOverride
                     };
                     if (property.DataDescription.IsPrimaryKey || !string.IsNullOrEmpty(property.DataDescription.ReferenceType))
                     {

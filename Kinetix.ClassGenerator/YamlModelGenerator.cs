@@ -247,6 +247,9 @@ namespace Kinetix.ClassGenerator
                         /* LEGACY : gestion des PK déclarées comme nullable. */
                         var hasNullablePk = classe.PropertyList.Any(p => p.IsPrimaryKey && !p.DataMember.IsRequired);
 
+                        /* LEGACY : surcharge des noms de colonne. */
+                        var hasSqlColumnOverride = classe.PropertyList.Any(p => p.DataMember.IsColumnNameOverride);
+
                         fw.WriteLine("---");
                         Write(fw, 0, "class");
                         Write(fw, 1, "trigram", classe.Trigram, !string.IsNullOrWhiteSpace(classe.Trigram));
@@ -256,9 +259,15 @@ namespace Kinetix.ClassGenerator
                         Write(fw, 1, "reference", "true", !string.IsNullOrWhiteSpace(classe.Stereotype));
                         Write(fw, 1, "orderProperty", orderProperty?.Name, orderProperty != null);
                         Write(fw, 1, "defaultProperty", defaultProperty?.Name, defaultProperty != null);
-                        Write(fw, 1, "comment", string.IsNullOrWhiteSpace(classe.Comment) ? "N/A" : classe.Comment);
-                        Write(fw, 1, "decorators", condition: hasNullablePk);
+                        Write(fw, 1, "comment", string.IsNullOrWhiteSpace(classe.Comment) ? "N/A" : classe.Comment.Trim());
+                        Write(fw, 1, "decorators", condition: hasNullablePk || hasSqlColumnOverride);
                         Write(fw, 2, null, "- NullablePrimaryKey", condition: hasNullablePk);
+                        Write(fw, 2, null, "- SqlColumnOverride: [", condition: hasSqlColumnOverride, noEscape: true);
+                        foreach (var property in classe.PropertyList.Where(p => p.DataMember.IsColumnNameOverride))
+                        {
+                            Write(fw, 4, null, $"\"{property.Name}:{property.DataMember.Name}\",", noEscape: true);
+                        }
+                        Write(fw, 3, null, "]", condition: hasSqlColumnOverride);
 
                         fw.WriteLine();
 
@@ -271,7 +280,9 @@ namespace Kinetix.ClassGenerator
                             Write(fw, 1, "properties", "[]");
                         }
 
-                        foreach (var property in classe.PropertyList)
+                        var sortedProperties = classe.PersistentPropertyList.Union(classe.NonPersistentPropertyList).ToList();
+
+                        foreach (var property in sortedProperties)
                         {
                             if (classe.ParentClass != null && classe.ParentClass.PropertyList.Any(p => p.Name == property.Name))
                             {
@@ -286,6 +297,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 3, "prefix", property.AliasPrefix, !string.IsNullOrWhiteSpace(property.AliasPrefix) && !property.AliasedProperty.Name.StartsWith(property.AliasPrefix));
                                 Write(fw, 3, "suffix", property.AliasSuffix, !string.IsNullOrWhiteSpace(property.AliasSuffix));
                                 Write(fw, 3, "label", property.DataDescription.Libelle, !string.IsNullOrWhiteSpace(property.DataDescription.Libelle) & property.DataDescription.Libelle != property.AliasedProperty.DataDescription.Libelle);
+                                Write(fw, 3, "required", $"{property.DataMember.IsRequired && !property.IsPrimaryKey}".ToLower());
                             }
                             else if (property.IsFromAssociation)
                             {
@@ -301,7 +313,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 3, "role", role, !string.IsNullOrWhiteSpace(property.Role));
                                 Write(fw, 3, "label", property.DataDescription.Libelle);
                                 Write(fw, 3, "required", $"{property.DataMember.IsRequired}".ToLower(), !property.IsPrimaryKey);
-                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment);
+                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment.Trim());
                             }
                             else if (property.IsFromComposition)
                             {
@@ -309,7 +321,7 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 3, "name", property.Name);
                                 Write(fw, 3, "domain", "DO_LISTE", property.IsCollection);
                                 Write(fw, 3, "label", property.DataDescription.Libelle, !string.IsNullOrWhiteSpace(property.DataDescription.Libelle) && property.DataDescription.Libelle != property.Comment);
-                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment);
+                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment.Trim());
                                 Write(fw, 3, "required", "false", !property.IsCollection && !property.DataMember.IsRequired);
                             }
                             else
@@ -320,10 +332,10 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 3, "required", $"{property.DataMember.IsRequired}".ToLower(), !property.IsPrimaryKey);
                                 Write(fw, 3, "domain", property.DataDescription?.Domain?.Code);
                                 Write(fw, 3, "defaultValue", property.DefaultValue, !string.IsNullOrWhiteSpace(property.DefaultValue));
-                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment);
+                                Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment.Trim());
                             }
 
-                            if (classe.PropertyList.Last() != property)
+                            if (sortedProperties.Last() != property)
                             {
                                 fw.WriteLine();
                             }
@@ -415,7 +427,7 @@ namespace Kinetix.ClassGenerator
             return v;
         }
 
-        private static void Write(StreamWriter fw, int indent, string property, string value = null, bool condition = true)
+        private static void Write(StreamWriter fw, int indent, string property, string value = null, bool condition = true, bool noEscape = false)
         {
             if (!condition)
             {
@@ -447,7 +459,7 @@ namespace Kinetix.ClassGenerator
                         fw.Write($"{spaces}  ");
                     }
 
-                    fw.Write(Escape(line, false));
+                    fw.Write(noEscape ? line : Escape(line, false));
                     fw.Write("\r\n");
                 }
             }

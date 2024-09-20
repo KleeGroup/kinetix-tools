@@ -64,6 +64,15 @@ namespace Kinetix.Tools.Common.Model
         }
 
         /// <summary>
+        /// Indique si le nom de la colonne est surchargé dans l'OOM.
+        /// </summary>
+        public bool IsColumnNameOverride
+        {
+            get;
+            set;
+        } = false;
+
+        /// <summary>
         /// Retourne la chaine de Debug.
         /// </summary>
         public string DebugString
