@@ -230,11 +230,6 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 1, null, $"- {rModuleName}/{rType}/{rFile.Key ?? "00 Missing"}");
                             }
                         }
-
-                        if (hasAnyNullablePk)
-                        {
-                            Write(fw, 1, null, $"- decorators");
-                        }
                     }
 
                     fw.WriteLine();
@@ -260,14 +255,8 @@ namespace Kinetix.ClassGenerator
                         Write(fw, 1, "orderProperty", orderProperty?.Name, orderProperty != null);
                         Write(fw, 1, "defaultProperty", defaultProperty?.Name, defaultProperty != null);
                         Write(fw, 1, "comment", string.IsNullOrWhiteSpace(classe.Comment) ? "N/A" : classe.Comment.Trim());
-                        Write(fw, 1, "decorators", condition: hasNullablePk || hasSqlColumnOverride);
-                        Write(fw, 2, null, "- NullablePrimaryKey", condition: hasNullablePk);
-                        Write(fw, 2, null, "- SqlColumnOverride: [", condition: hasSqlColumnOverride, noEscape: true);
-                        foreach (var property in classe.PropertyList.Where(p => p.DataMember.IsColumnNameOverride))
-                        {
-                            Write(fw, 4, null, $"\"{property.Name}:{property.DataMember.Name}\",", noEscape: true);
-                        }
-                        Write(fw, 3, null, "]", condition: hasSqlColumnOverride);
+                        Write(fw, 1, "customProperties", condition: hasNullablePk);
+                        Write(fw, 2, "primaryKey", "nullable", condition: hasNullablePk);
 
                         fw.WriteLine();
 
@@ -284,6 +273,7 @@ namespace Kinetix.ClassGenerator
 
                         foreach (var property in sortedProperties)
                         {
+                            bool isForcePersistence = false;
                             if (classe.ParentClass != null && classe.ParentClass.PropertyList.Any(p => p.Name == property.Name))
                             {
                                 continue;
@@ -333,6 +323,28 @@ namespace Kinetix.ClassGenerator
                                 Write(fw, 3, "domain", property.DataDescription?.Domain?.Code);
                                 Write(fw, 3, "defaultValue", property.DefaultValue, !string.IsNullOrWhiteSpace(property.DefaultValue));
                                 Write(fw, 3, "comment", string.IsNullOrWhiteSpace(property.Comment) ? "N/A" : property.Comment.Trim());
+                                if (property.IsPersistent && !property.Class.DataContract.IsPersistent)
+                                {
+                                    isForcePersistence = true;
+                                }
+                            }
+
+                            var isColumnNameOverride = property.DataMember.IsColumnNameOverride;
+
+                            if (isForcePersistence || isColumnNameOverride)
+                            {
+                                Write(fw, 3, "customProperties");
+                            }
+
+                            if (isForcePersistence)
+                            {
+                                Write(fw, 4, "persistence", "force");
+                            }
+
+                            if (isColumnNameOverride)
+                            {
+                                Write(fw, 4, "sqlName", property.DataMember.Name);
+
                             }
 
                             if (sortedProperties.Last() != property)
