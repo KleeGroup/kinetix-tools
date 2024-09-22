@@ -214,9 +214,7 @@ namespace Kinetix.ClassGenerator
                         .Distinct()
                         .ToList();
 
-                    var hasAnyNullablePk = file.Any(c => c.PropertyList.Any(p => p.IsPrimaryKey && !p.DataMember.IsRequired));
-
-                    if (references.Any() || hasAnyNullablePk)
+                    if (references.Any())
                     {
                         Write(fw, 0, "uses");
 
