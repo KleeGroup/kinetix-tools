@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Kinetix.Tools.Common.Model;
+using QuickGraph;
+using QuickGraph.Algorithms;
 
 namespace Kinetix.ClassGenerator
 {
@@ -186,6 +188,19 @@ namespace Kinetix.ClassGenerator
                 Write(fw, 2, "genericType", "{T}[]");
             }
 
+            /* Premier passage pour affecter un fichier TMD unique à chaque classe. */
+            var namespaceMap = new Dictionary<string, IEnumerable<IGrouping<string, ModelClass>>>();
+            foreach (var model in modelList)
+            {
+                var ns = model.Namespaces.First();
+                /* Groupement des classes par le premier diagramme où elles apparaissent. */
+                /* Pour gérer les références circulaires, on regroupe les diagrames par groupe de manière à ce qu'il 
+                 * n'y ait pas de références circulaires entre deux groupes. On associe une classe au premier diagramme du groupe dans l'ordre alphabétique. */
+                IEnumerable<IGrouping<string, ModelClass>> files = GroupClassByFiles(ns.Value.ClassList);
+                namespaceMap[ns.Key] = files;
+            }
+
+            /* Second passage pour générer les fichiers. */
             foreach (var model in modelList)
             {
                 var ns = model.Namespaces.First();
@@ -195,9 +210,12 @@ namespace Kinetix.ClassGenerator
 
                 Directory.CreateDirectory($"{moduleName}/{type}");
 
-                foreach (var file in ns.Value.ClassList.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()))
+                /* Groupement des classes par le premier diagramme où elles apparaissent. */
+                IEnumerable<IGrouping<string, ModelClass>> files = namespaceMap[ns.Key];
+
+                foreach (var file in files)
                 {
-                    var fileName = file.Key ?? "00 Missing";
+                    var fileName = file.Key ?? "Common";
                     var fullPath = $"{moduleName}/{type}/{fileName}.tmd";
 
                     using var fw = File.CreateText(fullPath);
@@ -207,25 +225,25 @@ namespace Kinetix.ClassGenerator
                     Write(fw, 0, "tags");
                     Write(fw, 1, null, $"- {type}");
 
-                    var references = file
-                        .SelectMany(c => c.PropertyList)
-                        .Select(p => p.DataDescription?.ReferenceClass ?? p.AliasedProperty?.Class)
-                        .Where(rc => rc != null && !file.Any(c => c.Name == rc.Name))
-                        .Distinct()
-                        .ToList();
+                    var references = GetReferences(file);
 
                     if (references.Any())
                     {
                         Write(fw, 0, "uses");
 
+
+
                         foreach (var module in references.GroupBy(c => c.Namespace.Name))
                         {
+
                             var rType = module.Key.Contains("Data") ? "Data" : "Metier";
                             var rModuleName = getModuleName(module.Key);
 
-                            foreach (var rFile in module.GroupBy(c => c.ClassDiagramsList.OrderBy(x => x).FirstOrDefault()).OrderBy(f => f.Key))
+                            var allModuleDiagrams = namespaceMap[module.Key];
+                            var referencedDiagrams = allModuleDiagrams.Where(d => d.Any(c => module.Contains(c)));
+                            foreach (var rFile in referencedDiagrams)
                             {
-                                Write(fw, 1, null, $"- {rModuleName}/{rType}/{rFile.Key ?? "00 Missing"}");
+                                Write(fw, 1, null, $"- {rModuleName}/{rType}/{rFile.Key ?? "Common"}");
                             }
                         }
                     }
@@ -408,6 +426,57 @@ namespace Kinetix.ClassGenerator
                     Console.WriteLine($"Ecriture du fichier {fullPath}");
                 }
             }
+        }
+
+        private static IEnumerable<IGrouping<string, ModelClass>> GroupClassByFiles(IEnumerable<ModelClass> classes)
+        {
+            var diagrams = classes.Select(GetDiagram).Distinct().ToList();
+
+            string GetDiagram(ModelClass classe)
+            {
+                return classe.ClassDiagramsList.OrderBy(x => x).FirstOrDefault() ?? "Missing";
+            }
+
+            ICollection<string> GetReferencedDiagrams(string diagram)
+            {
+                return GetReferences(classes.Where(c => GetDiagram(c) == diagram))
+                    .Where(c => classes.Contains(c))
+                    .Select(GetDiagram).Distinct().ToList();
+            }
+
+            /* Création d'un graph entre les diagrammes. */
+            var graph = new AdjacencyGraph<string, Edge<string>>();
+            graph.AddVertexRange(diagrams);
+            foreach (var diagram in diagrams)
+            {
+                foreach (var referencedDiagram in GetReferencedDiagrams(diagram))
+                {
+                    graph.AddEdge(new Edge<string>(diagram, referencedDiagram));
+                }
+            }
+
+            /* Utilise un algo stndard pour grouper les diagrammes par groupe tel qu'il n'y a pas de référence circulaire entre deux groupes. */
+            graph.StronglyConnectedComponents(out IDictionary<string, int> map);
+
+            /* Associe un diagramme au premier de son groupe de diagrammes. */
+            var diagramMap = map.Keys.ToDictionary(d => d, d => map.Where(x => x.Value == map[d]).OrderBy(x => x.Key).First().Key);
+
+            /* Pour chaque diagram, cherche les références circulaires */
+            return classes.GroupBy(c => diagramMap[GetDiagram(c)]);
+        }
+
+        private static List<ModelClass> GetReferences(IEnumerable<ModelClass> classes)
+        {
+            return
+                    /* Classes utilisées dans les associations / compositions / alias */
+                    classes
+                    .SelectMany(c => c.PropertyList)
+                    .Select(p => p.DataDescription?.ReferenceClass ?? p.AliasedProperty?.Class)
+                    /* Classes utilisées pour l'héritage */
+                    .Union(classes.Select(c => c.ParentClass))
+                    .Where(rc => rc != null && !classes.Any(c => c.Name == rc.Name))
+                    .Distinct()
+                    .ToList();
         }
 
         private static string Escape(string v, bool forRef = true)
